@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>货量分析 PRD V1.0</title>
+<style>
+:root{color-scheme:light;--text:#243047;--line:#dfe5ee;--head:#f5f7fa;--accent:#1677ff;--note:#eef5ff}*{box-sizing:border-box}body{margin:0;background:#f3f5f8;color:var(--text);font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;font-size:14px;line-height:1.75}main{width:min(1120px,calc(100% - 48px));margin:32px auto;padding:48px 56px 72px;background:#fff;border:1px solid #e7ebf0;border-radius:10px;box-shadow:0 8px 30px rgba(31,45,61,.06)}h1{margin:0 0 28px;font-size:30px;line-height:1.35;color:#16233a}h2{margin:38px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--line);font-size:22px;color:#1e2b43}h3{margin:26px 0 12px;font-size:17px;color:#263650}h4{margin:20px 0 10px;font-size:15px}p{margin:10px 0}ul,ol{margin:8px 0 14px;padding-left:25px}li{margin:4px 0}table{width:100%;margin:14px 0 22px;border-collapse:collapse;table-layout:auto;font-size:13px}th,td{padding:10px 12px;border:1px solid var(--line);text-align:left;vertical-align:top;word-break:break-word}th{background:var(--head);color:#344054;font-weight:600}tr:nth-child(even) td{background:#fbfcfe}code{padding:2px 5px;border-radius:4px;background:#f2f4f7;color:#344054;font-family:Consolas,"SFMono-Regular",monospace;font-size:.92em}a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}@media(max-width:760px){main{width:100%;margin:0;padding:28px 20px;border:0;border-radius:0}body{background:#fff}table{display:block;overflow-x:auto;white-space:nowrap}h1{font-size:25px}h2{font-size:20px}}@media print{body{background:#fff;font-size:12px}main{width:100%;margin:0;padding:0;border:0;box-shadow:none}h2{break-after:avoid}table{break-inside:avoid}a{color:inherit}}
+</style></head><body><main><h1 id="prd-v1.0">货量分析 PRD V1.0</h1>
+<h2 id="section">1. 文档信息</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>需求名称</td>
+<td>体育报表后台—货量分析</td>
+</tr>
+<tr>
+<td>文档版本</td>
+<td>V1.0</td>
+</tr>
+<tr>
+<td>文档状态</td>
+<td>待评审</td>
+</tr>
+<tr>
+<td>更新日期</td>
+<td>2026-09-14</td>
+</tr>
+<tr>
+<td>菜单位置</td>
+<td>体育报表后台 &gt; 体育报表 &gt; 注单统计 &gt; 货量分析</td>
+</tr>
+</tbody>
+</table>
+<h2 id="section-1">2. 需求背景</h2>
+<p>体育运营、风控和管理人员需要按日期、时段、赛种、联赛及商户查看货量，横向比较多个日期的变化，并结合商户层级和商户属性定位重点范围。</p>
+<h2 id="section-2">3. 需求目标</h2>
+<ul>
+<li>支持多个日期的货量横向比较。</li>
+<li>支持从联赛等级、联赛和商户三个维度分析有效投注金额及注单量。</li>
+<li>支持按真实商户父子结构选择和查看多级商户。</li>
+<li>保证页面明细、父级汇总、均值和导出的数据口径一致。</li>
+</ul>
+<h2 id="section-3">4. 用户与使用场景</h2>
+<table>
+<thead>
+<tr>
+<th>用户</th>
+<th>使用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>体育运营</td>
+<td>比较不同日期、时段、赛种和联赛的货量变化</td>
+</tr>
+<tr>
+<td>风控人员</td>
+<td>按商户属性及商户层级定位货量异常</td>
+</tr>
+<tr>
+<td>管理人员</td>
+<td>查看重点范围的汇总结果并导出复盘</td>
+</tr>
+</tbody>
+</table>
+<p>用户进入报表后，选择日期、时段、赛事和商户条件并发起查询；可切换结果视图及指标，展开商户层级，或导出当前查询结果。</p>
+<h2 id="section-4">5. 页面入口与结构</h2>
+<h3 id="section-5">5.1 菜单入口</h3>
+<ul>
+<li>菜单路径：体育报表后台 &gt; 体育报表 &gt; 注单统计 &gt; 货量分析。</li>
+<li>“货量分析”位于“注单统计”下现有末级菜单的最后。</li>
+</ul>
+<h3 id="section-6">5.2 页面结构</h3>
+<ol>
+<li>页面标题及统计口径。</li>
+<li>日期、时段和统计粒度条件。</li>
+<li>赛事及商户筛选条件。</li>
+<li>联赛等级、联赛、商户三个结果视图。</li>
+<li>有效投注金额、注单量、单均金额三个指标。</li>
+<li>结果表、分页及导出。</li>
+</ol>
+<h2 id="section-7">6. 数据来源</h2>
+<table>
+<thead>
+<tr>
+<th>数据</th>
+<th>来源及规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>商户父子结构</td>
+<td>复用现有商户树主数据，按实际父子关系递归读取，不限制层级数</td>
+</tr>
+<tr>
+<td>商户类型</td>
+<td>操盘风控后台 &gt; 风控管理 &gt; 风控标签 &gt; 商户标签管理</td>
+</tr>
+<tr>
+<td>商户风险等级</td>
+<td>操盘风控后台 &gt; 风控管理 &gt; 风控标签 &gt; 商户标签管理</td>
+</tr>
+<tr>
+<td>商户等级</td>
+<td>操盘风控后台 &gt; 风控管理 &gt; 风控标签 &gt; 商户标签管理</td>
+</tr>
+<tr>
+<td>商户分类</td>
+<td>操盘风控后台 &gt; 风控管理 &gt; 风控标签 &gt; 商户标签管理</td>
+</tr>
+<tr>
+<td>赛种、联赛、联赛等级</td>
+<td>复用体育后台现有主数据及等级定义</td>
+</tr>
+</tbody>
+</table>
+<h2 id="section-8">7. 查询条件</h2>
+<h3 id="section-9">7.1 日期与时段</h3>
+<ul>
+<li>支持选择1至10个不重复的自然日，日期可不连续。</li>
+<li>支持设置开始时间、结束时间和统计粒度。</li>
+<li>开始时间必须早于结束时间，时段范围不跨自然日。</li>
+<li>统计粒度支持5分钟、15分钟、30分钟和1小时，默认1小时。</li>
+<li>时间段按左闭右开区间统计；最后一段不足一个完整粒度时，以结束时间截断。</li>
+<li>点击“查询”后应用当前条件；点击“重置”恢复默认条件。</li>
+</ul>
+<h3 id="section-10">7.2 赛事条件</h3>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>赛种</td>
+<td>默认全部，支持单选</td>
+</tr>
+<tr>
+<td>联赛等级</td>
+<td>默认全部，使用现有联赛等级定义</td>
+</tr>
+<tr>
+<td>联赛</td>
+<td>默认全部，候选项随赛种联动</td>
+</tr>
+</tbody>
+</table>
+<h3 id="section-11">7.3 商户条件</h3>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>商户名称</td>
+<td>树形多选，支持输入名称搜索</td>
+</tr>
+<tr>
+<td>商户类型</td>
+<td>默认全部，选项读取商户标签管理</td>
+</tr>
+<tr>
+<td>商户分类</td>
+<td>默认全部，选项读取商户标签管理</td>
+</tr>
+<tr>
+<td>商户等级</td>
+<td>默认全部，选项读取商户标签管理</td>
+</tr>
+<tr>
+<td>商户风险等级</td>
+<td>默认全部，选项读取商户标签管理</td>
+</tr>
+</tbody>
+</table>
+<h4 id="section-12">7.3.1 商户名称选择</h4>
+<ul>
+<li>商户名称选择逻辑与体育报表现有报表保持一致，支持树形多选、名称搜索、逐级展开、删除单个已选项和清空全部已选项。</li>
+<li>默认展示一级商户；商户层级按实际父子结构展示。</li>
+<li>勾选父商户时，查询范围包含其全部层级的子孙商户；单独勾选子商户时，查询范围包含该子商户及其后代。</li>
+</ul>
+<h4 id="section-13">7.3.2 商户条件组合</h4>
+<ul>
+<li>未选择具体商户时，商户类型、商户分类、商户等级和商户风险等级支持组合筛选。</li>
+<li>选择具体商户后，以商户名称选择范围为准，商户属性不再叠加过滤。</li>
+</ul>
+<h2 id="section-14">8. 指标与统计口径</h2>
+<h3 id="section-15">8.1 有效投注金额</h3>
+<ul>
+<li>按UTC+8的投注时间归属统计日期和时间段。</li>
+<li>汇总投注时间落入所选日期及时间段内的有效注单金额。</li>
+<li>有效注单及有效投注金额的定义沿用体育后台统一口径。</li>
+</ul>
+<h3 id="section-16">8.2 注单量</h3>
+<ul>
+<li>注单量按投注时间归属统计日期和时间段。</li>
+<li>统计投注时间落入所选日期及时间段内的有效注单数量。</li>
+<li>有效注单状态定义与有效投注金额保持一致。</li>
+</ul>
+<h3 id="section-17">8.3 单均金额</h3>
+<ul>
+<li>表格中的单均金额 = 同一行、同一日期列内展示的有效投注金额 ÷ 对应注单量。</li>
+<li>注单量为0时展示“-”。</li>
+</ul>
+<h3 id="section-18">8.4 均值</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>计算规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>有效投注金额均值</td>
+<td>当前行各所选日期有效投注金额的算术平均</td>
+</tr>
+<tr>
+<td>注单量均值</td>
+<td>当前行各所选日期注单量的算术平均</td>
+</tr>
+<tr>
+<td>单均金额均值</td>
+<td>当前行各所选日期单均金额的算术平均</td>
+</tr>
+</tbody>
+</table>
+<h3 id="section-19">8.5 数据范围</h3>
+<ul>
+<li>测试商户和内部巡查商户的数据不参与明细、父级汇总、均值及导出。</li>
+<li>父商户数据由其查询范围内的有效叶子商户汇总，同一叶子商户在同一父级汇总中只计算一次。</li>
+</ul>
+<h2 id="section-20">9. 结果视图</h2>
+<h3 id="section-21">9.1 通用规则</h3>
+<ul>
+<li>三个结果视图共用当前生效的查询条件。</li>
+<li>所选日期按升序横向展示，每个日期对应一个数据列，末列为均值。</li>
+<li>支持切换有效投注金额、注单量和单均金额。</li>
+<li>无数据时展示空状态，不以0表示数据缺失。</li>
+<li>切换结果视图或指标时保留当前查询条件。</li>
+</ul>
+<h3 id="section-22">9.2 联赛等级视图</h3>
+<ul>
+<li>行维度：时间段、赛种、联赛等级。</li>
+<li>汇总同一时间段、赛种及联赛等级下的数据。</li>
+<li>时间段、赛种和联赛等级列固定，日期数据列支持横向滚动。</li>
+</ul>
+<h3 id="section-23">9.3 联赛视图</h3>
+<ul>
+<li>行维度：时间段、赛种、联赛等级、联赛。</li>
+<li>展示具体联赛的数据。</li>
+<li>时间段、赛种、联赛等级和联赛列固定，日期数据列支持横向滚动。</li>
+</ul>
+<h3 id="section-24">9.4 商户视图</h3>
+<ul>
+<li>行维度：时间段、商户名称、商户类型、商户分类、商户等级、商户风险等级。</li>
+<li>默认展示一级商户。</li>
+<li>存在下级商户的行支持展开；展开后按照实际父子结构逐级展示，可超过两级。</li>
+<li>展开和收起仅改变结果展示，不改变查询范围及汇总结果。</li>
+<li>父商户的有效投注金额和注单量为其范围内全部有效叶子商户的汇总值。</li>
+<li>父商户的商户属性展示该父商户自身在商户标签管理中的属性。</li>
+<li>联赛数据在联赛视图中查看。</li>
+</ul>
+<h2 id="section-25">10. 分页与导出</h2>
+<ul>
+<li>查询成功后刷新三个结果视图并回到第1页。</li>
+<li>默认每页20条，支持切换为50条或100条。</li>
+<li>商户层级展开后，按当前可见行分页；重新查询后恢复为仅展示一级商户。</li>
+<li>导出内容由当前查询条件、当前结果视图和当前指标决定。</li>
+<li>导出全部命中数据，不受当前分页和商户展开状态限制。</li>
+<li>商户视图导出包含商户层级和父商户编号，以还原完整商户结构。</li>
+<li>导出任务异步执行；提交成功后可在任务中心查看结果。</li>
+</ul>
+<h2 id="section-26">11. 权限</h2>
+<table>
+<thead>
+<tr>
+<th>权限</th>
+<th>规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>货量分析菜单权限</td>
+<td>控制菜单可见性及页面访问</td>
+</tr>
+<tr>
+<td>货量分析导出权限</td>
+<td>控制导出按钮及导出接口访问</td>
+</tr>
+</tbody>
+</table>
+<h2 id="section-27">12. 名称对照</h2>
+<table>
+<thead>
+<tr>
+<th>业务名称</th>
+<th>脱敏名称</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>体育报表</td>
+<td>TY报表</td>
+</tr>
+<tr>
+<td>货量分析</td>
+<td>TY货量分析</td>
+</tr>
+<tr>
+<td>商户</td>
+<td>SH</td>
+</tr>
+<tr>
+<td>商户名称/编号</td>
+<td>SH名称/编号</td>
+</tr>
+<tr>
+<td>商户类型</td>
+<td>SH类型</td>
+</tr>
+<tr>
+<td>商户分类</td>
+<td>SH分类</td>
+</tr>
+<tr>
+<td>商户等级</td>
+<td>SH等级</td>
+</tr>
+<tr>
+<td>商户风险等级</td>
+<td>SH风险等级</td>
+</tr>
+<tr>
+<td>有效投注金额</td>
+<td>YXTZJE</td>
+</tr>
+<tr>
+<td>注单量</td>
+<td>ZDS</td>
+</tr>
+<tr>
+<td>单均金额</td>
+<td>单均</td>
+</tr>
+</tbody>
+</table>
+<h2 id="section-28">13. 页面状态与异常处理</h2>
+<ul>
+<li>未选择日期时阻止查询，并提示至少选择一个日期。</li>
+<li>日期数量超过10个、日期重复或时段不合法时阻止查询，并提示对应原因。</li>
+<li>查询过程中阻止重复提交，结果区展示加载状态。</li>
+<li>查询无结果时展示“当前查询条件暂无数据”。</li>
+<li>查询失败时保留当前条件，并提供重新查询入口。</li>
+<li>商户树加载失败时提示加载失败并提供重试。</li>
+<li>导出失败时在任务中心展示失败原因及重试入口。</li>
+</ul>
+<h2 id="section-29">14. 性能与一致性</h2>
+<ul>
+<li>普通查询目标响应时间不超过5秒。</li>
+<li>商户名称搜索目标响应时间不超过1秒。</li>
+<li>页面、导出、父级汇总与均值使用相同的数据口径版本。</li>
+<li>金额和数量使用原始精度计算，在展示环节按后台统一精度规则处理。</li>
+<li>商户树及商户视图支持当前实际最大层级，不在前端限制固定层级数。</li>
+</ul>
+<h2 id="section-30">15. 验收标准</h2>
+<ol>
+<li>“货量分析”菜单位于“体育报表后台 &gt; 体育报表 &gt; 注单统计”下的最后位置。</li>
+<li>支持选择1至10个不重复自然日，并按日期横向展示结果。</li>
+<li>统计粒度包含5分钟、15分钟、30分钟和1小时，默认1小时；各时间段边界符合第7.1节。</li>
+<li>有效投注金额和注单量均按UTC+8的投注时间归属到所选日期及时间段。</li>
+<li>表格单均金额等于同一行、同一日期列的有效投注金额除以对应注单量；注单量为0时展示“-”。</li>
+<li>有效投注金额、注单量及三类均值符合第8章定义。</li>
+<li>商户名称选择逻辑与现有报表一致，支持树形多选、名称搜索、逐级展开、单项删除和全部清空。</li>
+<li>勾选父商户后，查询范围包含其全部层级的子孙商户。</li>
+<li>商户视图默认展示一级商户，并可按真实结构递归展开三级及以上商户。</li>
+<li>父商户汇总等于其有效叶子商户之和，且不存在重复计算。</li>
+<li>测试商户和内部巡查商户不进入明细、父级汇总、均值和导出。</li>
+<li>页面与导出对相同条件返回一致的指标、单位和数值。</li>
+</ol>
+<h2 id="section-31">16. 依赖与待确认项</h2>
+<h3 id="section-32">16.1 系统依赖</h3>
+<ul>
+<li>操盘风控后台提供商户父子结构及商户类型、分类、等级、风险等级数据。</li>
+<li>体育数据侧提供统一的有效投注金额、有效注单量和投注时间数据。</li>
+<li>权限中心提供菜单访问和导出权限。</li>
+</ul>
+<h3 id="section-33">16.2 待确认项</h3>
+<ul>
+<li>测试商户和内部巡查商户的权威标识及维护责任方。</li>
+<li>现有有效注单定义对取消、拒单、无效、走水等状态的边界。</li>
+<li>历史日期查询采用当前商户关系及属性，还是业务发生时的历史快照。</li>
+<li>默认拥有导出权限的现有角色。</li>
+</ul>
+
+</main></body></html>
