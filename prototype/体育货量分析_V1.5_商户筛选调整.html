@@ -36,6 +36,11 @@ button{cursor:pointer}
 .page-title{margin:0;font-size:20px;font-weight:760}.page-sub{font-size:12px;color:#7a8795;margin-top:5px}
 .page-meta{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;max-width:720px;padding-top:1px;color:#657486;font-size:11px;line-height:26px}
 .page-meta-item{white-space:nowrap}.page-meta-item+ .page-meta-item:before{content:'·';margin-right:8px;color:#b2becb}.page-meta strong{color:#315f91;font-weight:700}
+.info-wrap{position:relative;display:inline-flex;align-items:center;vertical-align:middle}
+.field-info{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;margin-left:4px;border:1px solid #8da2b8;border-radius:50%;color:#657b91;font-size:9px;font-weight:700;line-height:1;cursor:help;outline:none}
+.field-tooltip{position:absolute;z-index:40;right:-8px;top:calc(100% + 9px);width:260px;padding:8px 10px;border-radius:5px;background:rgba(0,0,0,.76);color:#fff;font-size:11px;font-weight:400;line-height:1.55;text-align:left;white-space:normal;box-shadow:0 4px 12px rgba(0,0,0,.18);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-3px);transition:opacity .15s ease,transform .15s ease,visibility .15s ease}
+.field-tooltip::before{content:'';position:absolute;right:10px;bottom:100%;border:5px solid transparent;border-bottom-color:rgba(0,0,0,.76)}
+.info-wrap:hover .field-tooltip,.info-wrap:focus-within .field-tooltip{opacity:1;visibility:visible;transform:translateY(0)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow)}
 .info-banner{padding:11px 13px;background:#f7faff;border:1px solid #e1edff;border-radius:8px;color:#5f6f81;font-size:12px;line-height:1.7;margin-bottom:14px}
 .info-banner strong{color:#315f91}
@@ -325,8 +330,9 @@ tbody tr:hover{background:#f7fbff}
       <div class="page-sub">用多日期横向对比，定位联赛与商户的货量变化</div>
     </div>
     <div class="page-meta" aria-label="报表统计口径">
-      <span class="page-meta-item"><strong>货量口径：按投注时间统计有效投注金额</strong></span>
+      <span class="page-meta-item"><strong>货量口径：按投注时间统计单关有效投注金额</strong></span>
       <span class="page-meta-item">统计时区：UTC+8</span>
+      <span class="page-meta-item">数据时效：T+1（次日生效）</span>
       <span class="page-meta-item">数据更新时间：2026-09-08 15:09</span>
     </div>
   </div>
@@ -404,9 +410,9 @@ tbody tr:hover{background:#f7fbff}
       <div><div class="table-title" id="reportTitle">联赛等级货量对比</div><div class="table-meta" id="reportMeta"></div></div>
       <div class="toolbar-right">
         <div class="tabs" id="metricTabs">
-          <div class="tab metric-tab active" data-metric="amount">有效投注金额</div>
+          <div class="tab metric-tab active" data-metric="amount">有效投注金额<span class="info-wrap"><span class="field-info" tabindex="0" aria-label="有效投注金额字段说明">i</span><span class="field-tooltip" role="tooltip">字段定义与现有报表一致；按UTC+8投注时间，汇总所选日期及时间段内的单关有效注单金额。</span></span></div>
           <div class="tab metric-tab" data-metric="orders">注单量</div>
-          <div class="tab metric-tab" data-metric="avg">单均</div>
+          <div class="tab metric-tab" data-metric="avg">单均<span class="info-wrap"><span class="field-info" tabindex="0" aria-label="单均字段说明">i</span><span class="field-tooltip" role="tooltip">单均金额 = 有效投注金额 ÷ 注单量；注单量为0时展示“-”。</span></span></div>
         </div>
         <button class="btn btn-light" onclick="startExport()">导出</button>
       </div>
@@ -652,7 +658,7 @@ function renderReport(){
  document.getElementById('reportMeta').textContent=`${dates.length} 个日期横向对比 · ${document.getElementById('timeStart').value}～${document.getElementById('timeEnd').value} · ${document.getElementById('granularity').selectedOptions[0].text}`;
  renderSelectedConditions();
  const table=document.getElementById('reportMatrixTable');table.className=reportType==='level'?'level-table':reportType==='league'?'league-table':'merchant-table';
- document.getElementById('reportHead').innerHTML=`<tr>${fixedHeaders()}${visible.map(d=>`<th class="date-head">${d}<div style="font-size:10px;margin-top:3px">${metricText()}</div></th>`).join('')}<th class="mean-col">均值</th></tr>`;
+ document.getElementById('reportHead').innerHTML=`<tr>${fixedHeaders()}${visible.map(d=>`<th class="date-head">${d}<div style="font-size:10px;margin-top:3px">${metricText()}</div></th>`).join('')}<th class="mean-col">均值<span class="info-wrap"><span class="field-info" tabindex="0" aria-label="均值字段说明">i</span><span class="field-tooltip" role="tooltip">当前行各所选日期的数据总和 ÷ 所选日期数。</span></span></th></tr>`;
  const s=(reportPage-1)*reportPageSize,e=Math.min(s+reportPageSize,reportRows.length);
  document.getElementById('reportBody').innerHTML=reportRows.length?reportRows.slice(s,e).map(r=>{const vals=visible.map(d=>metricValue(r.vals[d]));const mean=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;return`<tr>${fixedCells(r)}${visible.map(d=>`<td class="num">${metricFormat(metricValue(r.vals[d]))}</td>`).join('')}<td class="num mean-col">${metricFormat(mean)}</td></tr>`}).join(''):`<tr><td class="empty" colspan="16">${dates.length?'当前查询条件暂无数据':'请先选择日期并查询'}</td></tr>`;
  renderReportPager();
