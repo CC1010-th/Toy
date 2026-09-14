@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>货量分析 V1.5 - 商户层级调整版</title>
+<style>
+:root{
+  --bg:#f4f7fb;--card:#fff;--line:#e4ebf3;--line2:#d5dfeb;--text:#203040;--muted:#718096;
+  --primary:#1677ff;--primary2:#4096ff;--primaryWeak:#edf5ff;--nav:#102a46;--nav2:#0a2036;
+  --green:#16a34a;--orange:#f59e0b;--red:#ef4444;--purple:#7c3aed;--shadow:0 8px 26px rgba(31,65,102,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,"PingFang SC","Microsoft YaHei",Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:244px;padding:18px 14px;background:linear-gradient(180deg,var(--nav),var(--nav2));color:#dce9f5;z-index:60}
+.brand{display:flex;align-items:center;gap:10px;padding:3px 8px 20px;border-bottom:1px solid rgba(255,255,255,.09);font-size:18px;font-weight:750}
+.brand-logo{width:32px;height:32px;display:grid;place-items:center;border:2px solid #cfe4f7;border-radius:9px}
+.nav-title{font-size:11px;color:#7d99b1;padding:18px 12px 8px;letter-spacing:.08em}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 12px;margin:4px 0;border-radius:8px;color:#c5d6e6;cursor:pointer;font-size:14px}
+.nav-item:hover{background:rgba(255,255,255,.06)}
+.nav-item.active{background:linear-gradient(90deg,#1677ff,#2f8cff);color:#fff;box-shadow:0 8px 20px rgba(22,119,255,.22)}
+.nav-icon{width:18px;text-align:center}
+.main{margin-left:244px;width:calc(100% - 244px)}
+.topbar{height:62px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:50}
+.breadcrumb{font-size:13px;color:#788493}.breadcrumb strong{color:#233447}
+.top-actions{display:flex;align-items:center;gap:12px}
+.role-label{font-size:12px;color:#7a8795}
+.role-select{height:34px;border:1px solid var(--line2);border-radius:7px;padding:0 9px;background:#fff;color:#425466}
+.user{font-size:13px;color:#637083;border-left:1px solid var(--line);padding-left:12px}
+.content{padding:20px 22px 32px}
+.page{display:none}.page.active{display:block}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}
+.page-title{margin:0;font-size:20px;font-weight:760}.page-sub{font-size:12px;color:#7a8795;margin-top:5px}
+.page-meta{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;max-width:720px;padding-top:1px;color:#657486;font-size:11px;line-height:26px}
+.page-meta-item{white-space:nowrap}.page-meta-item+ .page-meta-item:before{content:'·';margin-right:8px;color:#b2becb}.page-meta strong{color:#315f91;font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow)}
+.info-banner{padding:11px 13px;background:#f7faff;border:1px solid #e1edff;border-radius:8px;color:#5f6f81;font-size:12px;line-height:1.7;margin-bottom:14px}
+.info-banner strong{color:#315f91}
+.section-title{font-size:14px;font-weight:740;margin-bottom:13px}
+.tabs{display:flex;gap:2px;background:#edf1f6;padding:4px;border-radius:8px;width:max-content}
+.tab{padding:9px 18px;border-radius:6px;color:#657383;font-size:13px;font-weight:650;cursor:pointer}
+.tab.active{background:#fff;color:var(--primary);box-shadow:0 2px 8px rgba(22,119,255,.12)}
+.subtabs{display:flex;border-bottom:1px solid var(--line);margin:-2px -2px 14px}
+.subtab{padding:11px 16px;font-size:13px;color:#687789;cursor:pointer;border-bottom:2px solid transparent}
+.subtab.active{color:var(--primary);border-color:var(--primary);font-weight:700}
+.hidden{display:none!important}
+
+/* controls */
+.field{min-width:0}
+.field label{display:block;height:18px;line-height:18px;font-size:12px;color:#6e7b89;margin-bottom:6px}
+.control{width:100%;height:38px;border:1px solid var(--line2);border-radius:7px;background:#fff;padding:0 10px;color:#334155;outline:none}
+.control:focus{border-color:#76adff;box-shadow:0 0 0 2px rgba(22,119,255,.08)}
+.btn{min-height:38px;border-radius:7px;border:0;padding:8px 16px;font-weight:680;white-space:nowrap;line-height:20px}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:#0f6fe8}
+.btn-light{background:#fff;border:1px solid var(--line2);color:#526171}.btn-light:hover{border-color:#9ebbe0;color:#1677ff}
+.btn-danger{background:#fff1f0;border:1px solid #ffc9c4;color:#cf1322}
+.btn-sm{height:30px;padding:0 10px;font-size:12px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.quick-row{display:flex;gap:7px;flex-wrap:wrap;min-height:30px;margin-top:8px}
+.quick-chip{height:28px;padding:0 10px;border:1px solid #dbe4ee;background:#fff;border-radius:14px;color:#607080;font-size:11px}
+.quick-chip:disabled{cursor:not-allowed;color:#b8c0ca;border-color:#edf0f3;background:#f7f8fa}.field.merchant-derived-disabled label{color:#a0a9b4}.field.merchant-derived-disabled .control{background:#f5f6f8;color:#a0a9b4}
+.quick-chip:hover,.quick-chip.active{border-color:#8fc0ff;background:#edf5ff;color:#1677ff;font-weight:700}
+.filter-actions{display:flex;gap:8px;align-items:center;margin-top:24px;flex-wrap:wrap;min-width:0}
+
+/* date */
+.date-card{padding:15px 16px;margin-bottom:14px}
+.date-config-panel{display:none;position:fixed;left:50%;top:72px;transform:translateX(-50%);width:min(860px,calc(100vw - 32px));height:330px;overflow:visible;z-index:180;box-shadow:0 24px 60px rgba(16,42,70,.24)}.date-config-panel.show{display:block}
+.date-panel-mask{display:none;position:fixed;inset:0;background:rgba(16,31,48,.32);z-index:170}.date-panel-mask.show{display:block}
+.date-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.date-panel-close{width:30px;height:30px;border:0;border-radius:6px;background:#f4f7fb;color:#718096;font-size:18px}.date-panel-close:hover{background:#eaf2ff;color:#1677ff}
+.date-mode-switch{margin:0 0 0 auto;flex:0 0 auto}
+.date-config-panel .date-grid{grid-template-columns:minmax(220px,1fr) minmax(220px,1fr) auto;gap:12px;align-items:start}
+.date-config-panel .multi-calendar-wrap{position:relative}
+.date-config-panel .calendar-popover{position:absolute;left:0;top:38px;width:320px;margin-top:6px;box-shadow:0 14px 34px rgba(29,59,97,.17);border-color:#d8e4f2;z-index:220}
+.date-config-panel .calendar-popover.show{display:block}
+.date-config-panel .filter-actions{align-self:start;margin-top:20px;flex-wrap:nowrap}
+.date-config-panel .selection-meta{white-space:normal;overflow:visible;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.date-config-panel .date-chips{align-content:flex-start;max-height:70px;overflow-x:hidden!important;overflow-y:auto!important}
+@media(max-height:520px){.date-config-panel{top:16px;height:calc(100vh - 32px);overflow-y:auto}.date-config-panel .calendar-popover{position:fixed;top:150px;left:50%;transform:translateX(-50%)}}
+.date-mode-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.date-builder{display:none}.date-builder.active{display:block}
+.date-grid{display:grid;grid-template-columns:minmax(180px,1fr) minmax(220px,1.2fr) minmax(260px,2fr);gap:12px;align-items:end}
+.date-chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.date-chip{position:relative;display:flex;align-items:center;gap:7px;min-height:30px;background:#f5f9ff;border:1px solid #d4e5fa;color:#37638f;border-radius:16px;padding:6px 10px;font-size:12px;overflow:hidden;transition:border-color .15s,box-shadow .15s}.date-chip:hover{border-color:#ffaaa3;box-shadow:0 3px 9px rgba(207,19,34,.12)}
+.date-chip.anchor{border-color:#69b1ff;background:#e6f4ff;box-shadow:inset 0 0 0 1px #91caff}.date-chip.anchor:before{content:'基准';font-size:9px;color:#1677ff;font-weight:800}.calendar-day.anchor{box-shadow:inset 0 0 0 2px #0958d9}
+.date-chip b{color:#1677ff}.chip-x{position:absolute;inset:0;width:100%;height:100%;padding:0;border:0;border-radius:inherit;background:rgba(255,241,240,.62);color:#b4232f;display:grid;place-items:center;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .14s,background .14s}.chip-x svg{width:15px;height:15px;filter:drop-shadow(0 1px 1px rgba(255,255,255,.9))}.date-chip:hover .chip-x,.date-chip:focus-within .chip-x{opacity:1;pointer-events:auto}.chip-x:hover{background:rgba(255,227,224,.74)}
+.weekdays{display:flex;gap:7px;flex-wrap:wrap}
+.weekday{height:30px;padding:0 11px;border:1px solid #dbe4ee;background:#fff;border-radius:15px;color:#607080;font-size:11px}
+.weekday.active{background:#edf5ff;color:#1677ff;border-color:#8fc0ff;font-weight:700}
+.rule-preview{margin-top:10px;padding:9px 11px;background:#fff8e8;border:1px solid #ffe3a5;border-radius:7px;color:#9a6700;font-size:11px}
+.date-custom-grid{display:grid!important;grid-template-columns:240px auto!important;gap:14px!important;justify-content:start}
+.date-preset-actions{display:flex;align-items:center;gap:6px;height:34px}.date-preset-btn{height:34px;padding:0 10px;white-space:nowrap}
+.date-rule-grid{display:grid;grid-template-columns:150px 150px minmax(520px,max-content);gap:9px;align-items:end;justify-content:start}
+.date-rule-grid .weekdays{flex-wrap:nowrap;gap:5px;align-items:center}.date-rule-grid .weekday{height:34px;padding:0 9px}.date-rule-grid .btn{height:34px;margin-left:3px;white-space:nowrap}
+#page-report .rule-preview{display:inline-flex;min-height:20px;margin:6px 0 0;padding:0;background:transparent;border:0;align-items:center;color:#8a6600}
+.multi-calendar-wrap{position:relative}.calendar-trigger{width:100%;height:38px;border:1px solid var(--line2);border-radius:7px;background:#fff;color:#334155;text-align:left;padding:0 10px}.calendar-popover{display:none;position:absolute;top:44px;left:0;width:320px;padding:12px;background:#fff;border:1px solid var(--line2);border-radius:9px;box-shadow:0 14px 34px rgba(29,59,97,.17);z-index:120}.calendar-popover.show{display:block}.calendar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}.calendar-nav{border:0;background:#f2f6fb;width:30px;height:28px;border-radius:6px;color:#526171}.calendar-title{font-size:13px;font-weight:750}.calendar-week,.calendar-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.calendar-week span{text-align:center;font-size:10px;color:#94a3b8;padding:3px}.calendar-day{height:32px;border:1px solid transparent;background:#fff;border-radius:6px;color:#475569;font-size:11px}.calendar-day:hover{background:#edf5ff}.calendar-day.selected{background:#1677ff;color:#fff;font-weight:750}.calendar-day.blank{cursor:default}.selection-meta{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:11px;color:#718096}.selection-meta[hidden]{display:none}.selection-meta strong{color:#315f91}.link-btn{border:0;background:transparent;color:#1677ff;padding:3px 5px;font-size:11px}.link-btn.danger{color:#cf1322}.clear-date-btn{margin-left:auto}.preset-status{padding:3px 7px;background:#f1f5f9;border-radius:10px;color:#64748b}
+
+/* filters */
+.query-pending{display:none;margin-top:10px;padding:8px 10px;border-radius:7px;background:#fff7e6;border:1px solid #ffe3a5;color:#9a6700;font-size:11px}.query-pending.show{display:block}
+.filter-card{padding:16px;margin-bottom:14px}
+.query-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-2px -3px 10px;padding:8px 10px;min-height:44px;background:#f5f9ff;border:1px solid #d9e8f8;border-radius:8px;cursor:pointer;transition:background .16s,border-color .16s,box-shadow .16s}.query-card-head:hover{background:#edf5ff;border-color:#a8cdf4;box-shadow:0 2px 8px rgba(22,119,255,.08)}.query-card-head:focus-visible{outline:2px solid #91caff;outline-offset:2px}.query-card-title-wrap{display:flex;align-items:center;gap:9px}.query-filter-icon{width:28px;height:28px;display:grid;place-items:center;flex:0 0 auto;border-radius:7px;background:#e6f4ff;color:#1677ff}.query-filter-icon svg{width:15px;height:15px}.query-card-title-copy{display:flex;align-items:baseline;gap:9px;min-width:0}.query-card-hint{font-size:10px;color:#718096;font-weight:400}.query-card-head:hover .query-card-hint{color:#4f7faa}.query-card-actions{display:flex;gap:7px}
+.query-collapse-btn{height:34px;padding:6px 12px;border:1px solid var(--line2);border-radius:7px;background:#fff;color:#526171;font-size:11px;font-weight:680;line-height:18px;display:inline-flex;justify-content:center;align-items:center;gap:7px;white-space:nowrap;cursor:pointer}.query-collapse-btn:hover{border-color:#9ebbe0;color:#1677ff;background:#fff}.query-collapse-icon{width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translate(-1px,-1px);transform-origin:center;transition:transform .18s}.query-collapse-btn[aria-expanded="true"] .query-collapse-icon{transform:rotate(225deg) translate(-1px,-1px)}
+.filter-card.collapsed{padding-top:10px;padding-bottom:10px}.filter-card.collapsed .query-card-head{margin-bottom:-2px}.query-filter-body[hidden]{display:none}
+.query-workbench{margin-bottom:12px;background:#fff;border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow)}
+.query-workbench>.date-card,.query-workbench>.filter-card{margin:0;border:0;border-radius:0;box-shadow:none}.query-workbench>.date-card{border-radius:11px 11px 0 0}.query-workbench>.filter-card{border-top:1px solid var(--line)}
+#page-report .query-workbench>.date-card,#page-report .query-workbench>.filter-card{margin-bottom:0}
+.query-submit-bar{display:flex;align-items:center;justify-content:flex-end;gap:16px;padding:11px 14px;margin:0;background:#f7faff;border:0;border-top:1px solid #dce8f5;border-radius:0 0 11px 11px}.query-submit-copy{display:flex;align-items:center;min-width:0;margin-right:auto}.query-submit-actions{display:flex;align-items:center;gap:10px;flex:0 0 auto}.query-submit-actions .btn{height:38px;min-width:76px;padding:8px 18px;font-size:12px}.query-submit-actions .btn-primary{min-width:88px}.query-submit-bar .query-pending{margin:0;padding:5px 8px}
+.query-date-list{grid-column:1/-1;display:flex;align-items:flex-start;gap:7px;padding:7px 9px;background:#f8fbff;border:1px solid #e3edf8;border-radius:7px;font-size:10px;color:#64748b}.query-date-list-label{flex:0 0 auto;font-weight:750;color:#475569;padding-top:3px}.query-date-list-values{display:flex;flex-wrap:wrap;gap:5px}.query-date-item{padding:3px 7px;border-radius:10px;background:#edf5ff;color:#315f91;white-space:nowrap}
+.date-query-field{grid-column:span 2}.date-query-field .query-date-list{grid-column:auto;margin-top:5px;padding:5px 7px}.date-query-field .query-date-list-label{padding-top:2px}
+.filter-grid{display:grid;grid-template-columns:repeat(6,minmax(155px,1fr));gap:16px;align-items:start}
+.dimension-field{grid-column:span 2}.dimension-selector{height:34px;display:flex;border:1px solid var(--line2);border-radius:7px;overflow:hidden;background:#fff}.dimension-option{flex:1;border:0;border-right:1px solid var(--line);background:#fff;color:#64748b;font-size:11px;white-space:nowrap}.dimension-option:last-child{border-right:0}.dimension-option.active{background:var(--primaryWeak);color:var(--primary);font-weight:750;box-shadow:inset 0 0 0 1px #8fc0ff}
+.filter-section-title{grid-column:1/-1;font-size:12px;font-weight:750;color:#475569;padding-top:2px;border-top:1px dashed #e3e9f0;padding-top:12px}
+.filter-section-title:first-child{border-top:0;padding-top:0}
+.applied-bar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:10px 12px;background:#fff;border:1px dashed #c9d6e5;border-radius:8px;margin-bottom:12px}.applied-bar[hidden]{display:none}
+.applied-title{font-size:11px;font-weight:700;color:#667586}
+.applied-tag{font-size:11px;color:#315f91;background:#edf5ff;padding:4px 8px;border-radius:12px}
+.result-count{margin-left:auto;font-size:11px;color:#7f8b97}
+
+/* combo */
+.combo{position:relative}
+.combo-input{width:100%;height:38px;border:1px solid var(--line2);border-radius:7px;background:#fff;padding:0 34px 0 10px;outline:none;cursor:pointer}
+.combo-input.has-value{background:#f8fbff;color:#1677ff;font-weight:650}
+.combo-arrow{position:absolute;right:11px;top:19px;transform:translateY(-50%);font-size:10px;color:#8a96a3}
+.combo-panel{position:absolute;left:0;right:0;top:43px;background:#fff;border:1px solid var(--line2);border-radius:8px;box-shadow:0 14px 34px rgba(29,59,97,.17);z-index:100;display:none;overflow:hidden}
+.combo.open .combo-panel{display:block}
+.combo-search-wrap{padding:8px;border-bottom:1px solid #edf1f5;background:#fbfdff}
+.combo-search{width:100%;height:34px;border:1px solid var(--line2);border-radius:6px;padding:0 9px;outline:none}
+.combo-count{font-size:10px;color:#8a96a3;padding:6px 10px;background:#fafcff;border-bottom:1px solid #edf1f5}
+.combo-list{max-height:245px;overflow:auto}
+.combo-option{padding:9px 10px;font-size:12px;display:flex;justify-content:space-between;gap:10px;cursor:pointer}
+.combo-option:hover{background:#f2f7ff}
+.merchant-tree,.merchant-tree-row{font-size:12px}.merchant-tree-selection{width:100%;min-height:34px;border:1px solid var(--line2);border-radius:7px;background:#fff;padding:3px 50px 3px 8px;display:flex;align-items:center;gap:4px;flex-wrap:wrap;cursor:text;transition:.15s}.merchant-tree.open .merchant-tree-selection{border-color:#76adff;box-shadow:0 0 0 2px rgba(22,119,255,.08)}.merchant-tree-inline-input{height:24px;line-height:24px;min-width:24px;flex:1 1 40px;border:0;outline:0;background:transparent;color:#334155;font-size:12px;padding:0}.merchant-tree-inline-input::placeholder{color:#334155}.merchant-selected-tag{display:inline-flex;align-items:center;max-width:150px;height:24px;padding:0 5px 0 7px;border:1px solid #d9e5f7;border-radius:3px;background:#f3f7fd;color:#315f91}.merchant-selected-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.merchant-selected-remove{border:0;background:transparent;color:#7d8da3;cursor:pointer;padding:0 0 0 5px;line-height:1}.merchant-tree-clear{display:none;position:absolute;right:28px;top:17px;transform:translateY(-50%);border:0;background:#fff;color:#9aa6b5;cursor:pointer;padding:1px 3px;z-index:2}.merchant-tree.has-selection:hover .merchant-tree-clear{display:block}.merchant-tree .combo-arrow{top:17px}.merchant-tree .combo-panel{right:auto;width:280px;max-width:calc(100vw - 64px);height:400px;max-height:400px;overflow:hidden auto;padding:0}.merchant-tree-list{min-height:100%;padding:4px 0}.merchant-tree-row{display:flex;align-items:center;min-height:28px;margin:8px 0;padding-right:12px;cursor:pointer;color:#44505f}.merchant-tree-row:hover .merchant-tree-node-content{background:#f2f7ff}.merchant-tree-exp{width:24px;height:24px;line-height:24px;flex:0 0 24px;border:0;background:transparent;color:#66758a;cursor:pointer;padding:0}.merchant-tree-check{width:16px;height:16px;flex:0 0 16px;margin:0 4px 0 0;accent-color:#1677ff}.merchant-tree-node-content{display:flex;align-items:center;min-width:0;height:28px;padding:3px 5px;border-radius:2px}.merchant-tree-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.merchant-row-toggle{width:20px;height:20px;border:0;background:transparent;color:#617087;cursor:pointer;padding:0;margin-right:4px}.merchant-row-toggle.blank{visibility:hidden}.merchant-cell{display:flex;align-items:center}.merchant-depth{display:inline-block;flex:0 0 auto}.merchant-level-tag{font-size:10px;color:#718096;background:#edf2f7;border-radius:3px;padding:2px 5px;margin-left:6px}
+.tag{font-size:9px;color:#7d8996;background:#f1f4f7;padding:2px 6px;border-radius:10px}
+
+/* table */
+.table-card{padding:16px}
+.table-toolbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.table-title{font-size:14px;font-weight:750}.table-meta{font-size:11px;color:#84909d;margin-top:4px}
+.toolbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.table-wrap{overflow:auto;max-height:690px;border:1px solid #e8edf3;border-radius:8px}
+table{width:max-content;min-width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:10px 9px;border-right:1px solid #f0f3f6;border-bottom:1px solid #edf1f5;text-align:left;white-space:nowrap}
+th{position:sticky;top:0;z-index:3;background:#fafcff;color:#627184;font-weight:700}
+tbody tr:hover{background:#f7fbff}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.date-head{min-width:126px;text-align:center;background:#f2f7ff;color:#1677ff}
+.day-tag{display:inline-block;margin-left:5px;padding:2px 5px;border-radius:9px;background:#e8f2ff;font-size:9px}
+.sticky-left{position:sticky;left:0;z-index:4;background:#fff;min-width:98px}.sticky-second{position:sticky;left:98px;z-index:4;background:#fff;min-width:112px}th.sticky-left,th.sticky-second{z-index:6;background:#fafcff}
+.level-badge{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:23px;padding:0 7px;border-radius:12px;background:#eef5ff;color:#1677ff;font-weight:750}
+.grade-badge{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:23px;border-radius:11px;padding:0 7px;font-weight:800}
+.grade-S{background:#fff1f0;color:#cf1322}.grade-A{background:#fff7e6;color:#d46b08}.grade-B{background:#f6ffed;color:#389e0d}.grade-C,.grade-D{background:#edf5ff;color:#1677ff}.grade-E,.grade-F,.grade-G{background:#f3f4f6;color:#667085}
+.risk{padding:3px 7px;border-radius:10px;font-weight:680}
+.risk-good{background:#ecfdf3;color:#15803d}.risk-watch{background:#fff7e6;color:#b45309}.risk-normal{background:#eff6ff;color:#2563eb}.risk-bad{background:#fff1f2;color:#be123c}
+.source-tag{padding:3px 7px;border-radius:10px;background:#f1f5f9;color:#64748b}
+.buy-type{padding:3px 7px;border-radius:10px;background:#eef2ff;color:#4f46e5}
+.pagination-wrap{display:flex;align-items:center;justify-content:space-between;padding-top:13px}
+.pagination-info{font-size:11px;color:#7d8996}.pagination{display:flex;align-items:center;gap:5px}
+.page-btn{height:31px;min-width:31px;border:1px solid var(--line2);background:#fff;border-radius:6px;color:#526171}
+.page-btn.active{background:#1677ff;border-color:#1677ff;color:#fff}.page-btn:disabled{opacity:.4}
+.page-size{height:31px;border:1px solid var(--line2);border-radius:6px;background:#fff;color:#526171}
+#reportPager .page-btn,#reportPager .page-size{font-size:10px}#reportPager .pagination-info{font-size:10px}
+.empty{padding:44px!important;text-align:center!important;color:#94a3b8!important}
+
+/* merchant */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.stat-card{padding:14px 15px}.stat-label{font-size:11px;color:#83909d}.stat-value{font-size:21px;font-weight:780;margin-top:5px}.stat-hint{font-size:10px;color:#99a4b0;margin-top:3px}
+.report-kpis{grid-template-columns:repeat(3,1fr)}
+.toolbar-field{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;white-space:nowrap}.toolbar-field .control{height:34px}
+.filter-expand{grid-column:1/-1;border-top:1px dashed #e3e9f0;padding-top:10px}
+.filter-expand summary{cursor:pointer;color:#1677ff;font-size:12px;font-weight:700;list-style:none;width:max-content}
+.filter-expand summary::-webkit-details-marker{display:none}
+.filter-expand summary:before{content:'＋ ';font-weight:800}.filter-expand[open] summary:before{content:'－ '}
+.advanced-filter-grid{display:grid;grid-template-columns:repeat(4,minmax(155px,1fr));gap:16px;margin-top:13px}
+.scope-note{font-size:11px;color:#718096;margin-top:8px}
+.delta-up{color:#cf1322;font-weight:700}.delta-down{color:#15803d;font-weight:700}.delta-flat{color:#718096}
+.table-action{border:0;background:transparent;color:#1677ff;font-weight:700;cursor:pointer;padding:4px 2px}
+.trend-cell{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:170px}.trend-spark{color:#7aaef2;letter-spacing:1px;font-size:12px}.trend-delta{min-width:52px;text-align:right}.trend-abs{font-size:9px;color:#84909d;min-width:62px;text-align:right}
+.sortable-head{display:inline-flex;align-items:center;gap:5px}.sort-pair{display:inline-flex;flex-direction:column;line-height:8px;vertical-align:middle}.sort-btn{border:0;background:transparent;color:#a9b4c1;font-size:9px;height:9px;line-height:8px;padding:0 2px;cursor:pointer}.sort-btn.active{color:#1677ff}
+.sort-toggle{width:20px;height:20px;border:0;border-radius:4px;background:transparent;color:#a9b4c1;font-size:12px;line-height:20px;padding:0;cursor:pointer}.sort-toggle:hover{background:#edf5ff;color:#1677ff}.sort-toggle.active{background:#e6f4ff;color:#1677ff;font-weight:800}
+.small-filter-grid{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:12px;align-items:end}
+.edit-link{color:#1677ff;font-weight:650;cursor:pointer}.disabled-link{color:#b1bac4;cursor:not-allowed}
+
+/* config */
+.config-note{display:flex;align-items:flex-start;gap:9px;padding:11px 13px;border-radius:8px;background:#fff8e8;border:1px solid #ffe3a5;color:#8b6507;font-size:11px;line-height:1.7;margin-bottom:13px}
+.config-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:14px}
+.config-card{padding:16px}.config-side-card{padding:15px}
+.rule-list{display:flex;flex-direction:column;gap:9px}
+.rule-item{display:flex;align-items:center;justify-content:space-between;padding:9px 10px;border:1px solid #edf1f5;border-radius:7px;background:#fbfcfe}
+.rule-item strong{font-size:12px}.rule-item span{font-size:10px;color:#83909d}
+.status-on{color:#15803d;font-weight:700}.status-off{color:#9ca3af}
+.config-form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.setting-card{padding:14px;border:1px solid #e8edf3;border-radius:9px;background:#fbfcfe}
+.setting-card-title{font-size:13px;font-weight:750;margin-bottom:10px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0}
+.setting-row label{font-size:11px;color:#64748b}
+.switch{position:relative;width:38px;height:22px;border-radius:11px;background:#cbd5e1;cursor:pointer}
+.switch.on{background:#1677ff}.switch:after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.18s}
+.switch.on:after{left:19px}
+
+/* modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(16,31,48,.42);display:none;align-items:center;justify-content:center;z-index:200}
+.modal-backdrop.show{display:flex}
+.modal{width:min(720px,92vw);max-height:88vh;overflow:auto;background:#fff;border-radius:12px;box-shadow:0 26px 60px rgba(0,0,0,.2)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line)}
+.modal-title{font-size:16px;font-weight:760}.modal-x{font-size:20px;color:#8c98a5;cursor:pointer}
+.modal-body{padding:17px 18px}.modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:13px 18px;border-top:1px solid var(--line);background:#fbfcfe}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}
+.textarea{width:100%;min-height:86px;border:1px solid var(--line2);border-radius:7px;padding:9px;resize:vertical;outline:none}
+.required:after{content:" *";color:#ef4444}
+.error{color:#dc2626;font-size:10px;margin-top:5px;display:none}
+.threshold-table input{width:130px;height:32px;border:1px solid var(--line2);border-radius:6px;padding:0 8px;text-align:right}
+.threshold-table select{height:32px;border:1px solid var(--line2);border-radius:6px;background:#fff}
+.role-warning{font-size:11px;color:#a16207;background:#fff7e6;border:1px solid #ffe3a5;padding:8px 10px;border-radius:7px;margin-bottom:12px}
+.export-modal{width:min(440px,calc(100vw - 32px));border-radius:8px;overflow:hidden}
+.export-modal-body{padding:24px 24px 20px}
+.export-modal-title{margin:0;color:#263442;font-size:16px;line-height:1.5;font-weight:760}
+.export-modal-desc{margin:10px 0 0;color:#718096;font-size:14px;line-height:1.6}
+.export-modal-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 24px;background:#fbfcfe;border-top:1px solid var(--line)}
+.export-modal-foot .btn{height:34px;min-width:72px;padding:0 14px;border-radius:6px;font-size:13px}
+.settings-tabs{margin-bottom:14px}.settings-tab.active{pointer-events:none}
+
+/* toast */
+.toast{position:fixed;right:24px;bottom:24px;padding:11px 15px;background:#1f2d3d;color:#fff;border-radius:8px;font-size:12px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);transition:.25s;z-index:300}
+.toast.show{opacity:1;transform:translateY(0)}
+.flash{animation:flash .55s ease}
+@keyframes flash{0%{box-shadow:0 0 0 0 rgba(22,119,255,.25)}50%{box-shadow:0 0 0 5px rgba(22,119,255,.07)}100%{box-shadow:var(--shadow)}}
+@media(max-width:1500px){.filter-grid{grid-template-columns:repeat(4,1fr)}.small-filter-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:1150px){.filter-grid,.small-filter-grid,.date-grid{grid-template-columns:repeat(2,1fr)}.stat-grid{grid-template-columns:repeat(2,1fr)}.config-grid{grid-template-columns:1fr}.config-form-grid{grid-template-columns:1fr}}
+@media(max-width:1150px){.advanced-filter-grid{grid-template-columns:repeat(2,1fr)}.report-kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:980px){#page-report .page-head{align-items:flex-start;flex-direction:column;gap:7px}.page-meta{justify-content:flex-start;max-width:none;padding-top:0}}
+
+/* report compact density */
+#page-report .page-head{margin-bottom:10px}
+#page-report .page-title{font-size:18px}
+#page-report .page-sub{font-size:11px;margin-top:3px}
+#page-report .info-banner{padding:7px 10px;line-height:1.5;margin-bottom:10px}
+#page-report .date-card{padding:12px 14px;margin-bottom:10px}
+#page-report #dateConfigPanel{display:block;position:relative;left:auto;top:auto;transform:none;width:100%;height:auto;min-height:0;overflow:visible;z-index:4;box-shadow:var(--shadow)}
+#page-report #dateConfigPanel .date-panel-close{display:none}
+#page-report #dateConfigPanel .date-grid{grid-template-columns:240px 190px auto;align-items:end;justify-content:start}
+#page-report #dateConfigPanel .calendar-trigger{display:block}
+#page-report #dateConfigPanel .calendar-popover{display:none;position:absolute;left:0;top:38px;width:320px;margin-top:6px;box-shadow:0 14px 34px rgba(29,59,97,.17)}
+#page-report #dateConfigPanel .calendar-popover.show{display:block}
+#page-report #dateConfigPanel .filter-actions{align-self:end;margin:0;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;height:34px}
+#page-report #dateConfigPanel .filter-actions .btn{height:34px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
+#page-report #dateConfigPanel .field label{font-size:12px}#page-report #dateConfigPanel .tab,#page-report #dateConfigPanel .btn,#page-report #dateConfigPanel .weekday,#page-report #dateConfigPanel .calendar-trigger,#page-report #dateConfigPanel .control{font-size:12px}#page-report #dateConfigPanel .selection-meta,#page-report #dateConfigPanel .rule-preview{font-size:12px}#page-report #dateConfigPanel .calendar-week span{font-size:11px}#page-report #dateConfigPanel .calendar-day{font-size:12px}
+#page-report .date-mode-row{margin-bottom:8px}
+#page-report .section-title{font-size:13px;margin-bottom:8px}
+#page-report .tabs{padding:3px}
+#page-report .tab{padding:6px 12px;font-size:11px}
+#page-report .date-grid{grid-template-columns:minmax(170px,.8fr) minmax(190px,.9fr) minmax(330px,1.6fr);gap:9px}
+#page-report .field label{height:16px;line-height:16px;font-size:11px;margin-bottom:4px}
+#page-report .control,#page-report .combo-input,#page-report .calendar-trigger{height:34px;font-size:12px}
+#page-report .combo-arrow{top:17px}
+#page-report .btn{min-height:34px;padding:6px 12px;line-height:18px;font-size:11px}
+#page-report .filter-actions{gap:6px;margin-top:20px}
+#page-report .selection-meta{margin-top:7px;gap:6px;font-size:10px;white-space:nowrap;overflow-x:auto;padding-bottom:2px}
+#page-report .preset-status{margin-left:4px}
+#page-report .date-chips{flex-wrap:nowrap;overflow-x:auto;margin-top:7px;padding-bottom:3px}
+#page-report .date-config-panel .date-chips{flex-wrap:wrap;overflow:visible}
+#page-report .date-chip{flex:0 0 auto;padding:4px 8px;font-size:10px}
+#page-report .query-pending{margin-top:7px;padding:6px 9px;font-size:10px}
+#page-report .filter-card{padding:11px 12px;margin-bottom:10px}
+#page-report .filter-grid{grid-template-columns:repeat(6,minmax(120px,1fr));column-gap:10px;row-gap:9px}
+#page-report .date-query-field{grid-column:span 4}
+#page-report .time-range-field{grid-column:span 2}
+#page-report .filter-section-title{font-size:11px;padding-top:8px}
+#page-report .query-card-head .section-title{margin:0}
+#page-report .quick-row{gap:5px;min-height:24px;margin-top:5px}
+#page-report .quick-chip{height:24px;padding:0 8px;font-size:10px}
+#page-report .filter-expand{padding-top:7px}
+#page-report .filter-expand summary{font-size:11px}
+#page-report .advanced-filter-grid{gap:10px;margin-top:8px}
+#page-report .applied-bar{padding:7px 9px;margin-bottom:9px}
+#page-report .query-submit-copy{flex:1;flex-wrap:wrap;gap:6px}
+#page-report #reportApplied{flex:1 1 100%;min-width:0;padding:0;margin:0;border:0;background:transparent;border-radius:0}
+#reportApplied .applied-tag{max-width:100%;overflow-wrap:anywhere}
+#reportApplied .applied-title{white-space:nowrap}
+#reportApplied .result-count{margin-left:0;white-space:nowrap}
+#page-report .report-kpis{gap:9px;margin-bottom:10px}
+#page-report .report-kpis .stat-card{padding:10px 12px}
+#page-report .report-kpis .stat-label{font-size:10px}
+#page-report .report-kpis .stat-value{font-size:18px;margin-top:3px}
+#page-report .report-kpis .stat-hint{font-size:9px;margin-top:2px}
+.date-inline-row{display:flex;align-items:flex-end;gap:12px;min-width:0}.date-inline-row .field{flex:0 0 230px}.date-inline-row .date-chips{flex:1;margin:0!important;min-width:0;flex-wrap:nowrap!important;overflow-x:auto!important}.date-inline-actions{display:flex;gap:8px;align-items:center;flex:0 0 auto}
+.report-matrix{overflow:auto;max-height:560px}.report-matrix table{width:max-content;min-width:100%;table-layout:fixed}.report-matrix th,.report-matrix td{min-width:112px;width:112px;padding:9px 10px}.report-matrix .w-time{min-width:118px;width:118px}.report-matrix .w-sport{min-width:88px;width:88px}.report-matrix .w-level{min-width:96px;width:96px}.report-matrix .w-league{min-width:176px;width:176px}.report-matrix .w-merchant{min-width:220px;width:220px}.report-matrix .merchant-attr-type{min-width:88px;width:88px}.report-matrix .merchant-attr-class{min-width:76px;width:76px}.report-matrix .merchant-attr-grade{min-width:78px;width:78px}.report-matrix .merchant-attr-risk{min-width:104px;width:104px}.report-matrix .stick-l1,.report-matrix .stick-l2,.report-matrix .stick-l3,.report-matrix .stick-l4{position:sticky;z-index:3;background:#fff}.report-matrix thead .stick-l1,.report-matrix thead .stick-l2,.report-matrix thead .stick-l3,.report-matrix thead .stick-l4{z-index:5;background:#f6f8fb}.report-matrix .stick-l1{left:0}.report-matrix .level-table .stick-l2{left:118px}.report-matrix .level-table .stick-l3{left:206px}.report-matrix .league-table .stick-l2{left:118px}.report-matrix .league-table .stick-l3{left:206px}.report-matrix .league-table .stick-l4{left:302px}.report-matrix .merchant-table .stick-l2{left:118px}.report-matrix .mean-col{position:sticky;right:0;z-index:4;background:#eef5ff!important;border-left:1px solid #c7d9f4;font-weight:650}.report-matrix thead .mean-col{z-index:6;text-align:right}
+.config-shell{display:flex;gap:16px;align-items:flex-start}.config-nav{width:180px;flex:0 0 180px;padding:8px}.config-nav-btn{display:block;width:100%;border:0;background:transparent;text-align:left;padding:10px 12px;border-radius:6px;color:#475569;cursor:pointer;font-size:13px;margin:2px 0}.config-nav-btn:hover{background:#f4f7fb}.config-nav-btn.active{background:#eaf2ff;color:#1769d2;font-weight:650}.config-main{min-width:0;flex:1}.config-subtabs{margin-bottom:12px}.mapping-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mapping-item{padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fafcff}.mapping-item b{display:block;font-size:11px;color:#64748b;margin-bottom:3px}.mapping-item span{font-size:12px;color:#243447}.read-only-hint{color:#718096;font-size:12px}.batch-bar{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f3f7fd;border:1px solid #dbe7f5;border-radius:6px;margin-bottom:10px}.batch-bar span{font-size:12px;color:#506176;margin-right:auto}
+@media(max-width:1500px){#page-report .filter-grid{grid-template-columns:repeat(6,minmax(105px,1fr))}}
+@media(max-width:1200px){#page-report .filter-grid{grid-template-columns:repeat(4,minmax(130px,1fr))}#page-report .date-query-field{grid-column:span 4}#page-report .time-range-field{grid-column:span 2}#page-report .date-grid{grid-template-columns:repeat(2,minmax(180px,1fr))}}
+@media(max-width:1200px){#page-report #dateConfigPanel .date-grid{grid-template-columns:220px 180px auto}#page-report #dateConfigPanel .date-custom-grid{grid-template-columns:220px auto!important}#page-report #dateConfigPanel .date-rule-grid{grid-template-columns:145px 145px minmax(480px,max-content)}}
+@media(max-width:980px){#page-report #dateConfigPanel .date-grid,#page-report #dateConfigPanel .date-rule-grid{grid-template-columns:repeat(2,minmax(180px,1fr))}.date-rule-grid .weekdays{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand"><div class="brand-logo">体</div><span>体育报表后台</span></div>
+  <div class="nav-title">数据报表</div>
+  <div class="nav-item active" data-page="report"><span class="nav-icon">▤</span><span>货量分析</span></div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <div class="breadcrumb" id="breadcrumb">体育报表 / 注单统计 / <strong>货量分析</strong></div>
+  <div class="top-actions">
+    <span class="role-label">演示角色</span>
+    <select class="role-select" id="roleSelect">
+      <option value="normal">普通风控</option>
+      <option value="authorized" selected>授权人员</option>
+    </select>
+    <span class="user">◉ 报表用户</span>
+  </div>
+</header>
+
+<div class="content">
+
+<!-- REPORT -->
+<section class="page active" id="page-report">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">货量分析</h1>
+      <div class="page-sub">用多日期横向对比，定位联赛与商户的货量变化</div>
+    </div>
+    <div class="page-meta" aria-label="报表统计口径">
+      <span class="page-meta-item"><strong>货量口径：按投注时间统计有效投注金额</strong></span>
+      <span class="page-meta-item">统计时区：UTC+8</span>
+      <span class="page-meta-item">数据更新时间：2026-09-08 15:09</span>
+    </div>
+  </div>
+
+  <div class="query-workbench" aria-label="报表查询工作台">
+  <div class="card date-card date-config-panel" id="dateConfigPanel">
+    <div class="date-panel-head"><div class="section-title" style="margin:0">日期设置</div><span class="read-only-hint">最多选择10个日期</span></div>
+    <div class="date-builder active" id="date-custom">
+      <div class="date-inline-row"><div class="field"><label>选择日期</label><div class="multi-calendar-wrap"><button class="calendar-trigger" id="calendarTrigger" onclick="toggleCalendar(event)">已选择 5 个日期</button><div class="calendar-popover" id="calendarPopover"><div class="calendar-head"><button class="calendar-nav" onclick="changeCalendarMonth(-1,event)">‹</button><div class="calendar-title" id="calendarTitle"></div><button class="calendar-nav" onclick="changeCalendarMonth(1,event)">›</button></div><div class="calendar-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div><div class="calendar-days" id="calendarDays"></div></div></div></div><div class="date-chips" id="dateChips"></div><div class="date-inline-actions"><button class="link-btn danger clear-date-btn" id="clearDatesBtn" onclick="clearDates()">清空</button></div></div>
+      <div class="selection-meta" id="selectionMeta" hidden><strong id="selectedDateCount">未选择日期</strong></div>
+    </div>
+  </div>
+
+  <div class="card filter-card collapsed" id="queryFilterCard">
+    <div class="query-card-head" role="button" tabindex="0" aria-controls="queryFilterBody" aria-expanded="false" onclick="if(!event.target.closest('.query-collapse-btn'))toggleQueryFilters()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleQueryFilters()}"><div class="query-card-title-wrap"><span class="query-filter-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6.5 7.5V19l-3 1v-7.5L4 5z"/></svg></span><div class="query-card-title-copy"><div class="section-title">更多查询条件</div><span class="query-card-hint" id="queryCardHint">赛种、联赛、商户等筛选项</span></div></div><button type="button" class="query-collapse-btn" id="queryCollapseBtn" aria-expanded="false" aria-controls="queryFilterBody" onclick="toggleQueryFilters()"><span id="queryCollapseText">展开筛选</span><span class="query-collapse-icon" aria-hidden="true"></span></button></div>
+    <div class="query-filter-body" id="queryFilterBody" hidden>
+    <div class="filter-grid">
+      <div class="filter-section-title">基础查询</div>
+      <div class="field time-range-field"><label>统计时段</label><div style="display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center"><input class="control" type="time" id="timeStart" value="17:00"><span style="color:#94a3b8">至</span><input class="control" type="time" id="timeEnd" value="18:00"></div></div>
+      <div class="field">
+        <label>统计粒度</label>
+        <select class="control" id="granularity">
+          <option value="5">5分钟</option><option value="15">15分钟</option><option value="30">30分钟</option><option value="60" selected>1小时</option>
+          <option value="180">3小时</option><option value="360">6小时</option><option value="720">12小时</option><option value="1440">1天</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>赛种</label><div id="sportCombo"></div>
+      </div>
+      <div class="field">
+        <label>联赛等级</label><select class="control" id="leagueLevel"></select>
+      </div>
+      <div class="field">
+        <label>联赛</label><div id="leagueCombo"></div>
+      </div>
+
+      <div class="filter-section-title">商户属性筛选</div>
+      <div class="field">
+        <label>商户名称</label><div id="merchantCombo"></div>
+      </div>
+      <div class="field">
+        <label>商户类型</label>
+        <select class="control" id="merchantTypeReportFilter"><option value="">全部</option><option>新商户</option><option>正常商户</option><option>老商户</option><option>原始商户</option></select>
+      </div>
+      <div class="field">
+        <label>商户分类</label>
+        <select class="control" id="merchantGroupFilter"><option value="">全部</option><option>W</option><option>KTS</option><option>XYX</option></select>
+      </div>
+      <div class="field">
+        <label>商户等级</label>
+        <select class="control" id="merchantGradeFilter"><option value="">全部</option><option>A</option><option>B</option><option>C</option><option>D</option></select>
+      </div>
+      <div class="field">
+        <label>商户风险等级</label>
+        <select class="control" id="merchantRiskFilter"><option value="">全部</option><option>正常盈利</option><option>高亏损</option><option>高风险</option></select>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div class="query-submit-bar">
+    <div class="query-submit-copy"><div class="applied-bar" id="reportApplied" hidden></div><div class="query-pending" id="dateQueryPending">条件已修改，查询后生效</div></div>
+    <div class="query-submit-actions"><button class="btn btn-primary" id="reportQueryBtn" onclick="submitReportQuery()">查询</button><button class="btn btn-light" onclick="resetAllQuery()">重置</button></div>
+  </div>
+  </div>
+
+
+  <div class="card table-card">
+    <div class="subtabs" id="reportDimensionTabs">
+      <div class="subtab report-tab active" data-report="level">联赛等级</div>
+      <div class="subtab report-tab" data-report="league">联赛</div>
+      <div class="subtab report-tab" data-report="merchant">商户</div>
+    </div>
+    <div class="table-toolbar">
+      <div><div class="table-title" id="reportTitle">联赛等级货量对比</div><div class="table-meta" id="reportMeta"></div></div>
+      <div class="toolbar-right">
+        <div class="tabs" id="metricTabs">
+          <div class="tab metric-tab active" data-metric="amount">有效投注金额</div>
+          <div class="tab metric-tab" data-metric="orders">注单量</div>
+          <div class="tab metric-tab" data-metric="avg">单均</div>
+        </div>
+        <button class="btn btn-light" onclick="startExport()">导出</button>
+      </div>
+    </div>
+    <div class="table-wrap report-matrix"><table id="reportMatrixTable"><thead id="reportHead"></thead><tbody id="reportBody"></tbody></table></div>
+    <div id="reportPager"></div>
+  </div>
+</section>
+
+</div>
+</main>
+</div>
+
+<!-- Async Export Modal -->
+<div class="modal-backdrop" id="exportModal" role="dialog" aria-modal="true" aria-labelledby="exportModalTitle">
+  <div class="modal export-modal">
+    <div class="export-modal-body">
+      <h2 class="export-modal-title" id="exportModalTitle">导出任务执行中！</h2>
+      <p class="export-modal-desc">点击确定前往查看任务执行进度！</p>
+    </div>
+    <div class="export-modal-foot">
+      <button class="btn btn-light" onclick="closeModal('exportModal')">留在当前页面</button>
+      <button class="btn btn-primary" onclick="viewExportTask()">确认</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* master */
+const sports=['足球','篮球','网球','羽毛球','乒乓球','排球','棒球','冰球','橄榄球','手球','斯诺克','板球','水球','沙滩排球','曲棍球'];
+const featured=[
+ {name:'英格兰超级联赛',sport:'足球',level:1,short:'英超'},{name:'西班牙甲级联赛',sport:'足球',level:2,short:'西甲'},
+ {name:'德国甲级联赛',sport:'足球',level:1,short:'德甲'},{name:'意大利甲级联赛',sport:'足球',level:2,short:'意甲'},
+ {name:'法国甲级联赛',sport:'足球',level:10,short:'法甲'},{name:'美国职业篮球联赛',sport:'篮球',level:2,short:'NBA'},
+ {name:'欧洲篮球联赛',sport:'篮球',level:10,short:'欧篮联'}
+];
+const leagues=[...featured];
+sports.forEach(s=>{for(let i=1;i<=24;i++)leagues.push({name:`${s}示例联赛 ${String(i).padStart(3,'0')}`,sport:s,level:(i%15)+1,short:`${s}${i}`})});
+const merchantMaster=[];for(let i=1;i<=980;i++){const id=String(i).padStart(6,'0');merchantMaster.push({name:`商户${id}`,code:`M${id}`})}
+const merchantTreeData=[
+ {name:'商户000001',code:'M000001',children:[
+  {name:'商户000101',code:'M000101',children:[
+   {name:'商户000111',code:'M000111',children:[{name:'商户000112',code:'M000112',children:[]}]},
+   {name:'商户000121',code:'M000121',children:[]}
+  ]},
+  {name:'商户000201',code:'M000201',children:[]}
+ ]},
+ {name:'商户000002',code:'M000002',children:[
+  {name:'商户000301',code:'M000301',children:[{name:'商户000311',code:'M000311',children:[]},{name:'商户000321',code:'M000321',children:[]}]}
+ ]},
+ {name:'商户000003',code:'M000003',children:[{name:'商户000401',code:'M000401',children:[]}]},
+ {name:'商户000004',code:'M000004',children:[]},
+ {name:'商户000005',code:'M000005',children:[]}
+];
+
+/* helpers */
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function startExport(){document.getElementById('exportModal').classList.add('show')}
+function viewExportTask(){closeModal('exportModal');toast('已提交导出任务，任务中心页面待接入')}
+function dayName(ds){return ['周日','周一','周二','周三','周四','周五','周六'][new Date(ds+'T00:00:00').getDay()]}
+function money(n){return Math.round(n).toLocaleString('zh-CN')}
+function activate(btn,selector='.quick-chip'){if(!btn)return;btn.parentElement.querySelectorAll(selector).forEach(x=>x.classList.remove('active'));btn.classList.add('active')}
+function levelBadge(l){return `<span class="level-badge">${l}级</span>`}
+function gradeBadge(v){return `<span class="grade-badge grade-${v}">${v}</span>`}
+function riskClass(v){return v==='优质'||v==='正常盈利'?'risk-good':v==='待观察'||v==='高亏损'?'risk-watch':v==='正常'?'risk-normal':'risk-bad'}
+
+/* combo */
+function createCombo(elId,items,opt={}){
+ const host=document.getElementById(elId),c=document.createElement('div');c.className='combo';
+ const input=document.createElement('input');input.className='combo-input';input.value='全部';input.readOnly=true;
+ const arrow=document.createElement('span');arrow.className='combo-arrow';arrow.textContent='▼';
+ const panel=document.createElement('div');panel.className='combo-panel';
+ const sw=document.createElement('div');sw.className='combo-search-wrap';
+ const search=document.createElement('input');search.className='combo-search';search.placeholder=opt.placeholder||'搜索';
+ const count=document.createElement('div');count.className='combo-count',list=document.createElement('div');list.className='combo-list';
+ sw.appendChild(search);panel.appendChild(sw);panel.appendChild(count);panel.appendChild(list);c.appendChild(input);c.appendChild(arrow);c.appendChild(panel);host.appendChild(c);
+ let selected=null;
+ const text=x=>typeof x==='string'?x:(opt.text?opt.text(x):x.name),sub=x=>typeof x==='string'?'':(opt.sub?opt.sub(x):'');
+ const source=()=>typeof opt.itemsProvider==='function'?opt.itemsProvider():items;
+ function choose(item){selected=item;input.value=item===null?'全部':text(item);input.classList.toggle('has-value',item!==null);c.classList.remove('open');search.value='';if(opt.onSelect)opt.onSelect(item)}
+ function render(q=''){const kw=q.trim().toLowerCase(),rs=source().filter(x=>(text(x)+' '+sub(x)).toLowerCase().includes(kw));count.textContent=`共 ${rs.length} 条匹配结果${rs.length>80?'，显示前80条':''}`;list.innerHTML='';
+   const all=document.createElement('div');all.className='combo-option';all.innerHTML='<span>全部</span><span class="tag">不限</span>';all.onclick=()=>choose(null);list.appendChild(all);
+   rs.slice(0,80).forEach(x=>{const d=document.createElement('div');d.className='combo-option';d.innerHTML=`<span>${text(x)}</span>${sub(x)?`<span class="tag">${sub(x)}</span>`:''}`;d.onclick=()=>choose(x);list.appendChild(d)})}
+ input.onclick=()=>{c.classList.add('open');search.focus();render(search.value)};search.oninput=()=>render(search.value);document.addEventListener('click',e=>{if(!c.contains(e.target))c.classList.remove('open')});render();
+ return{get:()=>selected,value:()=>selected===null?'':text(selected),setByText:txt=>{if(!txt){choose(null);return}choose(source().find(x=>text(x)===txt)||null)},reset:()=>choose(null),refresh:()=>render(search.value)};
+}
+
+/* UAT merchant name selector replica: searchable tree multi-select + SHOW_PARENT */
+function createMerchantTreeCombo(elId,nodes){
+ const host=document.getElementById(elId),combo=document.createElement('div');combo.className='combo merchant-tree';
+ const selection=document.createElement('div');selection.className='merchant-tree-selection';
+ const tags=document.createElement('div');tags.style.display='contents';
+ const input=document.createElement('input');input.className='merchant-tree-inline-input';input.placeholder='所有现金网';
+ const arrow=document.createElement('span');arrow.className='combo-arrow';arrow.textContent='▼';
+ const clear=document.createElement('button');clear.type='button';clear.className='merchant-tree-clear';clear.textContent='×';clear.title='清空';
+ const panel=document.createElement('div');panel.className='combo-panel';
+ const list=document.createElement('div');list.className='merchant-tree-list';
+ selection.appendChild(tags);selection.appendChild(input);panel.appendChild(list);combo.appendChild(selection);combo.appendChild(clear);combo.appendChild(arrow);combo.appendChild(panel);host.appendChild(combo);
+ const checked=new Set(),expanded=new Set(),byCode={};let parentMap={};
+ function index(ns,parent=''){ns.forEach(n=>{byCode[n.code]=n;parentMap[n.code]=parent;index(n.children||[],n.code)})}index(nodes);
+ function desc(n,out=[]){out.push(n.code);(n.children||[]).forEach(c=>desc(c,out));return out}
+ function covered(code){for(let c=code;c;c=parentMap[c])if(checked.has(c))return true;return false}
+ function visibleSelected(){return[...checked].filter(code=>!parentMap[code]||!covered(parentMap[code]))}
+ function update(){const top=visibleSelected();combo.classList.toggle('has-selection',!!top.length);input.placeholder=top.length?'':'所有现金网';tags.innerHTML=top.map(c=>`<span class="merchant-selected-tag" title="${byCode[c].name}"><span class="merchant-selected-name">${byCode[c].name}</span><button type="button" class="merchant-selected-remove" data-remove="${c}" aria-label="删除 ${byCode[c].name}">×</button></span>`).join('');tags.querySelectorAll('[data-remove]').forEach(b=>b.onclick=e=>{e.stopPropagation();select(b.dataset.remove,false)})}
+ function select(code,on){const ids=desc(byCode[code],[]);ids.forEach(id=>on?checked.add(id):checked.delete(id));if(on){for(let p=parentMap[code];p;p=parentMap[p]){const children=byCode[p].children||[];if(children.length&&children.every(c=>covered(c.code)))checked.add(p);else break}}else{for(let p=parentMap[code];p;p=parentMap[p])checked.delete(p)}input.value='';update();render('');syncMerchantFilterAvailability();markQueryPending()}
+ function matches(n,q){return n.name.toLowerCase().includes(q)||(n.children||[]).some(c=>matches(c,q))}
+ function render(q=''){q=q.trim().toLowerCase();function rows(ns,depth){return ns.filter(n=>!q||matches(n,q)).map(n=>{const kids=n.children||[],open=!!q||expanded.has(n.code),isChecked=covered(n.code),partial=!isChecked&&desc(n,[]).slice(1).some(c=>checked.has(c)||covered(c));return`<div class="merchant-tree-row" style="padding-left:${depth*18}px"><button type="button" class="merchant-tree-exp" data-expand="${n.code}">${kids.length?(open?'▾':'▸'):''}</button><input class="merchant-tree-check" type="checkbox" data-check="${n.code}" data-partial="${partial?'1':'0'}" ${isChecked?'checked':''}><span class="merchant-tree-node-content"><span class="merchant-tree-name">${n.name}</span></span></div>${kids.length&&open?rows(kids,depth+1):''}`}).join('')}list.innerHTML=rows(nodes,0)||'<div class="empty" style="padding:26px">暂无匹配商户</div>';list.querySelectorAll('[data-expand]').forEach(b=>b.onclick=e=>{e.stopPropagation();const c=b.dataset.expand;expanded.has(c)?expanded.delete(c):expanded.add(c);render(input.value)});list.querySelectorAll('[data-check]').forEach(c=>{c.indeterminate=c.dataset.partial==='1';c.onchange=()=>select(c.dataset.check,c.checked)})}
+ function openPanel(){combo.classList.add('open');render(input.value);input.focus()}
+ selection.onclick=e=>{if(!e.target.closest('button'))openPanel()};input.onfocus=()=>{combo.classList.add('open');render(input.value)};input.oninput=()=>{combo.classList.add('open');render(input.value)};arrow.onclick=e=>{e.stopPropagation();combo.classList.contains('open')?combo.classList.remove('open'):openPanel()};clear.onclick=e=>{e.stopPropagation();checked.clear();input.value='';update();render('');syncMerchantFilterAvailability();markQueryPending()};document.addEventListener('click',e=>{if(!combo.contains(e.target)){combo.classList.remove('open');input.value='';update();render('')}});
+ update();render();
+ return{get:()=>visibleSelected().map(c=>byCode[c]),value:()=>visibleSelected().map(c=>byCode[c].name).join('、'),selectedCodes:()=>new Set([...checked]),roots:()=>visibleSelected().map(c=>byCode[c]),reset:()=>{checked.clear();expanded.clear();input.value='';update();render()},refresh:()=>render(input.value),allNodes:byCode};
+}
+
+/* nav */
+document.querySelectorAll('.nav-item').forEach(item=>item.onclick=()=>{
+ document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));item.classList.add('active');
+ document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('page-report').classList.add('active');
+ document.getElementById('breadcrumb').innerHTML='体育报表 / 注单统计 / <strong>货量分析</strong>';
+});
+
+/* report combos */
+let sportCombo,leagueCombo,merchantCombo;
+sportCombo=createCombo('sportCombo',sports,{placeholder:'搜索赛种',onSelect:()=>{leagueCombo.reset();leagueCombo.refresh();markQueryPending()}});
+leagueCombo=createCombo('leagueCombo',leagues,{placeholder:'搜索联赛名称',text:x=>x.name,sub:x=>`${x.sport} / ${x.short}`,itemsProvider:()=>sportCombo.value()?leagues.filter(x=>x.sport===sportCombo.value()):leagues,onSelect:()=>markQueryPending()});
+merchantCombo=createMerchantTreeCombo('merchantCombo',merchantTreeData);
+const leagueLevel=document.getElementById('leagueLevel');leagueLevel.innerHTML='<option value="">全部等级</option>';for(let i=1;i<=15;i++){const o=document.createElement('option');o.value=i;o.textContent=`${i}级${i===1?'（最高）':i===15?'（最低）':''}`;leagueLevel.appendChild(o)}
+
+/* dates */
+let dateMode='custom',customDates=['2026-08-04','2026-08-11','2026-08-18','2026-08-25','2026-09-01'],queriedDates=['2026-08-04','2026-08-11','2026-08-18','2026-08-25','2026-09-01'],calendarMonth=new Date('2026-09-01T00:00:00'),dateSelectionSource='自定义',dateAnchor='';
+function selectedDates(){return customDates}
+function resultDates(){return queriedDates}
+function updateDateSummary(){}
+function markQueryPending(){renderSelectedConditions();const tip=document.getElementById('dateQueryPending');if(!tip)return;tip.textContent='条件已修改，查询后生效';tip.classList.add('show');document.getElementById('reportQueryBtn').textContent='查询'}
+function markDatePending(){updateDateSummary();markQueryPending()}
+function updateQueryAvailability(){const btn=document.getElementById('reportQueryBtn');if(btn)btn.disabled=!selectedDates().length}
+function renderDateChips(){dateAnchor=customDates[customDates.length-1]||'';document.getElementById('dateChips').innerHTML=customDates.map((d,i)=>`<span class="date-chip"><b>${d}</b><button type="button" class="chip-x" aria-label="删除日期 ${d}" title="删除日期 ${d}" onclick="removeDate(${i})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 11v5m4-5v5"/></svg></button></span>`).join('');document.getElementById('selectionMeta').hidden=true;document.getElementById('selectedDateCount').textContent=customDates.length?`已选${customDates.length}个日期`:'未选择日期';document.getElementById('calendarTrigger').textContent=customDates.length?`已选择 ${customDates.length} 个日期`:'请选择日期';document.getElementById('clearDatesBtn').disabled=!customDates.length;updateQueryAvailability();updateDateSummary();renderCalendar()}
+function dateKey(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function renderCalendar(){const title=document.getElementById('calendarTitle'),host=document.getElementById('calendarDays');if(!title||!host)return;const y=calendarMonth.getFullYear(),m=calendarMonth.getMonth(),first=new Date(y,m,1),days=new Date(y,m+1,0).getDate(),offset=(first.getDay()+6)%7;title.textContent=`${y}年${m+1}月`;let html='';for(let i=0;i<offset;i++)html+='<button class="calendar-day blank" disabled></button>';for(let day=1;day<=days;day++){const key=dateKey(new Date(y,m,day));html+=`<button class="calendar-day ${customDates.includes(key)?'selected':''}" onclick="toggleCalendarDate('${key}',event)">${day}</button>`}host.innerHTML=html}
+function toggleCalendar(e){if(e)e.stopPropagation();document.getElementById('calendarPopover').classList.toggle('show');renderCalendar()}
+function changeCalendarMonth(step,e){if(e)e.stopPropagation();calendarMonth=new Date(calendarMonth.getFullYear(),calendarMonth.getMonth()+step,1);renderCalendar()}
+function toggleCalendarDate(key,e){if(e)e.stopPropagation();const i=customDates.indexOf(key);if(i>=0)customDates.splice(i,1);else{if(customDates.length>=10){toast('最多选择10个日期');return}customDates.push(key);customDates.sort()}dateSelectionSource='自定义';renderDateChips();markDatePending()}
+function removeDate(i){const removed=customDates[i];customDates.splice(i,1);if(dateAnchor===removed)dateAnchor=customDates[customDates.length-1]||'';dateSelectionSource='自定义';renderDateChips();markDatePending()}
+function clearDates(){customDates=[];dateAnchor='';dateSelectionSource='自定义';renderDateChips();markDatePending();toast('已清空待查询日期，当前结果未变化')}
+document.addEventListener('click',e=>{const pop=document.getElementById('calendarPopover');if(pop&&!e.target.closest('.multi-calendar-wrap'))pop.classList.remove('show')});
+
+/* report interactions */
+let reportType='level',metric='amount',allReportRows=[],reportRows=[],reportPage=1,reportPageSize=20,tableSort={key:'',dir:'asc'},reportMerchantExpanded=new Set();
+function toggleQueryFilters(){const body=document.getElementById('queryFilterBody'),btn=document.getElementById('queryCollapseBtn'),card=document.getElementById('queryFilterCard'),head=card.querySelector('.query-card-head'),opening=body.hidden;body.hidden=!opening;btn.setAttribute('aria-expanded',String(opening));head.setAttribute('aria-expanded',String(opening));document.getElementById('queryCollapseText').textContent=opening?'收起筛选':'展开筛选';document.getElementById('queryCardHint').textContent=opening?'点击整行可收起':'赛种、联赛、商户等筛选项';card.classList.toggle('collapsed',!opening)}
+document.querySelectorAll('.report-tab').forEach(t=>t.onclick=()=>{if(document.getElementById('dateQueryPending').classList.contains('show')){toast('条件已修改，请先点击“查询”');return}document.querySelectorAll('.report-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');reportType=t.dataset.report;reportPage=1;runReportQuery()});
+document.querySelectorAll('.metric-tab').forEach(t=>t.onclick=()=>{document.querySelectorAll('.metric-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');metric=t.dataset.metric;reportPage=1;renderReport()});
+function updateFilterVisibility(){}
+function quickSport(v,b){sportCombo.setByText(v);leagueCombo.reset();leagueCombo.refresh();activate(b)}
+function quickLevel(v,b){leagueLevel.value=v;activate(b);markQueryPending()}
+function quickLeague(v,b){if(v){const l=leagues.find(x=>x.name===v);if(l){sportCombo.setByText(l.sport);leagueCombo.refresh()}}leagueCombo.setByText(v);activate(b)}
+function syncMerchantFilterAvailability(){const locked=!!merchantCombo.value();['merchantTypeReportFilter','merchantGroupFilter','merchantGradeFilter','merchantRiskFilter'].forEach(id=>{const el=document.getElementById(id),field=el.closest('.field');if(locked)el.value='';el.disabled=locked;field.classList.toggle('merchant-derived-disabled',locked);field.querySelectorAll('.quick-chip').forEach(btn=>{btn.disabled=locked;btn.classList.toggle('active',!locked&&btn.textContent==='全部')})})}
+function quickMerchant(v,b){merchantCombo.setByText(v);activate(b)}
+function quickSelect(id,v,b){document.getElementById(id).value=v;activate(b);markQueryPending()}
+function quickGranularity(v,b){const g=document.getElementById('granularity');g.value=v;activate(b);g.dispatchEvent(new Event('change'))}
+function timeSlots(){const g=+document.getElementById('granularity').value;if(g===1440)return['00:00-23:59'];const[sh,sm]=document.getElementById('timeStart').value.split(':').map(Number),[eh,em]=document.getElementById('timeEnd').value.split(':').map(Number);let s=sh*60+sm,e=eh*60+em;if(e<=s)e=s+g;const out=[],f=x=>`${String(Math.floor(x/60)%24).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`;for(let t=s;t<e;t+=g)out.push(`${f(t)}-${f(Math.min(t+g,e))}`);return out}
+document.getElementById('granularity').addEventListener('change',()=>{const g=+document.getElementById('granularity').value,s=document.getElementById('timeStart'),e=document.getElementById('timeEnd');if(g===1440){s.value='00:00';e.value='23:59';s.disabled=true;e.disabled=true}else{s.disabled=false;e.disabled=false}markQueryPending()});
+['timeStart','timeEnd','leagueLevel','merchantTypeReportFilter','merchantGroupFilter','merchantGradeFilter','merchantRiskFilter'].forEach(id=>document.getElementById(id).addEventListener('change',markQueryPending));
+
+/* merchant attributes */
+const grades=['S','A','B','C','D','E','F','G'],risks=['优质','待观察','正常','劣质'];
+const merchantRows=[];
+for(let i=1;i<=980;i++){
+ const id=String(i).padStart(6,'0'),amount=7800000+((981-i)%47)*1450000+(i%13)*320000;
+ const grade=grades[Math.min(7,Math.floor((i-1)/123))],risk=i%9===0?'劣质':i%5===0?'优质':i%4===0?'正常':'待观察',group=i%3===0?'内部':'外部';
+ merchantRows.push({id:`MID${id}`,name:`商户${id}`,type:i%7===0?'平台':i%4===0?'包网':'代理商',tier:`L${(i%5)+1}`,mapping:{TY:`TY${id}`,DJ:i%3===0?`DJ${id}`:'—',CP:i%5===0?`CP${id}`:'—'},group,monthAmount:amount,grade,risk});
+}
+function merchantAttrFor(name){const base=merchantRows.find(x=>x.name===name)||{},i=+(String(name).match(/\d+/)?.[0]||0),types=['新商户','正常商户','老商户','原始商户'],groups=['W','KTS','XYX'],reportGrades=['A','B','C','D'],reportRisks=['正常盈利','高亏损','高风险'];return{...base,reportType:types[i%types.length],group:groups[i%groups.length],grade:reportGrades[i%reportGrades.length],risk:reportRisks[i%reportRisks.length]}}
+
+/* report builders */
+function buildReportRows(){
+ const dates=resultDates(),slots=timeSlots(),sport=sportCombo.value(),level=leagueLevel.value?+leagueLevel.value:null,league=leagueCombo.get(),selectedCodes=merchantCombo.selectedCodes();
+ const typeF=document.getElementById('merchantTypeReportFilter').value,groupF=document.getElementById('merchantGroupFilter').value,gradeF=document.getElementById('merchantGradeFilter').value,riskF=document.getElementById('merchantRiskFilter').value;
+ const lpool=(league?[league]:leagues).filter(x=>(!sport||x.sport===sport)&&(!level||x.level===level));
+ const flatTree=[];(function walk(ns){ns.forEach(n=>{flatTree.push(n);walk(n.children||[])})})(merchantTreeData);
+ const attrPass=n=>{const a=merchantAttrFor(n.name);return(!typeF||a.reportType===typeF)&&(!groupF||a.group===groupF)&&(!gradeF||a.grade===gradeF)&&(!riskF||a.risk===riskF)};
+ const scoped=selectedCodes.size?flatTree.filter(n=>selectedCodes.has(n.code)):flatTree.filter(attrPass);
+ const scopeFactor=Math.max(.18,scoped.length/Math.max(1,flatTree.length));
+ let dims=[];
+ if(reportType==='level'){
+   const seen=new Set();if(scoped.length)lpool.forEach(l=>{const k=`${l.sport}-${l.level}`;if(!seen.has(k)){seen.add(k);dims.push({sport:l.sport,level:l.level})}});
+ }else if(reportType==='league'){
+   dims=scoped.length?lpool:[];
+ }else if(reportType==='merchant'){
+   function subtreeInScope(n){return selectedCodes.size?(selectedCodes.has(n.code)||(n.children||[]).some(subtreeInScope)):(attrPass(n)||(n.children||[]).some(subtreeInScope))}
+   function add(ns,depth,slot){ns.forEach(n=>{if(!subtreeInScope(n))return;const a=merchantAttrFor(n.name),key=`${slot}|${n.code}`;dims.push({merchant:n.name,merchantCode:n.code,merchantType:a.reportType,group:a.group,grade:a.grade,risk:a.risk,depth,slot,key,hasChildren:!!(n.children||[]).length,node:n});if(reportMerchantExpanded.has(key))add(n.children||[],depth+1,slot)})}
+   slots.forEach(slot=>add(merchantTreeData,0,slot));
+ }
+ const rows=[];
+ dims.forEach((d,di)=>(reportType==='merchant'?[d.slot]:slots).forEach((slot,si)=>{
+   const vals={};
+   dates.forEach((date,idx)=>{
+     if(reportType==='merchant'){
+       function nodeVal(n){if(!(n.children||[]).length){const k=+n.code.replace(/\D/g,''),amount=310000+(k%37)*23500+idx*31000+si*18000+(+date.slice(-2))*1900,orders=Math.max(1,Math.round(amount/89));return{amount,orders}}return(n.children||[]).reduce((sum,c)=>{const v=nodeVal(c);return{amount:sum.amount+v.amount,orders:sum.orders+v.orders}},{amount:0,orders:0})}
+       vals[date]=nodeVal(d.node);return;
+     }
+     const day=+date.slice(-2);
+     {
+       const sf=d.sport==='足球'?1.18:d.sport==='篮球'?1.11:.88+((d.sport.charCodeAt(0)%7)/100),lf=1.25-(Math.min(d.level,15)-1)*.021;
+       const ln=d.name||d.league||'',leagueF=ln==='英格兰超级联赛'?1.34:ln==='西班牙甲级联赛'?1.27:ln==='德国甲级联赛'?1.22:ln==='意大利甲级联赛'?1.19:ln==='法国甲级联赛'?1.10:ln==='美国职业篮球联赛'?1.29:ln==='欧洲篮球联赛'?1.12:.93+((di%6)*.02);
+       const base=reportType==='level'?820000:reportType==='league'?690000:420000,amount=(base*sf*lf*leagueF+idx*31000+si*18000+day*1900)*scopeFactor,orders=Math.max(1,Math.round(amount/(d.sport==='足球'?91:d.sport==='篮球'?85:88)));
+       vals[date]={amount,orders};
+     }
+   });
+   rows.push({...d,slot,vals});
+ }));
+ return rows;
+}
+function sortHeader(label,key){const active=tableSort.key===key,state=!active?'默认':tableSort.dir==='asc'?'正序':'倒序',icon=!active?'⇅':tableSort.dir==='asc'?'↑':'↓';return`<span class="sortable-head">${label}<button class="sort-toggle ${active?'active':''}" title="当前：${state}；点击切换" aria-label="${label}排序：${state}" onclick="cycleTableSort('${key}')">${icon}</button></span>`}
+function metricValue(v){return metric==='amount'?v.amount:metric==='orders'?v.orders:(v.orders?v.amount/v.orders:0)}
+function metricText(){return metric==='amount'?'有效投注金额':metric==='orders'?'注单量':'单均'}
+function metricFormat(n){return metric==='orders'?Math.round(n).toLocaleString():Number(n).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function fixedHeaders(){
+ if(reportType==='level')return`<th class="stick-l1 w-time">${sortHeader('时间段','slot')}</th><th class="stick-l2 w-sport">${sortHeader('赛种','sport')}</th><th class="stick-l3 w-level">${sortHeader('联赛等级','level')}</th>`;
+ if(reportType==='league')return`<th class="stick-l1 w-time">${sortHeader('时间段','slot')}</th><th class="stick-l2 w-sport">${sortHeader('赛种','sport')}</th><th class="stick-l3 w-level">${sortHeader('联赛等级','level')}</th><th class="stick-l4 w-league">联赛</th>`;
+ return`<th class="stick-l1 w-time">${sortHeader('时间段','slot')}</th><th class="stick-l2 w-merchant">商户名称</th><th class="merchant-attr-type">商户类型</th><th class="merchant-attr-class">商户分类</th><th class="merchant-attr-grade">商户等级</th><th class="merchant-attr-risk">商户风险等级</th>`;
+}
+function fixedCells(r){
+ if(reportType==='level')return`<td class="stick-l1 w-time">${r.slot}</td><td class="stick-l2 w-sport">${r.sport}</td><td class="stick-l3 w-level">${levelBadge(r.level)}</td>`;
+ if(reportType==='league')return`<td class="stick-l1 w-time">${r.slot}</td><td class="stick-l2 w-sport">${r.sport}</td><td class="stick-l3 w-level">${levelBadge(r.level)}</td><td class="stick-l4 w-league">${r.name}</td>`;
+ return`<td class="stick-l1 w-time">${r.slot}</td><td class="stick-l2 w-merchant"><div class="merchant-cell"><span class="merchant-depth" style="width:${r.depth*20}px"></span><button class="merchant-row-toggle ${r.hasChildren?'':'blank'}" onclick="toggleReportMerchant('${r.key}')">${reportMerchantExpanded.has(r.key)?'▾':'▸'}</button><span>${r.merchant}</span></div></td><td class="merchant-attr-type">${r.merchantType}</td><td class="merchant-attr-class">${r.group}</td><td class="merchant-attr-grade">${gradeBadge(r.grade)}</td><td class="merchant-attr-risk"><span class="risk ${riskClass(r.risk)}">${r.risk}</span></td>`;
+}
+function toggleReportMerchant(key){reportMerchantExpanded.has(key)?reportMerchantExpanded.delete(key):reportMerchantExpanded.add(key);allReportRows=buildReportRows();reportRows=[...allReportRows];reportPage=1;renderReport()}
+function applyTableSort(key,dir){tableSort={key,dir};const factor=dir==='asc'?1:-1;reportRows=[...allReportRows].sort((a,b)=>{if(/^\d{4}-\d{2}-\d{2}$/.test(key))return((a.vals[key]?.amount||0)-(b.vals[key]?.amount||0))*factor;let av=a[key]??'',bv=b[key]??'';if(key==='level')return((+av||999)-(+bv||999))*factor;return String(av).localeCompare(String(bv),'zh-CN',{numeric:true})*factor});reportPage=1;renderReport()}
+function cycleTableSort(key){if(tableSort.key!==key){applyTableSort(key,'asc');return}if(tableSort.dir==='asc'){applyTableSort(key,'desc');return}tableSort={key:'',dir:'asc'};reportRows=[...allReportRows];reportPage=1;renderReport()}
+function submitReportQuery(){const pending=selectedDates();if(!pending.length){toast('请先选择日期');return}queriedDates=[...pending];document.getElementById('dateQueryPending').classList.remove('show');document.getElementById('reportQueryBtn').textContent='查询';runReportQuery()}
+function runReportQuery(){if(!queriedDates.length){allReportRows=[];reportRows=[];renderReport();return}allReportRows=buildReportRows();applyTableSort(tableSort.key,tableSort.dir);const c=document.querySelector('#page-report .table-card');c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash')}
+function renderSelectedConditions(){
+ const dates=selectedDates();
+ let tags=[`日期：${dates.join('、')}`,`统计时段：${document.getElementById('timeStart').value}–${document.getElementById('timeEnd').value}`,`统计粒度：${document.getElementById('granularity').selectedOptions[0].text}`],sportValue=sportCombo.value(),levelValue=leagueLevel.value,leagueValue=leagueCombo.value(),merchantValue=merchantCombo.value(),typeValue=document.getElementById('merchantTypeReportFilter').value,groupValue=document.getElementById('merchantGroupFilter').value,gradeValue=document.getElementById('merchantGradeFilter').value,riskValue=document.getElementById('merchantRiskFilter').value;
+ if(sportValue)tags.push(`赛种：${sportValue}`);if(levelValue)tags.push(`联赛等级：${levelValue}级`);if(leagueValue)tags.push(`联赛：${leagueValue}`);if(merchantValue)tags.push(`商户：${merchantValue}`);if(typeValue)tags.push(`商户类型：${typeValue}`);if(groupValue)tags.push(`商户分类：${groupValue}`);if(gradeValue)tags.push(`商户等级：${gradeValue}`);if(riskValue)tags.push(`商户风险等级：${riskValue}`);
+ const applied=document.getElementById('reportApplied');applied.hidden=false;applied.innerHTML=`<span class="applied-title">已选条件：</span>`+(dates.length?tags.map(x=>`<span class="applied-tag">${x}</span>`).join(''):'<span style="font-size:12px;color:#718096">请选择日期及查询条件</span>');
+}
+function renderReport(){
+ const dates=resultDates(),visible=dates,titles={level:'联赛等级货量对比',league:'联赛货量对比',merchant:'商户货量对比'};
+ document.getElementById('reportTitle').textContent=titles[reportType];
+ document.getElementById('reportMeta').textContent=`${dates.length} 个日期横向对比 · ${document.getElementById('timeStart').value}～${document.getElementById('timeEnd').value} · ${document.getElementById('granularity').selectedOptions[0].text}`;
+ renderSelectedConditions();
+ const table=document.getElementById('reportMatrixTable');table.className=reportType==='level'?'level-table':reportType==='league'?'league-table':'merchant-table';
+ document.getElementById('reportHead').innerHTML=`<tr>${fixedHeaders()}${visible.map(d=>`<th class="date-head">${d}<div style="font-size:10px;margin-top:3px">${metricText()}</div></th>`).join('')}<th class="mean-col">均值</th></tr>`;
+ const s=(reportPage-1)*reportPageSize,e=Math.min(s+reportPageSize,reportRows.length);
+ document.getElementById('reportBody').innerHTML=reportRows.length?reportRows.slice(s,e).map(r=>{const vals=visible.map(d=>metricValue(r.vals[d]));const mean=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;return`<tr>${fixedCells(r)}${visible.map(d=>`<td class="num">${metricFormat(metricValue(r.vals[d]))}</td>`).join('')}<td class="num mean-col">${metricFormat(mean)}</td></tr>`}).join(''):`<tr><td class="empty" colspan="16">${dates.length?'当前查询条件暂无数据':'请先选择日期并查询'}</td></tr>`;
+ renderReportPager();
+}
+function shiftDateWindow(dir){const dates=resultDates(),maxStart=dates.length?Math.floor((dates.length-1)/dateWindowSize)*dateWindowSize:0;dateWindowStart=Math.max(0,Math.min(maxStart,dateWindowStart+dir*dateWindowSize));renderReport()}
+function renderReportPager(){const pages=Math.max(1,Math.ceil(reportRows.length/reportPageSize)),s=reportRows.length?(reportPage-1)*reportPageSize+1:0,e=Math.min(reportPage*reportPageSize,reportRows.length);let b=`<button class="page-btn" ${reportPage===1?'disabled':''} onclick="goReportPage(${reportPage-1})">‹</button>`;for(let p=1;p<=pages;p++){if(p===1||p===pages||Math.abs(p-reportPage)<=1)b+=`<button class="page-btn ${p===reportPage?'active':''}" onclick="goReportPage(${p})">${p}</button>`;else if((p===2&&reportPage>3)||(p===pages-1&&reportPage<pages-2))b+='…'}b+=`<button class="page-btn" ${reportPage===pages?'disabled':''} onclick="goReportPage(${reportPage+1})">›</button>`;document.getElementById('reportPager').innerHTML=`<div class="pagination-wrap"><div class="pagination-info">共 ${reportRows.length} 行，第 ${s}-${e} 行</div><div class="pagination">${b}<select class="page-size" onchange="reportPageSize=+this.value;reportPage=1;renderReport()"><option value="20" ${reportPageSize===20?'selected':''}>20条/页</option><option value="50" ${reportPageSize===50?'selected':''}>50条/页</option><option value="100" ${reportPageSize===100?'selected':''}>100条/页</option></select></div></div>`}
+function goReportPage(p){const pages=Math.max(1,Math.ceil(reportRows.length/reportPageSize));if(p<1||p>pages)return;reportPage=p;renderReport()}
+function resetReport(){sportCombo.reset();leagueCombo.reset();merchantCombo.reset();leagueLevel.value='';['merchantTypeReportFilter','merchantGroupFilter','merchantGradeFilter','merchantRiskFilter'].forEach(id=>document.getElementById(id).value='');reportMerchantExpanded.clear();reportType='level';metric='amount';tableSort={key:'',dir:'asc'};document.querySelectorAll('.report-tab').forEach(x=>x.classList.toggle('active',x.dataset.report==='level'));document.querySelectorAll('.metric-tab').forEach(x=>x.classList.toggle('active',x.dataset.metric==='amount'));runReportQuery()}
+function resetAllQuery(){customDates=[];queriedDates=[];dateMode='custom';dateSelectionSource='自定义';dateAnchor='';calendarMonth=new Date();document.getElementById('timeStart').value='17:00';document.getElementById('timeEnd').value='18:00';document.getElementById('granularity').value='60';document.getElementById('queryFilterBody').hidden=true;document.getElementById('queryFilterCard').classList.add('collapsed');document.getElementById('queryCollapseBtn').setAttribute('aria-expanded','false');document.querySelector('#queryFilterCard .query-card-head').setAttribute('aria-expanded','false');document.getElementById('queryCollapseText').textContent='展开筛选';document.getElementById('queryCardHint').textContent='赛种、联赛、商户等筛选项';renderDateChips();resetReport();document.getElementById('dateQueryPending').classList.remove('show');document.getElementById('reportQueryBtn').textContent='查询';toast('已重置日期和查询条件')}
+
+/* init */
+renderDateChips();updateFilterVisibility();runReportQuery();
+</script>
+</body>
+</html>
