@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>货量分析 V1.5 - 商户层级调整版</title>
+<title>后台管理系统原型</title>
 <style>
 :root{
   --bg:#f4f7fb;--card:#fff;--line:#e4ebf3;--line2:#d5dfeb;--text:#203040;--muted:#718096;
@@ -239,6 +239,7 @@ tbody tr:hover{background:#f7fbff}
 
 /* report compact density */
 #page-report .page-head{margin-bottom:10px}
+#page-report .page-head{display:none}
 #page-report .page-title{font-size:18px}
 #page-report .page-sub{font-size:11px;margin-top:3px}
 #page-report .info-banner{padding:7px 10px;line-height:1.5;margin-bottom:10px}
@@ -293,6 +294,10 @@ tbody tr:hover{background:#f7fbff}
 .date-inline-row{display:flex;align-items:flex-end;gap:12px;min-width:0}.date-inline-row .field{flex:0 0 230px}.date-inline-row .date-chips{flex:1;margin:0!important;min-width:0;flex-wrap:nowrap!important;overflow-x:auto!important}.date-inline-actions{display:flex;gap:8px;align-items:center;flex:0 0 auto}
 .report-matrix{overflow:auto;max-height:560px}.report-matrix table{width:max-content;min-width:100%;table-layout:fixed}.report-matrix th,.report-matrix td{min-width:112px;width:112px;padding:9px 10px}.report-matrix .w-time{min-width:118px;width:118px}.report-matrix .w-sport{min-width:88px;width:88px}.report-matrix .w-level{min-width:96px;width:96px}.report-matrix .w-league{min-width:176px;width:176px}.report-matrix .w-merchant{min-width:220px;width:220px}.report-matrix .merchant-attr-type{min-width:88px;width:88px}.report-matrix .merchant-attr-class{min-width:76px;width:76px}.report-matrix .merchant-attr-grade{min-width:78px;width:78px}.report-matrix .merchant-attr-risk{min-width:104px;width:104px}.report-matrix .stick-l1,.report-matrix .stick-l2,.report-matrix .stick-l3,.report-matrix .stick-l4{position:sticky;z-index:3;background:#fff}.report-matrix thead .stick-l1,.report-matrix thead .stick-l2,.report-matrix thead .stick-l3,.report-matrix thead .stick-l4{z-index:5;background:#f6f8fb}.report-matrix .stick-l1{left:0}.report-matrix .level-table .stick-l2{left:118px}.report-matrix .level-table .stick-l3{left:206px}.report-matrix .league-table .stick-l2{left:118px}.report-matrix .league-table .stick-l3{left:206px}.report-matrix .league-table .stick-l4{left:302px}.report-matrix .merchant-table .stick-l2{left:118px}.report-matrix .mean-col{position:sticky;right:0;z-index:4;background:#eef5ff!important;border-left:1px solid #c7d9f4;font-weight:650}.report-matrix thead .mean-col{z-index:6;text-align:right}
 .config-shell{display:flex;gap:16px;align-items:flex-start}.config-nav{width:180px;flex:0 0 180px;padding:8px}.config-nav-btn{display:block;width:100%;border:0;background:transparent;text-align:left;padding:10px 12px;border-radius:6px;color:#475569;cursor:pointer;font-size:13px;margin:2px 0}.config-nav-btn:hover{background:#f4f7fb}.config-nav-btn.active{background:#eaf2ff;color:#1769d2;font-weight:650}.config-main{min-width:0;flex:1}.config-subtabs{margin-bottom:12px}.mapping-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mapping-item{padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fafcff}.mapping-item b{display:block;font-size:11px;color:#64748b;margin-bottom:3px}.mapping-item span{font-size:12px;color:#243447}.read-only-hint{color:#718096;font-size:12px}.batch-bar{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f3f7fd;border:1px solid #dbe7f5;border-radius:6px;margin-bottom:10px}.batch-bar span{font-size:12px;color:#506176;margin-right:auto}
+/* UAT task-center replica: Ant Design table/form dimensions and colors */
+.nav-group{margin:4px 0}.nav-parent{display:flex;align-items:center;gap:11px;padding:11px 12px;color:#c5d6e6;font-size:14px}.nav-parent .nav-caret{margin-left:auto;color:#7d99b1}.nav-child{display:flex;align-items:center;min-height:40px;margin:2px 0;padding:10px 12px 10px 41px;color:#aebfd0;font-size:13px;cursor:pointer}.nav-child:hover{background:rgba(255,255,255,.06);color:#fff}.nav-child.active{background:rgba(255,255,255,.12);color:#5187ff;font-weight:650;border-right:2px solid #5187ff}
+#page-task-my-export{font-family:"PingFang SC Regular",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;color:rgba(57,58,68,.65);font-size:14px}.uat-page-title{margin:0 0 14px;color:rgba(0,0,0,.85);font-size:21px;line-height:48px;font-weight:600}.uat-panel{min-height:665px;padding:27px 24px;background:#fff;border:1px solid #e8e8e8}.uat-search-form{display:flex;align-items:center;gap:15px;height:40px;margin-bottom:8px;white-space:nowrap}.uat-form-item{display:flex;align-items:center;gap:10px}.uat-label{color:rgba(0,0,0,.72);font-weight:600}.uat-control{height:32px;border:1px solid #d9d9d9;border-radius:2px;background:#fff;padding:4px 11px;color:rgba(57,58,68,.65);outline:0}.uat-control:focus{border-color:#5187ff;box-shadow:0 0 0 2px rgba(81,135,255,.12)}.uat-date{width:250px;text-align:center}.uat-name{width:172px}.uat-status{width:125px}.uat-query{height:32px;min-height:32px;padding:0 15px;border:1px solid #5187ff;border-radius:2px;background:#5187ff;color:#fff;font-size:14px;font-weight:400;box-shadow:0 2px 0 rgba(0,0,0,.043)}
+.uat-table-wrap{overflow-x:auto}.uat-table{width:100%;min-width:1180px;border-collapse:collapse;table-layout:fixed;text-align:left}.uat-table th,.uat-table td{height:46px;padding:12px 8px;border:1px solid #e8e8e8;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.uat-table th{background:#fafafa;color:rgba(0,0,0,.7);font-weight:600;text-align:center}.uat-table td{color:rgba(57,58,68,.65)}.uat-table .center{text-align:center}.uat-table .file-cell{color:rgba(57,58,68,.72)}.uat-link{border:0;background:transparent;color:#5187ff;padding:0 8px;font-weight:400}.uat-link[disabled]{color:rgba(0,0,0,.25);cursor:not-allowed}.password-cell{display:flex;align-items:center;justify-content:center;gap:2px}.password-value{display:inline-block;min-width:104px;text-align:left;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:rgba(57,58,68,.75);letter-spacing:.5px}.password-eye,.password-copy{width:25px;height:24px;padding:0;border:0;background:transparent;color:#5187ff}.password-copy{font-size:13px}.status-done{color:#52c41a}.status-running{color:#faad14}.status-failed{color:#f5222d}.uat-pagination{display:flex;justify-content:flex-end;align-items:center;gap:9px;margin:16px 8px 0;color:rgba(57,58,68,.65)}.uat-page-btn,.uat-page-size{height:32px;border:1px solid #d9d9d9;border-radius:2px;background:#fff;color:rgba(57,58,68,.65)}.uat-page-btn{width:32px}.uat-page-btn.active{border-color:#5187ff;color:#5187ff}.uat-page-size{padding:0 10px}.uat-help{margin-top:20px;padding:10px 12px;border-left:3px solid #5187ff;background:#f7f9fc;color:rgba(57,58,68,.65);font-size:13px;line-height:1.7}
 @media(max-width:1500px){#page-report .filter-grid{grid-template-columns:repeat(6,minmax(105px,1fr))}}
 @media(max-width:1200px){#page-report .filter-grid{grid-template-columns:repeat(4,minmax(130px,1fr))}#page-report .date-query-field{grid-column:span 4}#page-report .time-range-field{grid-column:span 2}#page-report .date-grid{grid-template-columns:repeat(2,minmax(180px,1fr))}}
 @media(max-width:1200px){#page-report #dateConfigPanel .date-grid{grid-template-columns:220px 180px auto}#page-report #dateConfigPanel .date-custom-grid{grid-template-columns:220px auto!important}#page-report #dateConfigPanel .date-rule-grid{grid-template-columns:145px 145px minmax(480px,max-content)}}
@@ -305,6 +310,11 @@ tbody tr:hover{background:#f7fbff}
   <div class="brand"><div class="brand-logo">体</div><span>体育报表后台</span></div>
   <div class="nav-title">数据报表</div>
   <div class="nav-item active" data-page="report"><span class="nav-icon">▤</span><span>货量分析</span></div>
+  <div class="nav-title">平台管理</div>
+  <div class="nav-group">
+    <div class="nav-parent"><span class="nav-icon">▣</span><span>任务中心</span><span class="nav-caret">⌄</span></div>
+    <div class="nav-child" data-page="task-my-export">我的导出任务</div>
+  </div>
 </aside>
 
 <main class="main">
@@ -324,19 +334,6 @@ tbody tr:hover{background:#f7fbff}
 
 <!-- REPORT -->
 <section class="page active" id="page-report">
-  <div class="page-head">
-    <div>
-      <h1 class="page-title">货量分析</h1>
-      <div class="page-sub">用多日期横向对比，定位联赛与商户的货量变化</div>
-    </div>
-    <div class="page-meta" aria-label="报表统计口径">
-      <span class="page-meta-item"><strong>货量口径：按投注时间统计单关有效投注金额</strong></span>
-      <span class="page-meta-item">统计时区：UTC+8</span>
-      <span class="page-meta-item">数据时效：T+1（次日生效）</span>
-      <span class="page-meta-item">数据更新时间：2026-09-08 15:09</span>
-    </div>
-  </div>
-
   <div class="query-workbench" aria-label="报表查询工作台">
   <div class="card date-card date-config-panel" id="dateConfigPanel">
     <div class="date-panel-head"><div class="section-title" style="margin:0">日期设置</div><span class="read-only-hint">最多选择10个日期</span></div>
@@ -422,6 +419,28 @@ tbody tr:hover{background:#f7fbff}
   </div>
 </section>
 
+<!-- TASK CENTER / MY EXPORT -->
+<section class="page" id="page-task-my-export">
+  <h1 class="uat-page-title">我的导出任务</h1>
+  <div class="uat-panel">
+    <div class="uat-search-form">
+      <label class="uat-form-item"><span class="uat-label">选择时间：</span><input class="uat-control uat-date" value="2026-09-02  ~  2026-09-15" readonly></label>
+      <label class="uat-form-item"><span class="uat-label">文件名称：</span><input class="uat-control uat-name" id="exportNameFilter" placeholder="请输入文件名称"></label>
+      <label class="uat-form-item"><span class="uat-label">状态：</span><select class="uat-control uat-status" id="exportStatusFilter"><option value="">全部</option><option>已完成</option><option>处理中</option><option>失败</option></select></label>
+      <button class="uat-query" onclick="filterExportTasks()">查 询</button>
+    </div>
+    <div class="uat-table-wrap">
+      <table class="uat-table">
+        <colgroup><col style="width:58px"><col style="width:82px"><col style="width:190px"><col style="width:88px"><col style="width:210px"><col style="width:158px"><col style="width:88px"><col style="width:190px"><col style="width:130px"></colgroup>
+        <thead><tr><th>序号</th><th>操作人</th><th>文件名称</th><th>文件大小</th><th>来源页面</th><th>创建时间</th><th>状态</th><th>解压密码</th><th>操作</th></tr></thead>
+        <tbody id="exportTaskBody"></tbody>
+      </table>
+    </div>
+    <div class="uat-pagination"><span id="exportCount">共 4 条记录</span><button class="uat-page-btn" disabled>‹</button><button class="uat-page-btn active">1</button><button class="uat-page-btn" disabled>›</button><select class="uat-page-size"><option>10 条/页</option></select></div>
+    <div class="uat-help">文件生成成功后 6 小时内仅可下载一次；解压密码不设有效期。文件已下载或超过下载时限后，仍可查看和复制密码。</div>
+  </div>
+</section>
+
 </div>
 </main>
 </div>
@@ -474,7 +493,7 @@ const merchantTreeData=[
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
 function closeModal(id){document.getElementById(id).classList.remove('show')}
 function startExport(){document.getElementById('exportModal').classList.add('show')}
-function viewExportTask(){closeModal('exportModal');toast('已提交导出任务，任务中心页面待接入')}
+function viewExportTask(){closeModal('exportModal');navigateToPage('task-my-export')}
 function dayName(ds){return ['周日','周一','周二','周三','周四','周五','周六'][new Date(ds+'T00:00:00').getDay()]}
 function money(n){return Math.round(n).toLocaleString('zh-CN')}
 function activate(btn,selector='.quick-chip'){if(!btn)return;btn.parentElement.querySelectorAll(selector).forEach(x=>x.classList.remove('active'));btn.classList.add('active')}
@@ -529,12 +548,29 @@ function createMerchantTreeCombo(elId,nodes){
  return{get:()=>visibleSelected().map(c=>byCode[c]),value:()=>visibleSelected().map(c=>byCode[c].name).join('、'),selectedCodes:()=>new Set([...checked]),roots:()=>visibleSelected().map(c=>byCode[c]),reset:()=>{checked.clear();expanded.clear();input.value='';update();render()},refresh:()=>render(input.value),allNodes:byCode};
 }
 
-/* nav */
-document.querySelectorAll('.nav-item').forEach(item=>item.onclick=()=>{
- document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));item.classList.add('active');
- document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById('page-report').classList.add('active');
- document.getElementById('breadcrumb').innerHTML='体育报表 / 注单统计 / <strong>货量分析</strong>';
-});
+/* hash routing and navigation */
+const pageRoutes={report:{hash:'report-volume-analysis',breadcrumb:'体育报表 / 注单统计 / <strong>货量分析</strong>'},'task-my-export':{hash:'task-my-export',breadcrumb:'任务中心 / <strong>我的导出任务</strong>'}};
+function routeKeyFromHash(){const h=location.hash.replace(/^#/,'');return Object.keys(pageRoutes).find(k=>pageRoutes[k].hash===h)||'report'}
+function showPage(page,pushHash=true){if(!pageRoutes[page])page='report';document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===`page-${page}`));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));document.getElementById('breadcrumb').innerHTML=pageRoutes[page].breadcrumb;if(pushHash&&location.hash!==`#${pageRoutes[page].hash}`)history.pushState(null,'',`#${pageRoutes[page].hash}`)}
+function navigateToPage(page){showPage(page,true)}
+document.querySelectorAll('[data-page]').forEach(item=>item.onclick=()=>navigateToPage(item.dataset.page));
+window.addEventListener('hashchange',()=>showPage(routeKeyFromHash(),false));
+
+/* export tasks */
+const exportTasks=[
+ {operator:'tyvela',file:'20260915143025_A7K9M2.zip',size:'3KB',source:'体育报表-操盘统计-操盘联赛报表',created:'2026-09-15 14:30:25',status:'已完成',password:'K7mP4xQ9vR2c',download:'可下载'},
+ {operator:'tyvela',file:'20260915142608_H3T8W6.zip',size:'18KB',source:'体育报表-商户统计-商户汇总统计',created:'2026-09-15 14:26:08',status:'已完成',password:'N8cR5yM2pL7s',download:'已下载'},
+ {operator:'tyvela',file:'20260915141942_D9F4K7.zip',size:'--',source:'体育报表-注单统计-货量分析',created:'2026-09-15 14:19:42',status:'处理中',password:'',download:'不可用'},
+ {operator:'tyvela',file:'商户汇总统计-明细1789037293646.csv.zip',size:'1KB',source:'体育报表-商户统计-商户汇总统计',created:'2026-09-10 18:48:13',status:'已完成',password:'',download:'已过期',legacy:true}
+];
+const revealedPasswords=new Set();const passwordTimers={};
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderExportTasks(rows=exportTasks){const body=document.getElementById('exportTaskBody');if(!body)return;body.innerHTML=rows.map((r,i)=>{const ready=r.status==='已完成'&&!r.legacy,password=r.legacy?'--':r.status==='已完成'?(revealedPasswords.has(r.file)?escapeHtml(r.password):'••••••••••••'):'--',statusClass=r.status==='已完成'?'status-done':r.status==='处理中'?'status-running':'status-failed';return`<tr><td class="center">${i+1}</td><td>${r.operator}</td><td class="file-cell" title="${escapeHtml(r.file)}">${escapeHtml(r.file)}</td><td class="center">${r.size}</td><td title="${r.source}">${r.source}</td><td>${r.created}</td><td class="center ${statusClass}">${r.status}</td><td><div class="password-cell"><span class="password-value">${password}</span>${ready?`<button class="password-eye" title="${revealedPasswords.has(r.file)?'隐藏密码':'查看密码'}" onclick="toggleExportPassword('${r.file}')">${revealedPasswords.has(r.file)?'◉':'◎'}</button><button class="password-copy" title="复制密码" onclick="copyExportPassword('${r.file}')">▣</button>`:''}</div></td><td class="center"><button class="uat-link" ${r.download!=='可下载'?'disabled':''} onclick="downloadExport('${r.file}')">下载</button><button class="uat-link" onclick="removeExportDemo('${r.file}')">删除</button></td></tr>`}).join('')||'<tr><td colspan="9" class="center">暂无数据</td></tr>';document.getElementById('exportCount').textContent=`共 ${rows.length} 条记录`}
+function filterExportTasks(){const name=document.getElementById('exportNameFilter').value.trim().toLowerCase(),status=document.getElementById('exportStatusFilter').value;renderExportTasks(exportTasks.filter(r=>(!name||r.file.toLowerCase().includes(name))&&(!status||r.status===status)));toast('查询完成')}
+function toggleExportPassword(file){const r=exportTasks.find(x=>x.file===file);if(!r?.password)return;clearTimeout(passwordTimers[file]);if(revealedPasswords.has(file)){revealedPasswords.delete(file)}else{revealedPasswords.add(file);passwordTimers[file]=setTimeout(()=>{revealedPasswords.delete(file);renderExportTasks()},10000)}renderExportTasks()}
+async function copyExportPassword(file){const r=exportTasks.find(x=>x.file===file);if(!r?.password)return;try{await navigator.clipboard.writeText(r.password)}catch(e){const t=document.createElement('textarea');t.value=r.password;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}toast('解压密码已复制')}
+function downloadExport(file){const r=exportTasks.find(x=>x.file===file);if(!r||r.download!=='可下载')return;r.download='已下载';renderExportTasks();toast('原型演示：下载成功，本任务不可再次下载')}
+function removeExportDemo(file){toast('原型演示：删除操作需二次确认')}
 
 /* report combos */
 let sportCombo,leagueCombo,merchantCombo;
@@ -670,7 +706,8 @@ function resetReport(){sportCombo.reset();leagueCombo.reset();merchantCombo.rese
 function resetAllQuery(){customDates=[];queriedDates=[];dateMode='custom';dateSelectionSource='自定义';dateAnchor='';calendarMonth=new Date();document.getElementById('timeStart').value='17:00';document.getElementById('timeEnd').value='18:00';document.getElementById('granularity').value='60';document.getElementById('queryFilterBody').hidden=true;document.getElementById('queryFilterCard').classList.add('collapsed');document.getElementById('queryCollapseBtn').setAttribute('aria-expanded','false');document.querySelector('#queryFilterCard .query-card-head').setAttribute('aria-expanded','false');document.getElementById('queryCollapseText').textContent='展开筛选';document.getElementById('queryCardHint').textContent='赛种、联赛、商户等筛选项';renderDateChips();resetReport();document.getElementById('dateQueryPending').classList.remove('show');document.getElementById('reportQueryBtn').textContent='查询';toast('已重置日期和查询条件')}
 
 /* init */
-renderDateChips();updateFilterVisibility();runReportQuery();
+renderDateChips();updateFilterVisibility();runReportQuery();renderExportTasks();showPage(routeKeyFromHash(),false);
 </script>
 </body>
 </html>
+
