@@ -271,6 +271,11 @@ tbody tr:hover{background:#f7fbff}
 #page-report .query-pending{margin-top:7px;padding:6px 9px;font-size:10px}
 #page-report .filter-card{padding:11px 12px;margin-bottom:10px}
 #page-report .filter-grid{grid-template-columns:repeat(6,minmax(120px,1fr));column-gap:10px;row-gap:9px}
+#page-report .time-range-field{grid-column:span 2}#page-report .time-range-split{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px;align-items:center;height:32px}#page-report .time-range-separator{color:#94a3b8;font-size:12px}
+#page-report .minute-time-picker{height:34px;display:grid;grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr);align-items:center;border:1px solid #d7e0ea;border-radius:6px;background:#fff;overflow:hidden}
+#page-report .minute-time-picker[hidden]{display:none!important}#page-report .minute-time-divider{height:18px;background:#e2e8f0}
+#page-report .minute-time-part{width:100%;height:32px;border:0;background:transparent;padding:0 20px 0 8px;color:#334155;font:inherit;font-size:11px;outline:none;cursor:pointer}
+#page-report .minute-time-part:focus{box-shadow:inset 0 0 0 2px rgba(37,137,255,.18)}
 #page-report .date-query-field{grid-column:span 4}
 #page-report .time-range-field{grid-column:span 2}
 #page-report .filter-section-title{font-size:11px;padding-top:8px}
@@ -348,14 +353,14 @@ tbody tr:hover{background:#f7fbff}
     <div class="query-filter-body" id="queryFilterBody" hidden>
     <div class="filter-grid">
       <div class="filter-section-title">基础查询</div>
-      <div class="field time-range-field"><label>统计时段</label><div style="display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center"><input class="control" type="time" id="timeStart" value="17:00"><span style="color:#94a3b8">至</span><input class="control" type="time" id="timeEnd" value="18:00"></div></div>
       <div class="field">
-        <label>统计粒度</label>
+        <label>时间粒度</label>
         <select class="control" id="granularity">
-          <option value="5">5分钟</option><option value="15">15分钟</option><option value="30">30分钟</option><option value="60" selected>1小时</option>
-          <option value="180">3小时</option><option value="360">6小时</option><option value="720">12小时</option><option value="1440">1天</option>
+          <option value="5">5分钟</option><option value="15">15分钟</option><option value="30">30分钟</option><option value="60">1小时</option>
+          <option value="180">3小时</option><option value="360">6小时</option><option value="720">12小时</option><option value="1440" selected>1天</option>
         </select>
       </div>
+      <div class="field time-range-field"><label>统计时段</label><div class="time-range-split"><div><select class="control" id="timeStart" aria-label="开始时间" title="开始时间"></select><div class="minute-time-picker" id="startMinutePicker" hidden><select class="minute-time-part" id="startHour" aria-label="开始小时" title="开始小时"></select><span class="minute-time-divider" aria-hidden="true"></span><select class="minute-time-part" id="startMinute" aria-label="开始分钟" title="开始分钟"></select></div></div><span class="time-range-separator">至</span><div><select class="control" id="timeEnd" aria-label="结束时间" title="结束时间"></select><div class="minute-time-picker" id="endMinutePicker" hidden><select class="minute-time-part" id="endHour" aria-label="结束小时" title="结束小时"></select><span class="minute-time-divider" aria-hidden="true"></span><select class="minute-time-part" id="endMinute" aria-label="结束分钟" title="结束分钟"></select></div></div></div></div>
       <div class="field">
         <label>赛种</label><div id="sportCombo"></div>
       </div>
@@ -610,9 +615,23 @@ function syncMerchantFilterAvailability(){const locked=!!merchantCombo.value();[
 function quickMerchant(v,b){merchantCombo.setByText(v);activate(b)}
 function quickSelect(id,v,b){document.getElementById(id).value=v;activate(b);markQueryPending()}
 function quickGranularity(v,b){const g=document.getElementById('granularity');g.value=v;activate(b);g.dispatchEvent(new Event('change'))}
-function timeSlots(){const g=+document.getElementById('granularity').value;if(g===1440)return['00:00-23:59'];const[sh,sm]=document.getElementById('timeStart').value.split(':').map(Number),[eh,em]=document.getElementById('timeEnd').value.split(':').map(Number);let s=sh*60+sm,e=eh*60+em;if(e<=s)e=s+g;const out=[],f=x=>`${String(Math.floor(x/60)%24).padStart(2,'0')}:${String(x%60).padStart(2,'0')}`;for(let t=s;t<e;t+=g)out.push(`${f(t)}-${f(Math.min(t+g,e))}`);return out}
-document.getElementById('granularity').addEventListener('change',()=>{const g=+document.getElementById('granularity').value,s=document.getElementById('timeStart'),e=document.getElementById('timeEnd');if(g===1440){s.value='00:00';e.value='23:59';s.disabled=true;e.disabled=true}else{s.disabled=false;e.disabled=false}markQueryPending()});
-['timeStart','timeEnd','leagueLevel','merchantTypeReportFilter','merchantGroupFilter','merchantGradeFilter','merchantRiskFilter'].forEach(id=>document.getElementById(id).addEventListener('change',markQueryPending));
+function formatMinute(total){if(total===1440)return'24:00';return`${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`}
+function minuteValue(value){if(value==='24:00')return 1440;const[h,m]=value.split(':').map(Number);return h*60+m}
+function setTimeOptions(select,values,selected){select.innerHTML=values.map(v=>`<option value="${formatMinute(v)}">${formatMinute(v)}</option>`).join('');select.value=values.includes(selected)?formatMinute(selected):formatMinute(values[0]);select.disabled=false}
+function timeOptionValues(select){return Array.from(select.options,o=>minuteValue(o.value))}
+function renderMinutePicker(kind,preferred){const canonical=document.getElementById(kind==='start'?'timeStart':'timeEnd'),hour=document.getElementById(`${kind}Hour`),minute=document.getElementById(`${kind}Minute`),values=timeOptionValues(canonical),target=values.includes(preferred)?preferred:minuteValue(canonical.value),hours=[...new Set(values.map(v=>Math.floor(v/60)))];hour.innerHTML=hours.map(v=>`<option value="${v}">${String(v).padStart(2,'0')}时</option>`).join('');const targetHour=Math.floor(target/60);hour.value=String(hours.includes(targetHour)?targetHour:hours[0]);const minutes=values.filter(v=>Math.floor(v/60)===+hour.value).map(v=>v%60);minute.innerHTML=minutes.map(v=>`<option value="${v}">${String(v).padStart(2,'0')}分</option>`).join('');minute.value=String(minutes.includes(target%60)?target%60:minutes[0]);canonical.value=formatMinute(+hour.value*60 + +minute.value)}
+function setMinuteMode(active){['start','end'].forEach(kind=>{document.getElementById(kind==='start'?'timeStart':'timeEnd').hidden=active;document.getElementById(`${kind}MinutePicker`).hidden=!active})}
+function applyMinutePart(kind,hourChanged){const canonical=document.getElementById(kind==='start'?'timeStart':'timeEnd'),hour=document.getElementById(`${kind}Hour`),minute=document.getElementById(`${kind}Minute`),values=timeOptionValues(canonical),hourValue=+hour.value,minutes=values.filter(v=>Math.floor(v/60)===hourValue).map(v=>v%60);if(hourChanged){minute.innerHTML=minutes.map(v=>`<option value="${v}">${String(v).padStart(2,'0')}分</option>`).join('');minute.value=String(minutes[0])}canonical.value=formatMinute(hourValue*60 + +minute.value);if(kind==='start'){syncEndTimeOptions();renderMinutePicker('end',minuteValue(document.getElementById('timeEnd').value))}markQueryPending()}
+function syncEndTimeOptions(preferred){const g=+document.getElementById('granularity').value,s=document.getElementById('timeStart'),e=document.getElementById('timeEnd'),start=minuteValue(s.value),values=[];for(let t=start+g;t<=1440;t+=g)values.push(t);setTimeOptions(e,values,preferred==null?start+g:preferred);if(g<60)renderMinutePicker('end',minuteValue(e.value))}
+function syncTimeByGranularity(){const g=+document.getElementById('granularity').value,s=document.getElementById('timeStart'),e=document.getElementById('timeEnd'),oldStart=s.value?minuteValue(s.value):0,oldEnd=e.value?minuteValue(e.value):g;setMinuteMode(g<60);if(g===1440){setTimeOptions(s,[0],0);setTimeOptions(e,[1440],1440);s.disabled=true;e.disabled=true}else{const starts=[];for(let t=0;t<=1440-g;t+=g>=60?60:g)starts.push(t);setTimeOptions(s,starts,oldStart);s.disabled=false;syncEndTimeOptions(oldEnd);if(g<60){renderMinutePicker('start',minuteValue(s.value));renderMinutePicker('end',minuteValue(e.value))}}markQueryPending()}
+function timeSlots(){const g=+document.getElementById('granularity').value,s=minuteValue(document.getElementById('timeStart').value),e=minuteValue(document.getElementById('timeEnd').value),out=[];for(let t=s;t<e;t+=g)out.push(`${formatMinute(t)}-${formatMinute(Math.min(t+g,e))}`);return out}
+document.getElementById('granularity').addEventListener('change',syncTimeByGranularity);
+document.getElementById('timeStart').addEventListener('change',()=>{syncEndTimeOptions();markQueryPending()});
+document.getElementById('startHour').addEventListener('change',()=>applyMinutePart('start',true));
+document.getElementById('startMinute').addEventListener('change',()=>applyMinutePart('start',false));
+document.getElementById('endHour').addEventListener('change',()=>applyMinutePart('end',true));
+document.getElementById('endMinute').addEventListener('change',()=>applyMinutePart('end',false));
+['timeEnd','leagueLevel','merchantTypeReportFilter','merchantGroupFilter','merchantGradeFilter','merchantRiskFilter'].forEach(id=>document.getElementById(id).addEventListener('change',markQueryPending));
 
 /* merchant attributes */
 const grades=['S','A','B','C','D','E','F','G'],risks=['优质','待观察','正常','劣质'];
@@ -703,11 +722,10 @@ function shiftDateWindow(dir){const dates=resultDates(),maxStart=dates.length?Ma
 function renderReportPager(){const pages=Math.max(1,Math.ceil(reportRows.length/reportPageSize)),s=reportRows.length?(reportPage-1)*reportPageSize+1:0,e=Math.min(reportPage*reportPageSize,reportRows.length);let b=`<button class="page-btn" ${reportPage===1?'disabled':''} onclick="goReportPage(${reportPage-1})">‹</button>`;for(let p=1;p<=pages;p++){if(p===1||p===pages||Math.abs(p-reportPage)<=1)b+=`<button class="page-btn ${p===reportPage?'active':''}" onclick="goReportPage(${p})">${p}</button>`;else if((p===2&&reportPage>3)||(p===pages-1&&reportPage<pages-2))b+='…'}b+=`<button class="page-btn" ${reportPage===pages?'disabled':''} onclick="goReportPage(${reportPage+1})">›</button>`;document.getElementById('reportPager').innerHTML=`<div class="pagination-wrap"><div class="pagination-info">共 ${reportRows.length} 行，第 ${s}-${e} 行</div><div class="pagination">${b}<select class="page-size" onchange="reportPageSize=+this.value;reportPage=1;renderReport()"><option value="20" ${reportPageSize===20?'selected':''}>20条/页</option><option value="50" ${reportPageSize===50?'selected':''}>50条/页</option><option value="100" ${reportPageSize===100?'selected':''}>100条/页</option></select></div></div>`}
 function goReportPage(p){const pages=Math.max(1,Math.ceil(reportRows.length/reportPageSize));if(p<1||p>pages)return;reportPage=p;renderReport()}
 function resetReport(){sportCombo.reset();leagueCombo.reset();merchantCombo.reset();leagueLevel.value='';['merchantTypeReportFilter','merchantGroupFilter','merchantGradeFilter','merchantRiskFilter'].forEach(id=>document.getElementById(id).value='');reportMerchantExpanded.clear();reportType='level';metric='amount';tableSort={key:'',dir:'asc'};document.querySelectorAll('.report-tab').forEach(x=>x.classList.toggle('active',x.dataset.report==='level'));document.querySelectorAll('.metric-tab').forEach(x=>x.classList.toggle('active',x.dataset.metric==='amount'));runReportQuery()}
-function resetAllQuery(){customDates=[];queriedDates=[];dateMode='custom';dateSelectionSource='自定义';dateAnchor='';calendarMonth=new Date();document.getElementById('timeStart').value='17:00';document.getElementById('timeEnd').value='18:00';document.getElementById('granularity').value='60';document.getElementById('queryFilterBody').hidden=true;document.getElementById('queryFilterCard').classList.add('collapsed');document.getElementById('queryCollapseBtn').setAttribute('aria-expanded','false');document.querySelector('#queryFilterCard .query-card-head').setAttribute('aria-expanded','false');document.getElementById('queryCollapseText').textContent='展开筛选';document.getElementById('queryCardHint').textContent='赛种、联赛、商户等筛选项';renderDateChips();resetReport();document.getElementById('dateQueryPending').classList.remove('show');document.getElementById('reportQueryBtn').textContent='查询';toast('已重置日期和查询条件')}
+function resetAllQuery(){customDates=[];queriedDates=[];dateMode='custom';dateSelectionSource='自定义';dateAnchor='';calendarMonth=new Date();document.getElementById('granularity').value='1440';syncTimeByGranularity();document.getElementById('queryFilterBody').hidden=true;document.getElementById('queryFilterCard').classList.add('collapsed');document.getElementById('queryCollapseBtn').setAttribute('aria-expanded','false');document.querySelector('#queryFilterCard .query-card-head').setAttribute('aria-expanded','false');document.getElementById('queryCollapseText').textContent='展开筛选';document.getElementById('queryCardHint').textContent='赛种、联赛、商户等筛选项';renderDateChips();resetReport();document.getElementById('dateQueryPending').classList.remove('show');document.getElementById('reportQueryBtn').textContent='查询';toast('已重置日期和查询条件')}
 
 /* init */
-renderDateChips();updateFilterVisibility();runReportQuery();renderExportTasks();showPage(routeKeyFromHash(),false);
+syncTimeByGranularity();renderDateChips();updateFilterVisibility();runReportQuery();renderExportTasks();showPage(routeKeyFromHash(),false);
 </script>
 </body>
 </html>
-

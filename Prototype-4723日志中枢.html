@@ -709,15 +709,15 @@
         #user-change-sub-nav button.is-active::after { content:""; position:absolute; height:3px; left:0; right:0; bottom:0; border-radius:3px; background:#d1d5db; }
         #risk-filter-container { padding:16px 24px !important; }
         #risk-filter-container .uat-query-row,
-        #app-view .view-content .uat-query-row { display:flex !important; flex-wrap:wrap !important; column-gap:24px !important; row-gap:8px !important; align-items:center !important; width:100% !important; font-size:14px !important; }
-        #app-view .uat-filter-item { display:flex !important; align-items:center !important; gap:8px !important; margin:0 !important; min-width:312px !important; width:312px !important; height:32px !important; }
+        #app-view .view-content .uat-query-row { display:flex !important; flex-wrap:wrap !important; column-gap:20px !important; row-gap:10px !important; align-items:center !important; width:100% !important; font-size:14px !important; }
+        #app-view .uat-filter-item { display:flex !important; align-items:center !important; gap:8px !important; margin:0 !important; flex:0 0 auto !important; min-width:296px !important; height:32px !important; }
         #app-view .uat-filter-label { flex:0 0 auto !important; width:auto !important; min-width:0 !important; text-align:left !important; white-space:nowrap !important; }
-        #app-view .uat-filter-control { flex:0 0 200px !important; width:200px !important; min-width:0 !important; }
+        #app-view .uat-filter-control { flex:0 0 170px !important; width:170px !important; min-width:170px !important; }
         #app-view .uat-filter-control > input,
         #app-view .uat-filter-control > select,
         #app-view .uat-filter-control > textarea,
         #app-view .uat-filter-control > div { width:100% !important; }
-        #app-view .uat-query-actions { display:flex !important; justify-content:flex-end !important; align-items:center !important; gap:8px !important; margin-left:auto !important; min-width:220px !important; height:32px !important; }
+        #app-view .uat-query-actions { display:flex !important; justify-content:flex-end !important; align-items:center !important; gap:8px !important; margin-left:auto !important; min-width:0 !important; height:32px !important; }
         #app-view .uat-query-actions button { height:32px !important; padding:0 16px !important; font-size:14px !important; }
         .datetime-popup { position:fixed; z-index:300; width:650px; background:#fff; border:1px solid #d9d9d9; border-radius:4px; box-shadow:0 6px 16px rgba(0,0,0,.15); color:rgba(0,0,0,.75); font-size:14px; }
         .dt-body { display:grid; grid-template-columns: 1fr 300px; min-height:330px; }
@@ -1009,7 +1009,7 @@
                         </div>
 
                         <div class="flex items-center gap-2 ml-auto">
-                            <button onclick="triggerToast('正在检索操盘日志...')" class="bg-[#00b594] hover:bg-teal-500 text-white px-4 py-1 rounded shadow text-[13px] transition-colors">确定</button>
+                            <button onclick="triggerToast('正在检索操盘日志...')" class="bg-[#00b594] hover:bg-teal-500 text-white px-4 py-1 rounded shadow text-[13px] transition-colors">查询</button>
                             <button onclick="triggerToast('已重置操盘日志过滤器')" class="bg-gray-100 dark:bg-[#161b22] border border-gray-300 dark:border-[#00b594] text-[#00b594] px-4 py-1 rounded shadow text-[13px] transition-colors hover:bg-gray-200 dark:hover:bg-teal-900/30">重置</button>
                             <label class="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 cursor-pointer ml-2">
                                 <input type="checkbox" class="w-3.5 h-3.5 accent-[#00b594] bg-transparent border-gray-600 rounded cursor-pointer"> 记住
@@ -1086,7 +1086,7 @@
                             <i data-lucide="calendar" class="w-3.5 h-3.5 absolute right-2 top-1.5 text-gray-500"></i>
                         </div>
 
-                        <button onclick="triggerToast('正在检索结算日志...')" class="bg-[#00b594] hover:bg-teal-500 text-white px-5 py-1 rounded shadow text-[13px] transition-colors ml-2">搜索</button>
+                        <button onclick="triggerToast('正在检索结算日志...')" class="bg-[#00b594] hover:bg-teal-500 text-white px-5 py-1 rounded shadow text-[13px] transition-colors ml-2">查询</button>
                         <button onclick="triggerToast('结算日志过滤器已重置')" class="bg-gray-100 dark:bg-[#161b22] border border-gray-300 dark:border-gray-600 text-gray-300 px-5 py-1 rounded shadow text-[13px] transition-colors hover:bg-gray-200 dark:hover:bg-gray-800">重置</button>
                         <button onclick="triggerToast('正在导出结算日志数据...')" class="bg-transparent border border-[#00b594] text-[#00b594] px-5 py-1 rounded shadow text-[13px] transition-colors hover:bg-[#00b594]/10 ml-auto">导出</button>
                     </div>
@@ -2679,7 +2679,8 @@
                             <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2 top-2 text-gray-500"></i>
                             <input type="text" placeholder="请输入操作用户名" class="w-full bg-transparent border border-gray-600 text-gray-300 rounded pl-8 pr-2 py-1.5 focus:outline-none focus:border-[#00b594] placeholder-gray-500">
                         </div>
-                        <button onclick="triggerToast('正在拉取TOB商户日志...')" class="bg-[#00b594] hover:bg-teal-500 text-white px-6 py-1.5 rounded shadow text-[13px] transition-colors ml-auto">搜索</button>
+                        ${dtInput('开始时间')}<span>-</span>${dtInput('结束时间')}
+                        <button onclick="triggerToast('正在拉取TOB商户日志...')" class="bg-[#00b594] hover:bg-teal-500 text-white px-6 py-1.5 rounded shadow text-[13px] transition-colors ml-auto">查询</button>
                     </div>
                 `;
             }
@@ -2751,7 +2752,8 @@
                             <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2 top-2 text-gray-500"></i>
                             <input type="text" placeholder="输入代理/商户搜索..." class="w-full bg-transparent border border-gray-600 text-gray-300 rounded pl-8 pr-2 py-1.5 focus:outline-none focus:border-[#00b594] placeholder-gray-500">
                         </div>
-                        <button onclick="triggerToast('正在拉取商户后台操作日志...')" class="bg-[#00b594] hover:bg-teal-500 text-white px-5 py-1.5 rounded shadow text-[13px]">查找</button>
+                        ${dtInput('开始时间')}<span>-</span>${dtInput('结束时间')}
+                        <button onclick="triggerToast('正在拉取商户后台操作日志...')" class="bg-[#00b594] hover:bg-teal-500 text-white px-5 py-1.5 rounded shadow text-[13px]">查询</button>
                     </div>
                 `;
             }
@@ -2994,7 +2996,8 @@
                             </div>
                             <input type="text" placeholder="操作对象ID" class="w-32 bg-transparent border border-gray-600 text-gray-300 rounded px-2 py-1.5 focus:outline-none focus:border-[#00b594] placeholder-gray-500">
                             <input type="text" placeholder="操作人" class="w-24 bg-transparent border border-gray-600 text-gray-300 rounded px-2 py-1.5 focus:outline-none focus:border-[#00b594] placeholder-gray-500">
-                            <button onclick="triggerToast('正在拉取运营日志数据...')" class="bg-[#00b594] hover:bg-teal-500 text-white px-5 py-1.5 rounded shadow text-[13px] transition-colors ml-2">确定</button>
+                            ${dtInput('开始时间')}<span>-</span>${dtInput('结束时间')}
+                            <button onclick="triggerToast('正在拉取运营日志数据...')" class="bg-[#00b594] hover:bg-teal-500 text-white px-5 py-1.5 rounded shadow text-[13px] transition-colors ml-2">查询</button>
                         </div>
                     `;
 
@@ -3178,10 +3181,10 @@
             if(!f||!t)return;
             if(tabName==='user-change'){ switchUserSubTab('betting-feature',document.getElementById('user-sub-tab-betting')); return; }
             if(tabName==='risk-action'){
-                f.innerHTML=`<div class="flex flex-wrap items-center gap-3"><select>${optionHtml(riskOperationTypes,'操作类型')}</select><input placeholder="操作对象名称"><input placeholder="操作参数"><input placeholder="操作类别"><input placeholder="操作人">${dtInput('开始时间')}<span>-</span>${dtInput('结束时间')}<div class="uat-query-actions"><button class="bg-[#00b594] text-white" onclick="triggerToast('风控操作日志检索中...')">搜索</button><button onclick="this.closest('.flex').querySelectorAll('input').forEach(i=>i.value='')">重置</button><button class="border border-[#00b594] text-[#00b594]" onclick="triggerToast('正在导出风控操作日志...')">导出</button></div></div>`;
+                f.innerHTML=`<div class="flex flex-wrap items-center gap-3"><select>${optionHtml(riskOperationTypes,'操作类型')}</select><input placeholder="操作对象名称"><input placeholder="操作参数"><input placeholder="操作类别"><input placeholder="操作人">${dtInput('开始时间')}<span>-</span>${dtInput('结束时间')}<div class="uat-query-actions"><button class="bg-[#00b594] text-white" onclick="triggerToast('风控操作日志检索中...')">查询</button><button onclick="this.closest('.flex').querySelectorAll('input').forEach(i=>i.value='')">重置</button><button class="border border-[#00b594] text-[#00b594]" onclick="triggerToast('正在导出风控操作日志...')">导出</button></div></div>`;
                 t.innerHTML=riskTable(['操作类别','操作对象ID','操作对象名称','操作对象扩展ID','操作对象扩展名称','操作类型','操作参数','修改前','修改后','操作人','操作时间'],[['危险投注','d25','全部','对打对冲','-','危险投注','修改','参数1:60-参数2:0.08-是否有效:是','是否有效:否','cptest','2026-09-17 12:46:53']]);
             } else {
-                f.innerHTML=`<div class="flex flex-wrap items-center gap-3"><input placeholder="操作人">${dtInput('开始时间')}<span>-</span>${dtInput('结束时间')}<div class="uat-query-actions"><button class="bg-[#00b594] text-white" onclick="triggerToast('商户异常日志检索中...')">搜索</button><button onclick="this.closest('.flex').querySelectorAll('input').forEach(i=>i.value='')">重置</button><button class="border border-[#00b594] text-[#00b594]" onclick="triggerToast('正在导出商户异常日志...')">导出</button></div></div>`;
+                f.innerHTML=`<div class="flex flex-wrap items-center gap-3"><input placeholder="操作人">${dtInput('开始时间')}<span>-</span>${dtInput('结束时间')}<div class="uat-query-actions"><button class="bg-[#00b594] text-white" onclick="triggerToast('商户异常日志检索中...')">查询</button><button onclick="this.closest('.flex').querySelectorAll('input').forEach(i=>i.value='')">重置</button><button class="border border-[#00b594] text-[#00b594]" onclick="triggerToast('正在导出商户异常日志...')">导出</button></div></div>`;
                 t.innerHTML=riskTable(['操作人','进入时间','浏览商户数量']);
             }
             enhanceUatQueryLayout(document); enhanceDateTimeInputs();
@@ -3200,7 +3203,7 @@
                 f.innerHTML=`<div class="flex flex-wrap items-center gap-3">${common}<select>${optionHtml(['普通玩家组','重点玩家组','风险玩家组'],'原值')}</select><select>${optionHtml(['普通玩家组','重点玩家组','风险玩家组'],'新值')}</select>${actions(false)}</div>`;
                 t.innerHTML=riskTable(['用户ID','用户名称','商户','操作时间','操作人','新值']);
             }else if(subTabName==='remark-history'){
-                f.innerHTML=`<div class="flex flex-wrap items-center gap-3"><select>${optionHtml(riskOperationTypes,'操作类型')}</select><input placeholder="操作对象名称"><input placeholder="操作参数"><input placeholder="操作类别"><input placeholder="操作人">${dtInput('开始时间')}${dtInput('结束时间')}<div class="uat-query-actions"><button class="bg-[#00b594] text-white" onclick="triggerToast('日志搜索中...')">搜索</button><button onclick="this.closest('.flex').querySelectorAll('input').forEach(i=>i.value='')">重置</button><button class="border border-[#00b594] text-[#00b594]" onclick="triggerToast('正在导出日志...')">导出</button></div></div>`;
+                f.innerHTML=`<div class="flex flex-wrap items-center gap-3"><select>${optionHtml(riskOperationTypes,'操作类型')}</select><input placeholder="操作对象名称"><input placeholder="操作参数"><input placeholder="操作类别"><input placeholder="操作人">${dtInput('开始时间')}${dtInput('结束时间')}<div class="uat-query-actions"><button class="bg-[#00b594] text-white" onclick="triggerToast('日志搜索中...')">查询</button><button onclick="this.closest('.flex').querySelectorAll('input').forEach(i=>i.value='')">重置</button><button class="border border-[#00b594] text-[#00b594]" onclick="triggerToast('正在导出日志...')">导出</button></div></div>`;
                 t.innerHTML=riskTable(['操作类别','操作对象ID','操作对象名称','操作对象扩展ID','操作对象扩展名称','操作类型','操作参数','修改前','修改后','操作人','操作时间']);
             }else{
                 const type=subTabName==='second-tag'?'二级标签管理':'投注特征标签';
