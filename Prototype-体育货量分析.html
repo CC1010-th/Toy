@@ -585,7 +585,7 @@ merchantCombo=createMerchantTreeCombo('merchantCombo',merchantTreeData);
 const leagueLevel=document.getElementById('leagueLevel');leagueLevel.innerHTML='<option value="">全部等级</option>';for(let i=1;i<=15;i++){const o=document.createElement('option');o.value=i;o.textContent=`${i}级${i===1?'（最高）':i===15?'（最低）':''}`;leagueLevel.appendChild(o)}
 
 /* dates */
-let dateMode='custom',customDates=['2026-08-04','2026-08-11','2026-08-18','2026-08-25','2026-09-01'],queriedDates=['2026-08-04','2026-08-11','2026-08-18','2026-08-25','2026-09-01'],calendarMonth=new Date('2026-09-01T00:00:00'),dateSelectionSource='自定义',dateAnchor='';
+let dateMode='custom',customDates=[],queriedDates=[],calendarMonth=new Date(),dateSelectionSource='自定义',dateAnchor='';
 function selectedDates(){return customDates}
 function resultDates(){return queriedDates}
 function updateDateSummary(){}
