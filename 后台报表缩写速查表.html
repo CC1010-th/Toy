@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后台报表缩写速查表</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--ink:#1c2330;--sub:#5b6472;--line:#e4e7ec;--brand:#2f6df6;--brand-soft:#eaf1ff;--warn:#d97706;--danger:#e5484d;--shadow:0 1px 3px rgba(16,24,40,.06);}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.6;font-size:15px;}
+.wrap{max-width:1000px;margin:0 auto;padding:32px 24px 80px;}
+h1{font-size:24px;margin:0 0 6px;}
+.lead{color:var(--sub);font-size:14px;margin:0 0 18px;}
+.intro{background:var(--brand-soft);border-left:4px solid var(--brand);border-radius:10px;padding:12px 16px;font-size:14px;margin-bottom:18px;}
+.searchbar{position:sticky;top:0;background:var(--bg);padding:12px 0;z-index:5;}
+#q{width:100%;padding:12px 16px;font-size:16px;border:2px solid var(--brand);border-radius:10px;outline:none;}
+#count{font-size:12.5px;color:var(--sub);margin-top:6px;}
+h2{font-size:19px;margin:34px 0 10px;padding-top:8px;border-top:1px solid var(--line);}
+h2 .n{color:var(--brand);margin-right:8px;}
+h3{font-size:15px;margin:18px 0 6px;color:#34404f;}
+table{width:100%;border-collapse:collapse;background:var(--card);box-shadow:var(--shadow);border-radius:8px;overflow:hidden;margin:8px 0 16px;font-size:13.5px;}
+th,td{text-align:left;padding:7px 12px;border-bottom:1px solid var(--line);}
+th{background:#f0f2f6;font-weight:600;font-size:12.5px;color:#34404f;position:sticky;}
+tr:last-child td{border-bottom:none;}
+td.ab{font-family:"SF Mono",Menlo,Consolas,monospace;font-weight:600;color:#b02a37;white-space:nowrap;}
+td.seq{color:var(--sub);width:44px;font-size:12px;}
+td.ex{color:var(--sub);font-size:12.5px;}
+table.g{max-width:520px;}
+.warn{background:#fff7ea;border-left:4px solid var(--warn);border-radius:10px;padding:4px 0;margin:8px 0 16px;}
+.warn table{box-shadow:none;background:transparent;margin:0;}
+.cols{column-width:250px;column-gap:20px;}
+.cols table{break-inside:avoid;}
+.hint{font-size:13px;color:var(--sub);}
+code{background:#eef1f5;padding:1px 6px;border-radius:5px;font-size:12.5px;color:#b02a37;}
+.hidden{display:none!important;}
+.empty-note{color:var(--sub);font-size:13px;padding:8px 0;}
+</style></head>
+<body><div class="wrap">
+<h1>后台报表缩写速查表</h1>
+<p class="lead">B端 / TY端 体育报表系统 · 脱敏缩写对照 · 来源：禅道 #4744《体育报表系统脱敏及对齐规则优化》V1.3</p>
+<div class="intro"><b>为什么后台全是缩写？</b> 出于合规，报表里的<b>敏感中文词被自动替换成拼音首字母缩写</b>（投注→TZ、注单→ZD…）。所以这些缩写不是随手简写，而是一套脱敏规则的产物。记住下面的<b>原子缩写</b>，就能拆解几乎所有报表名。</div>
+
+<div class="searchbar">
+  <input id="q" placeholder="🔍 输入缩写或中文，如 TZ、投注、DJSH、串关…（实时过滤下方所有表）">
+  <div id="count"></div>
+</div>
+
+<h2><span class="n">1</span>原子缩写速记（先记这些）</h2>
+<div class="hint">拆解示例：<code>DJSHDZ统计</code> = 电竞·商户·电子·统计；<code>CGLJYLJE</code> = 串关·累计·盈利·金额。后缀多为通用词：统计 / 报表 / 看板 / 排行 / 趋势。</div>
+<h3>业务品类 / 游戏类型</h3>
+<table class="g"><thead><tr><th>缩写</th><th>含义</th></tr></thead><tbody>
+<tr data-s="TY 体育"><td class="ab">TY</td><td>体育</td></tr>
+<tr data-s="DJ 电竞"><td class="ab">DJ</td><td>电竞</td></tr>
+<tr data-s="ZR 真人"><td class="ab">ZR</td><td>真人</td></tr>
+<tr data-s="QP 棋牌"><td class="ab">QP</td><td>棋牌</td></tr>
+<tr data-s="CP 彩票 ⚠️(也作操盘)"><td class="ab">CP</td><td>彩票 ⚠️(也作操盘)</td></tr>
+<tr data-s="DZ / DY 电子"><td class="ab">DZ / DY</td><td>电子</td></tr>
+<tr data-s="BY / FISH 捕鱼"><td class="ab">BY / FISH</td><td>捕鱼</td></tr>
+<tr data-s="JHDZ 聚合电子"><td class="ab">JHDZ</td><td>聚合电子</td></tr>
+<tr data-s="HAXI 哈希"><td class="ab">HAXI</td><td>哈希</td></tr>
+<tr data-s="GGL 刮刮乐"><td class="ab">GGL</td><td>刮刮乐</td></tr>
+<tr data-s="VR / XN 虚拟(体育)"><td class="ab">VR / XN</td><td>虚拟(体育)</td></tr>
+</tbody></table>
+<h3>投注与注单</h3>
+<table class="g"><thead><tr><th>缩写</th><th>含义</th></tr></thead><tbody>
+<tr data-s="TZ 投注"><td class="ab">TZ</td><td>投注</td></tr>
+<tr data-s="ZD 注单"><td class="ab">ZD</td><td>注单</td></tr>
+<tr data-s="TZE / TZJE 投注额 / 投注金额"><td class="ab">TZE / TZJE</td><td>投注额 / 投注金额</td></tr>
+<tr data-s="ZDS / ZDSL 注单数 / 数量"><td class="ab">ZDS / ZDSL</td><td>注单数 / 数量</td></tr>
+<tr data-s="TZRS 投注人数"><td class="ab">TZRS</td><td>投注人数</td></tr>
+<tr data-s="TZYH(S) 投注用户(数)"><td class="ab">TZYH(S)</td><td>投注用户(数)</td></tr>
+<tr data-s="DG 单关"><td class="ab">DG</td><td>单关</td></tr>
+<tr data-s="CG 串关"><td class="ab">CG</td><td>串关</td></tr>
+<tr data-s="CD 藏单"><td class="ab">CD</td><td>藏单</td></tr>
+<tr data-s="YY 预约"><td class="ab">YY</td><td>预约</td></tr>
+<tr data-s="ZP 早盘"><td class="ab">ZP</td><td>早盘</td></tr>
+<tr data-s="GQ 滚球"><td class="ab">GQ</td><td>滚球</td></tr>
+<tr data-s="SB 设备"><td class="ab">SB</td><td>设备</td></tr>
+<tr data-s="GQJD 滚球接单"><td class="ab">GQJD</td><td>滚球接单</td></tr>
+</tbody></table>
+<h3>盈亏与结算</h3>
+<table class="g"><thead><tr><th>缩写</th><th>含义</th></tr></thead><tbody>
+<tr data-s="YL / YLL 盈利 / 盈利率"><td class="ab">YL / YLL</td><td>盈利 / 盈利率</td></tr>
+<tr data-s="SY / SYL 输赢 / 输赢率"><td class="ab">SY / SYL</td><td>输赢 / 输赢率</td></tr>
+<tr data-s="PF 赔付"><td class="ab">PF</td><td>赔付</td></tr>
+<tr data-s="JD / JDL 拒单 / 拒单率"><td class="ab">JD / JDL</td><td>拒单 / 拒单率</td></tr>
+<tr data-s="JS 结算"><td class="ab">JS</td><td>结算</td></tr>
+<tr data-s="YJS 已结算"><td class="ab">YJS</td><td>已结算</td></tr>
+<tr data-s="TQJS 提前结算 (cash out)"><td class="ab">TQJS</td><td>提前结算 (cash out)</td></tr>
+<tr data-s="LJ 累计"><td class="ab">LJ</td><td>累计</td></tr>
+<tr data-s="JE 金额"><td class="ab">JE</td><td>金额</td></tr>
+<tr data-s="FP 封盘 ⚠️(也作复盘)"><td class="ab">FP</td><td>封盘 ⚠️(也作复盘)</td></tr>
+<tr data-s="AJS 按结算(时间)"><td class="ab">AJS</td><td>按结算(时间)</td></tr>
+<tr data-s="ATZ 按投注(时间)"><td class="ab">ATZ</td><td>按投注(时间)</td></tr>
+</tbody></table>
+<h3>商户与商务</h3>
+<table class="g"><thead><tr><th>缩写</th><th>含义</th></tr></thead><tbody>
+<tr data-s="SH 商户"><td class="ab">SH</td><td>商户</td></tr>
+<tr data-s="FL 费率"><td class="ab">FL</td><td>费率</td></tr>
+<tr data-s="YJ 佣金"><td class="ab">YJ</td><td>佣金</td></tr>
+<tr data-s="AM 商务 / 客户经理"><td class="ab">AM</td><td>商务 / 客户经理</td></tr>
+<tr data-s="BZ 币种"><td class="ab">BZ</td><td>币种</td></tr>
+<tr data-s="YH 用户"><td class="ab">YH</td><td>用户</td></tr>
+<tr data-s="BW 包网"><td class="ab">BW</td><td>包网</td></tr>
+<tr data-s="XJW / XJ 现金网 / 现金"><td class="ab">XJW / XJ</td><td>现金网 / 现金</td></tr>
+<tr data-s="XYW 信用网"><td class="ab">XYW</td><td>信用网</td></tr>
+<tr data-s="CPKPI 操盘KPI"><td class="ab">CPKPI</td><td>操盘KPI</td></tr>
+<tr data-s="SXF 上下分"><td class="ab">SXF</td><td>上下分</td></tr>
+<tr data-s="XZLD 下注拉单"><td class="ab">XZLD</td><td>下注拉单</td></tr>
+</tbody></table>
+
+
+<h2><span class="n">2</span>⚠️ 歧义缩写（同一缩写两个意思，看上下文）</h2>
+<div class="warn"><table><thead><tr><th>缩写</th><th>两种含义</th><th>例子</th></tr></thead><tbody>
+<tr data-s="CP 彩票 / 操盘"><td class="ab">CP</td><td><b>彩票 / 操盘</b></td><td class="ex">CP看板=彩票看板;CP统计=操盘统计、CP手=操盘手</td></tr>
+<tr data-s="FP 封盘 / 复盘"><td class="ab">FP</td><td><b>封盘 / 复盘</b></td><td class="ex">赛事FP监测=封盘;FP看板=复盘看板</td></tr>
+<tr data-s="DY 电子 / 捕鱼"><td class="ab">DY</td><td><b>电子 / 捕鱼</b></td><td class="ex">DY(S)=电子;DY(FISH)=捕鱼</td></tr>
+<tr data-s="VR / XN 都是虚拟"><td class="ab">VR / XN</td><td><b>都是虚拟</b></td><td class="ex">VR=虚拟体育;SHXNTY=商户虚拟体育</td></tr>
+</tbody></table></div>
+
+<h2><span class="n">3</span>B端报表 脱敏对照（83 条）</h2>
+<table id="tb"><thead><tr><th>序号</th><th>脱敏缩写</th><th>原始字段</th></tr></thead><tbody>
+<tr data-s="TY 体育(TY)"><td class="seq">1</td><td class="ab">TY</td><td>体育(TY)</td></tr>
+<tr data-s="ZR 真人(ZR)"><td class="seq">2</td><td class="ab">ZR</td><td>真人(ZR)</td></tr>
+<tr data-s="QP 棋牌(QP)"><td class="seq">3</td><td class="ab">QP</td><td>棋牌(QP)</td></tr>
+<tr data-s="DJ 电竞(DJ)"><td class="seq">4</td><td class="ab">DJ</td><td>电竞(DJ)</td></tr>
+<tr data-s="CP 彩票(CP)"><td class="seq">5</td><td class="ab">CP</td><td>彩票(CP)</td></tr>
+<tr data-s="DY(FISH) 捕鱼(DY FISH)"><td class="seq">6</td><td class="ab">DY(FISH)</td><td>捕鱼(DY FISH)</td></tr>
+<tr data-s="DY(S) 电子(DY S)"><td class="seq">7</td><td class="ab">DY(S)</td><td>电子(DY S)</td></tr>
+<tr data-s="BYQP 捕鱼棋牌(BYQP)"><td class="seq">8</td><td class="ab">BYQP</td><td>捕鱼棋牌(BYQP)</td></tr>
+<tr data-s="BY(FISH) 捕鱼(BY FISH)"><td class="seq">9</td><td class="ab">BY(FISH)</td><td>捕鱼(BY FISH)</td></tr>
+<tr data-s="SHFL管理 商户费率管理"><td class="seq">10</td><td class="ab">SHFL管理</td><td>商户费率管理</td></tr>
+<tr data-s="FL方案设置 费率方案设置"><td class="seq">11</td><td class="ab">FL方案设置</td><td>费率方案设置</td></tr>
+<tr data-s="YJ管理 佣金管理"><td class="seq">12</td><td class="ab">YJ管理</td><td>佣金管理</td></tr>
+<tr data-s="AM管理 商务管理"><td class="seq">13</td><td class="ab">AM管理</td><td>商务管理</td></tr>
+<tr data-s="AM对接人管理 商务对接人管理"><td class="seq">14</td><td class="ab">AM对接人管理</td><td>商务对接人管理</td></tr>
+<tr data-s="负责AM管理 负责客户经理(AM)管理"><td class="seq">15</td><td class="ab">负责AM管理</td><td>负责客户经理(AM)管理</td></tr>
+<tr data-s="AJS时间 按结算时间"><td class="seq">16</td><td class="ab">AJS时间</td><td>按结算时间</td></tr>
+<tr data-s="ATZ时间 按投注时间"><td class="seq">17</td><td class="ab">ATZ时间</td><td>按投注时间</td></tr>
+<tr data-s="XYW 信用网"><td class="seq">18</td><td class="ab">XYW</td><td>信用网</td></tr>
+<tr data-s="BZ 币种"><td class="seq">19</td><td class="ab">BZ</td><td>币种</td></tr>
+<tr data-s="ZDS 注单数"><td class="seq">20</td><td class="ab">ZDS</td><td>注单数</td></tr>
+<tr data-s="TZRS 投注人数"><td class="seq">21</td><td class="ab">TZRS</td><td>投注人数</td></tr>
+<tr data-s="TZE 投注额"><td class="seq">22</td><td class="ab">TZE</td><td>投注额</td></tr>
+<tr data-s="有效TZE 有效投注额"><td class="seq">23</td><td class="ab">有效TZE</td><td>有效投注额</td></tr>
+<tr data-s="JDL 拒单率"><td class="seq">24</td><td class="ab">JDL</td><td>拒单率</td></tr>
+<tr data-s="有效TZE趋势图 有效投注额趋势图"><td class="seq">25</td><td class="ab">有效TZE趋势图</td><td>有效投注额趋势图</td></tr>
+<tr data-s="各游戏有效TZE 各游戏有效投注额"><td class="seq">26</td><td class="ab">各游戏有效TZE</td><td>各游戏有效投注额</td></tr>
+<tr data-s="总有效TZE趋势图 总有效投注额趋势图"><td class="seq">27</td><td class="ab">总有效TZE趋势图</td><td>总有效投注额趋势图</td></tr>
+<tr data-s="有效TZETop10商户 有效投注额Top10商户"><td class="seq">28</td><td class="ab">有效TZETop10商户</td><td>有效投注额Top10商户</td></tr>
+<tr data-s="有效TZ额Top10SH 有效投注额Top10商户"><td class="seq">29</td><td class="ab">有效TZ额Top10SH</td><td>有效投注额Top10商户</td></tr>
+<tr data-s="总有效TZ额趋势图 总有效投注额趋势图"><td class="seq">30</td><td class="ab">总有效TZ额趋势图</td><td>总有效投注额趋势图</td></tr>
+<tr data-s="JHDZ 聚合电子(JHDZ)"><td class="seq">31</td><td class="ab">JHDZ</td><td>聚合电子(JHDZ)</td></tr>
+<tr data-s="HAXI 哈希(HAXI)"><td class="seq">32</td><td class="ab">HAXI</td><td>哈希(HAXI)</td></tr>
+<tr data-s="GGL 刮刮乐(GGL)"><td class="seq">33</td><td class="ab">GGL</td><td>刮刮乐(GGL)</td></tr>
+<tr data-s="QPQC 棋牌(QPQC)"><td class="seq">34</td><td class="ab">QPQC</td><td>棋牌(QPQC)</td></tr>
+<tr data-s="ZR2 真人2(ZR2)"><td class="seq">35</td><td class="ab">ZR2</td><td>真人2(ZR2)</td></tr>
+<tr data-s="各有效有效TZE 各游戏有效投注额"><td class="seq">36</td><td class="ab">各有效有效TZE</td><td>各游戏有效投注额</td></tr>
+<tr data-s="PF 赔付"><td class="seq">37</td><td class="ab">PF</td><td>赔付</td></tr>
+<tr data-s="实际应收JE 实际应收金额"><td class="seq">38</td><td class="ab">实际应收JE</td><td>实际应收金额</td></tr>
+<tr data-s="实际应交收JE趋势图 实际应交收金额趋势图"><td class="seq">39</td><td class="ab">实际应交收JE趋势图</td><td>实际应交收金额趋势图</td></tr>
+<tr data-s="挂起JE 挂起金额"><td class="seq">40</td><td class="ab">挂起JE</td><td>挂起金额</td></tr>
+<tr data-s="已收JE 已收金额"><td class="seq">41</td><td class="ab">已收JE</td><td>已收金额</td></tr>
+<tr data-s="待收JE 待收金额"><td class="seq">42</td><td class="ab">待收JE</td><td>待收金额</td></tr>
+<tr data-s="当前商户未设定FL 当前商户未设定费率"><td class="seq">43</td><td class="ab">当前商户未设定FL</td><td>当前商户未设定费率</td></tr>
+<tr data-s="FL模式 费率模式"><td class="seq">44</td><td class="ab">FL模式</td><td>费率模式</td></tr>
+<tr data-s="全部FL 全部费率"><td class="seq">45</td><td class="ab">全部FL</td><td>全部费率</td></tr>
+<tr data-s="固定FL 固定费率"><td class="seq">46</td><td class="ab">固定FL</td><td>固定费率</td></tr>
+<tr data-s="阶梯FL 阶梯费率"><td class="seq">47</td><td class="ab">阶梯FL</td><td>阶梯费率</td></tr>
+<tr data-s="阶梯FL-固定计算 阶梯费率-固定计算"><td class="seq">48</td><td class="ab">阶梯FL-固定计算</td><td>阶梯费率-固定计算</td></tr>
+<tr data-s="阶梯FL-阶梯计算 阶梯费率-阶梯计算"><td class="seq">49</td><td class="ab">阶梯FL-阶梯计算</td><td>阶梯费率-阶梯计算</td></tr>
+<tr data-s="未配置FL 未配置费率"><td class="seq">50</td><td class="ab">未配置FL</td><td>未配置费率</td></tr>
+<tr data-s="FL方案 费率方案"><td class="seq">51</td><td class="ab">FL方案</td><td>费率方案</td></tr>
+<tr data-s="配置FL 配置费率"><td class="seq">52</td><td class="ab">配置FL</td><td>配置费率</td></tr>
+<tr data-s="FL配置 费率配置"><td class="seq">53</td><td class="ab">FL配置</td><td>费率配置</td></tr>
+<tr data-s="选择FL模式 选择费率模式"><td class="seq">54</td><td class="ab">选择FL模式</td><td>选择费率模式</td></tr>
+<tr data-s="FL名称 费率名称"><td class="seq">55</td><td class="ab">FL名称</td><td>费率名称</td></tr>
+<tr data-s="FL方案名称 费率方案名称"><td class="seq">56</td><td class="ab">FL方案名称</td><td>费率方案名称</td></tr>
+<tr data-s="FL内容 费率内容"><td class="seq">57</td><td class="ab">FL内容</td><td>费率内容</td></tr>
+<tr data-s="新增FL方案 新增费率方案"><td class="seq">58</td><td class="ab">新增FL方案</td><td>新增费率方案</td></tr>
+<tr data-s="请输入JE 请输入金额"><td class="seq">59</td><td class="ab">请输入JE</td><td>请输入金额</td></tr>
+<tr data-s="请输入FL 请输入费率"><td class="seq">60</td><td class="ab">请输入FL</td><td>请输入费率</td></tr>
+<tr data-s="AM类型 商务类型"><td class="seq">61</td><td class="ab">AM类型</td><td>商务类型</td></tr>
+<tr data-s="外部AM 外部商务"><td class="seq">62</td><td class="ab">外部AM</td><td>外部商务</td></tr>
+<tr data-s="内部AM 内部商务"><td class="seq">63</td><td class="ab">内部AM</td><td>内部商务</td></tr>
+<tr data-s="AM对接人 商务对接人"><td class="seq">64</td><td class="ab">AM对接人</td><td>商务对接人</td></tr>
+<tr data-s="预发YJ 预发佣金"><td class="seq">65</td><td class="ab">预发YJ</td><td>预发佣金</td></tr>
+<tr data-s="实发YJ 实发佣金"><td class="seq">66</td><td class="ab">实发YJ</td><td>实发佣金</td></tr>
+<tr data-s="负责AM 负责客户经理(AM)"><td class="seq">67</td><td class="ab">负责AM</td><td>负责客户经理(AM)</td></tr>
+<tr data-s="AM负责人 客户经理(AM)负责人"><td class="seq">68</td><td class="ab">AM负责人</td><td>客户经理(AM)负责人</td></tr>
+<tr data-s="BW 包网"><td class="seq">69</td><td class="ab">BW</td><td>包网</td></tr>
+<tr data-s="XJW 现金网"><td class="seq">70</td><td class="ab">XJW</td><td>现金网</td></tr>
+<tr data-s="Wallet-T01 转账钱包"><td class="seq">71</td><td class="ab">Wallet-T01</td><td>转账钱包</td></tr>
+<tr data-s="Wallet-F02 免转钱包"><td class="seq">72</td><td class="ab">Wallet-F02</td><td>免转钱包</td></tr>
+<tr data-s="设置商户YJ 设置商户佣金"><td class="seq">73</td><td class="ab">设置商户YJ</td><td>设置商户佣金</td></tr>
+<tr data-s="YJ模式 佣金模式"><td class="seq">74</td><td class="ab">YJ模式</td><td>佣金模式</td></tr>
+<tr data-s="XJ 现金"><td class="seq">75</td><td class="ab">XJ</td><td>现金</td></tr>
+<tr data-s="对接中-SXF接口测试 对接中-上下分接口测试"><td class="seq">76</td><td class="ab">对接中-SXF接口测试</td><td>对接中-上下分接口测试</td></tr>
+<tr data-s="对接中-XZLD接口测试 对接中-下注拉单接口测试"><td class="seq">77</td><td class="ab">对接中-XZLD接口测试</td><td>对接中-下注拉单接口测试</td></tr>
+<tr data-s="新增AM对接人 新增商务对接人"><td class="seq">78</td><td class="ab">新增AM对接人</td><td>新增商务对接人</td></tr>
+<tr data-s="G_OTP_KEY_ID 谷歌秘钥"><td class="seq">79</td><td class="ab">G_OTP_KEY_ID</td><td>谷歌秘钥</td></tr>
+<tr data-s="AM迁移 商务迁移"><td class="seq">80</td><td class="ab">AM迁移</td><td>商务迁移</td></tr>
+<tr data-s="新增负责AM 新增负责客户经理(AM)"><td class="seq">81</td><td class="ab">新增负责AM</td><td>新增负责客户经理(AM)</td></tr>
+<tr data-s="负责AM迁移 负责客户经理(AM)迁移"><td class="seq">82</td><td class="ab">负责AM迁移</td><td>负责客户经理(AM)迁移</td></tr>
+<tr data-s="迁移负责AM 迁移负责客户经理(AM)"><td class="seq">83</td><td class="ab">迁移负责AM</td><td>迁移负责客户经理(AM)</td></tr>
+</tbody></table>
+
+<h2><span class="n">4</span>TY端报表 脱敏对照（216 条）</h2>
+<table id="tt"><thead><tr><th>序号</th><th>显示字段</th><th>中文字段</th></tr></thead><tbody>
+<tr data-s="TY看板 体育看板"><td class="seq">1</td><td class="ab">TY看板</td><td>体育看板</td></tr>
+<tr data-s="DJ看板 电竞看板"><td class="seq">2</td><td class="ab">DJ看板</td><td>电竞看板</td></tr>
+<tr data-s="DJ看板（新） 电竞看板（新）"><td class="seq">3</td><td class="ab">DJ看板（新）</td><td>电竞看板（新）</td></tr>
+<tr data-s="CP看板 彩票看板"><td class="seq">4</td><td class="ab">CP看板</td><td>彩票看板</td></tr>
+<tr data-s="CPKPI看板 操盘KPI看板"><td class="seq">5</td><td class="ab">CPKPI看板</td><td>操盘KPI看板</td></tr>
+<tr data-s="TY报表 体育报表"><td class="seq">6</td><td class="ab">TY报表</td><td>体育报表</td></tr>
+<tr data-s="SHCG统计 商户串关统计"><td class="seq">7</td><td class="ab">SHCG统计</td><td>商户串关统计</td></tr>
+<tr data-s="SHXNTY统计 商户虚拟体育统计"><td class="seq">8</td><td class="ab">SHXNTY统计</td><td>商户虚拟体育统计</td></tr>
+<tr data-s="VRSHCD统计 VR商户藏单"><td class="seq">9</td><td class="ab">VRSHCD统计</td><td>VR商户藏单</td></tr>
+<tr data-s="SHDG统计 商户单关统计"><td class="seq">10</td><td class="ab">SHDG统计</td><td>商户单关统计</td></tr>
+<tr data-s="SHDZ赛事统计 商户电子赛事统计"><td class="seq">11</td><td class="ab">SHDZ赛事统计</td><td>商户电子赛事统计</td></tr>
+<tr data-s="ZD统计 注单统计"><td class="seq">12</td><td class="ab">ZD统计</td><td>注单统计</td></tr>
+<tr data-s="SBTZ统计 设备投注统计"><td class="seq">13</td><td class="ab">SBTZ统计</td><td>设备投注统计</td></tr>
+<tr data-s="TZJE区间统计 投注金额区间统计"><td class="seq">14</td><td class="ab">TZJE区间统计</td><td>投注金额区间统计</td></tr>
+<tr data-s="TZRSTZDL统计 投注人数投注单量统计"><td class="seq">15</td><td class="ab">TZRSTZDL统计</td><td>投注人数投注单量统计</td></tr>
+<tr data-s="TZEYTSY统计 投注额平台输赢统计"><td class="seq">16</td><td class="ab">TZEYTSY统计</td><td>投注额平台输赢统计</td></tr>
+<tr data-s="时间区间TZ统计 时间区间投注统计"><td class="seq">17</td><td class="ab">时间区间TZ统计</td><td>时间区间投注统计</td></tr>
+<tr data-s="TZ优化成效追踪 投注优化成效追踪"><td class="seq">18</td><td class="ab">TZ优化成效追踪</td><td>投注优化成效追踪</td></tr>
+<tr data-s="CP统计 操盘统计"><td class="seq">19</td><td class="ab">CP统计</td><td>操盘统计</td></tr>
+<tr data-s="CP联赛报表 操盘联赛报表"><td class="seq">20</td><td class="ab">CP联赛报表</td><td>操盘联赛报表</td></tr>
+<tr data-s="CP玩法报表 操盘玩法报表"><td class="seq">21</td><td class="ab">CP玩法报表</td><td>操盘玩法报表</td></tr>
+<tr data-s="CP方TZ统计 操盘方投注统计"><td class="seq">22</td><td class="ab">CP方TZ统计</td><td>操盘方投注统计</td></tr>
+<tr data-s="TQJSJD统计-联赛报表 提前结算拒单统计-联赛报表"><td class="seq">23</td><td class="ab">TQJSJD统计-联赛报表</td><td>提前结算拒单统计-联赛报表</td></tr>
+<tr data-s="TQJSJD统计-玩法报表 提前结算拒单统计-玩法报表"><td class="seq">24</td><td class="ab">TQJSJD统计-玩法报表</td><td>提前结算拒单统计-玩法报表</td></tr>
+<tr data-s="YYTZ报表 预约投注报表"><td class="seq">25</td><td class="ab">YYTZ报表</td><td>预约投注报表</td></tr>
+<tr data-s="CD效果统计 藏单效果统计"><td class="seq">26</td><td class="ab">CD效果统计</td><td>藏单效果统计</td></tr>
+<tr data-s="CDZD查询 藏单注单查询"><td class="seq">27</td><td class="ab">CDZD查询</td><td>藏单注单查询</td></tr>
+<tr data-s="JE区间数据统计 金额区间数据统计"><td class="seq">28</td><td class="ab">JE区间数据统计</td><td>金额区间数据统计</td></tr>
+<tr data-s="TZ失败统计报表 投注失败统计报表"><td class="seq">29</td><td class="ab">TZ失败统计报表</td><td>投注失败统计报表</td></tr>
+<tr data-s="动态联赛CD效果统计 动态联赛藏单效果统计"><td class="seq">30</td><td class="ab">动态联赛CD效果统计</td><td>动态联赛藏单效果统计</td></tr>
+<tr data-s="赛事TZ统计 赛事投注统计"><td class="seq">31</td><td class="ab">赛事TZ统计</td><td>赛事投注统计</td></tr>
+<tr data-s="赛事无ZD数段统计 赛事无注单时段统计"><td class="seq">32</td><td class="ab">赛事无ZD数段统计</td><td>赛事无注单时段统计</td></tr>
+<tr data-s="CG对比统计 串关对比统计"><td class="seq">33</td><td class="ab">CG对比统计</td><td>串关对比统计</td></tr>
+<tr data-s="联赛SH排行 联赛商户排行"><td class="seq">34</td><td class="ab">联赛SH排行</td><td>联赛商户排行</td></tr>
+<tr data-s="用户TZ标签排行 用户投注标签排行"><td class="seq">35</td><td class="ab">用户TZ标签排行</td><td>用户投注标签排行</td></tr>
+<tr data-s="DGYH统计 单关用户统计"><td class="seq">36</td><td class="ab">DGYH统计</td><td>单关用户统计</td></tr>
+<tr data-s="CGYH统计 串关用户统计"><td class="seq">37</td><td class="ab">CGYH统计</td><td>串关用户统计</td></tr>
+<tr data-s="CDYH排行 藏单用户排行"><td class="seq">38</td><td class="ab">CDYH排行</td><td>藏单用户排行</td></tr>
+<tr data-s="FP看板 复盘看板"><td class="seq">39</td><td class="ab">FP看板</td><td>复盘看板</td></tr>
+<tr data-s="ZD标签报表 注单标签报表"><td class="seq">40</td><td class="ab">ZD标签报表</td><td>注单标签报表</td></tr>
+<tr data-s="未结算ZD统计 未结算注单统计"><td class="seq">41</td><td class="ab">未结算ZD统计</td><td>未结算注单统计</td></tr>
+<tr data-s="月度GQJD时长统计 月度滚球接单时长统计"><td class="seq">42</td><td class="ab">月度GQJD时长统计</td><td>月度滚球接单时长统计</td></tr>
+<tr data-s="月度TZ指标统计 月度投注指标统计"><td class="seq">43</td><td class="ab">月度TZ指标统计</td><td>月度投注指标统计</td></tr>
+<tr data-s="三方CP 三方操盘"><td class="seq">44</td><td class="ab">三方CP</td><td>三方操盘</td></tr>
+<tr data-s="DJ报表 电竞报表"><td class="seq">45</td><td class="ab">DJ报表</td><td>电竞报表</td></tr>
+<tr data-s="DJSH 电竞商户"><td class="seq">46</td><td class="ab">DJSH</td><td>电竞商户</td></tr>
+<tr data-s="DJSH汇总统计 电竞商户汇总统计"><td class="seq">47</td><td class="ab">DJSH汇总统计</td><td>电竞商户汇总统计</td></tr>
+<tr data-s="DJSHDZ统计 电竞商户单注统计"><td class="seq">48</td><td class="ab">DJSHDZ统计</td><td>电竞商户单注统计</td></tr>
+<tr data-s="DJSH普通CG统计 电竞商户普通串关统计"><td class="seq">49</td><td class="ab">DJSH普通CG统计</td><td>电竞商户普通串关统计</td></tr>
+<tr data-s="DJSH局内CG统计 电竞商户局内串关统计"><td class="seq">50</td><td class="ab">DJSH局内CG统计</td><td>电竞商户局内串关统计</td></tr>
+<tr data-s="DJSH复合玩法统计 电竞商户复合玩法统计"><td class="seq">51</td><td class="ab">DJSH复合玩法统计</td><td>电竞商户复合玩法统计</td></tr>
+<tr data-s="DJCP统计 电竞操盘统计"><td class="seq">52</td><td class="ab">DJCP统计</td><td>电竞操盘统计</td></tr>
+<tr data-s="DJCP联赛报表 电竞操盘联赛报表"><td class="seq">53</td><td class="ab">DJCP联赛报表</td><td>电竞操盘联赛报表</td></tr>
+<tr data-s="DJ ZD统计 电竞注单统计"><td class="seq">54</td><td class="ab">DJ ZD统计</td><td>电竞注单统计</td></tr>
+<tr data-s="DJ TZJE区J统计 电竞投注金额区间统计"><td class="seq">55</td><td class="ab">DJ TZJE区J统计</td><td>电竞投注金额区间统计</td></tr>
+<tr data-s="DJ设备TZ统计 电竞设备投注统计"><td class="seq">56</td><td class="ab">DJ设备TZ统计</td><td>电竞设备投注统计</td></tr>
+<tr data-s="DJ风控统计 电竞风控统计"><td class="seq">57</td><td class="ab">DJ风控统计</td><td>电竞风控统计</td></tr>
+<tr data-s="DJYH列表 电竞用户列表"><td class="seq">58</td><td class="ab">DJYH列表</td><td>电竞用户列表</td></tr>
+<tr data-s="DJYH排行 电竞用户排行"><td class="seq">59</td><td class="ab">DJYH排行</td><td>电竞用户排行</td></tr>
+<tr data-s="DJ负盈利赛事预警 电竞负盈利赛事预警"><td class="seq">60</td><td class="ab">DJ负盈利赛事预警</td><td>电竞负盈利赛事预警</td></tr>
+<tr data-s="ZR报表 真人报表"><td class="seq">61</td><td class="ab">ZR报表</td><td>真人报表</td></tr>
+<tr data-s="CP报表 彩票报表"><td class="seq">62</td><td class="ab">CP报表</td><td>彩票报表</td></tr>
+<tr data-s="TYZD 体育注单"><td class="seq">63</td><td class="ab">TYZD</td><td>体育注单</td></tr>
+<tr data-s="综合TY看板 综合体育看板"><td class="seq">64</td><td class="ab">综合TY看板</td><td>综合体育看板</td></tr>
+<tr data-s="XJWTY看板 现金网体育看板"><td class="seq">65</td><td class="ab">XJWTY看板</td><td>现金网体育看板</td></tr>
+<tr data-s="所有XJWTY看板 所有现金网体育看板"><td class="seq">66</td><td class="ab">所有XJWTY看板</td><td>所有现金网体育看板</td></tr>
+<tr data-s="ZD总览 注单总览"><td class="seq">67</td><td class="ab">ZD总览</td><td>注单总览</td></tr>
+<tr data-s="LJZDSL 累计注单数量"><td class="seq">68</td><td class="ab">LJZDSL</td><td>累计注单数量</td></tr>
+<tr data-s="TZJE 投注金额"><td class="seq">69</td><td class="ab">TZJE</td><td>投注金额</td></tr>
+<tr data-s="LJTZJE 累计投注金额"><td class="seq">70</td><td class="ab">LJTZJE</td><td>累计投注金额</td></tr>
+<tr data-s="YJSTZJE 已结算投注金额"><td class="seq">71</td><td class="ab">YJSTZJE</td><td>已结算投注金额</td></tr>
+<tr data-s="TZJE30天变化趋势 投注金额30天变化趋势"><td class="seq">72</td><td class="ab">TZJE30天变化趋势</td><td>投注金额30天变化趋势</td></tr>
+<tr data-s="TQJSYLJE 提前结算盈利金额"><td class="seq">73</td><td class="ab">TQJSYLJE</td><td>提前结算盈利金额</td></tr>
+<tr data-s="LJYLJE 累计盈利金额"><td class="seq">74</td><td class="ab">LJYLJE</td><td>累计盈利金额</td></tr>
+<tr data-s="LJYLJE30天变化趋势 累计盈利金额30天变化趋势"><td class="seq">75</td><td class="ab">LJYLJE30天变化趋势</td><td>累计盈利金额30天变化趋势</td></tr>
+<tr data-s="TQJSYLJE/TQJSTZJ*100% 提前结算盈利金额/提前结算投注金额*100%"><td class="seq">76</td><td class="ab">TQJSYLJE/TQJSTZJ*100%</td><td>提前结算盈利金额/提前结算投注金额*100%</td></tr>
+<tr data-s="TZYHS 投注用户数"><td class="seq">77</td><td class="ab">TZYHS</td><td>投注用户数</td></tr>
+<tr data-s="TZSJ在当前日期范围内... 投注时间在当前日期范围内..."><td class="seq">78</td><td class="ab">TZSJ在当前日期范围内...</td><td>投注时间在当前日期范围内...</td></tr>
+<tr data-s="TZYH数30天变化趋势 投注用户数30天变化趋势"><td class="seq">79</td><td class="ab">TZYH数30天变化趋势</td><td>投注用户数30天变化趋势</td></tr>
+<tr data-s="即时TZYH 即时投注用户"><td class="seq">80</td><td class="ab">即时TZYH</td><td>即时投注用户</td></tr>
+<tr data-s="1分钟内TZYHS 1分钟内投注用户数"><td class="seq">81</td><td class="ab">1分钟内TZYHS</td><td>1分钟内投注用户数</td></tr>
+<tr data-s="过去30分钟TZYHS 过去30分钟投注用户数"><td class="seq">82</td><td class="ab">过去30分钟TZYHS</td><td>过去30分钟投注用户数</td></tr>
+<tr data-s="TZYHS每小时变化趋势 投注用户数每小时变化趋势"><td class="seq">83</td><td class="ab">TZYHS每小时变化趋势</td><td>投注用户数每小时变化趋势</td></tr>
+<tr data-s="即时TZJE 即时投注金额"><td class="seq">84</td><td class="ab">即时TZJE</td><td>即时投注金额</td></tr>
+<tr data-s="1分钟内TZJE 1分钟内投注金额"><td class="seq">85</td><td class="ab">1分钟内TZJE</td><td>1分钟内投注金额</td></tr>
+<tr data-s="过去30分钟TZJE 过去30分钟投注金额"><td class="seq">86</td><td class="ab">过去30分钟TZJE</td><td>过去30分钟投注金额</td></tr>
+<tr data-s="TZJE每小时变化趋势 投注金额每小时变化趋势"><td class="seq">87</td><td class="ab">TZJE每小时变化趋势</td><td>投注金额每小时变化趋势</td></tr>
+<tr data-s="即时ZDS 即时注单数"><td class="seq">88</td><td class="ab">即时ZDS</td><td>即时注单数</td></tr>
+<tr data-s="1分钟内ZDSL 1分钟内注单数量"><td class="seq">89</td><td class="ab">1分钟内ZDSL</td><td>1分钟内注单数量</td></tr>
+<tr data-s="过去30分钟ZDS 过去30分钟注单数"><td class="seq">90</td><td class="ab">过去30分钟ZDS</td><td>过去30分钟注单数</td></tr>
+<tr data-s="ZDS每小时变化趋势 注单数每小时变化趋势"><td class="seq">91</td><td class="ab">ZDS每小时变化趋势</td><td>注单数每小时变化趋势</td></tr>
+<tr data-s="DGTZ&amp;YL 单关投注&amp;盈利"><td class="seq">92</td><td class="ab">DGTZ&amp;YL</td><td>单关投注&amp;盈利</td></tr>
+<tr data-s="ZDYL 注单数量"><td class="seq">93</td><td class="ab">ZDYL</td><td>注单数量</td></tr>
+<tr data-s="DGTZJE 单关投注金额"><td class="seq">94</td><td class="ab">DGTZJE</td><td>单关投注金额</td></tr>
+<tr data-s="DGLJYLJE 单关累计盈利金额"><td class="seq">95</td><td class="ab">DGLJYLJE</td><td>单关累计盈利金额</td></tr>
+<tr data-s="DGYLL 单关盈利率"><td class="seq">96</td><td class="ab">DGYLL</td><td>单关盈利率</td></tr>
+<tr data-s="DG24小S变化QS 单关24小时变化趋势"><td class="seq">97</td><td class="ab">DG24小S变化QS</td><td>单关24小时变化趋势</td></tr>
+<tr data-s="CGTZ&amp;盈利 串关投注&amp;盈利"><td class="seq">98</td><td class="ab">CGTZ&amp;盈利</td><td>串关投注&amp;盈利</td></tr>
+<tr data-s="CGTZJE 串关投注金额"><td class="seq">99</td><td class="ab">CGTZJE</td><td>串关投注金额</td></tr>
+<tr data-s="CGLJYLJE 串关累计盈利金额"><td class="seq">100</td><td class="ab">CGLJYLJE</td><td>串关累计盈利金额</td></tr>
+<tr data-s="CGYLL 串关盈利率"><td class="seq">101</td><td class="ab">CGYLL</td><td>串关盈利率</td></tr>
+<tr data-s="CG24小时变化趋势 串关24小时变化趋势"><td class="seq">102</td><td class="ab">CG24小时变化趋势</td><td>串关24小时变化趋势</td></tr>
+<tr data-s="TZ排行榜 投注排行榜"><td class="seq">103</td><td class="ab">TZ排行榜</td><td>投注排行榜</td></tr>
+<tr data-s="TZJE% 投注金额%"><td class="seq">104</td><td class="ab">TZJE%</td><td>投注金额%</td></tr>
+<tr data-s="ZDS% 注单数%"><td class="seq">105</td><td class="ab">ZDS%</td><td>注单数%</td></tr>
+<tr data-s="TZRS数% 投注人数%"><td class="seq">106</td><td class="ab">TZRS数%</td><td>投注人数%</td></tr>
+<tr data-s="DZ赛种排行 电子赛种排行"><td class="seq">107</td><td class="ab">DZ赛种排行</td><td>电子赛种排行</td></tr>
+<tr data-s="TZ排行 投注排行"><td class="seq">108</td><td class="ab">TZ排行</td><td>投注排行</td></tr>
+<tr data-s="TZ阶段 投注阶段"><td class="seq">109</td><td class="ab">TZ阶段</td><td>投注阶段</td></tr>
+<tr data-s="ZP 早盘"><td class="seq">110</td><td class="ab">ZP</td><td>早盘</td></tr>
+<tr data-s="GQ 滚球"><td class="seq">111</td><td class="ab">GQ</td><td>滚球</td></tr>
+<tr data-s="赛事FP监测 赛事封盘监测"><td class="seq">112</td><td class="ab">赛事FP监测</td><td>赛事封盘监测</td></tr>
+<tr data-s="DJ 电竞"><td class="seq">113</td><td class="ab">DJ</td><td>电竞</td></tr>
+<tr data-s="DJ_王者荣耀 电竞-王者荣耀"><td class="seq">114</td><td class="ab">DJ_王者荣耀</td><td>电竞-王者荣耀</td></tr>
+<tr data-s="DJ_英雄联盟 电竞-英雄联盟"><td class="seq">115</td><td class="ab">DJ_英雄联盟</td><td>电竞-英雄联盟</td></tr>
+<tr data-s="DJ_Dota2 电竞-Dota2"><td class="seq">116</td><td class="ab">DJ_Dota2</td><td>电竞-Dota2</td></tr>
+<tr data-s="DJ_CSGO 电竞-CSGO"><td class="seq">117</td><td class="ab">DJ_CSGO</td><td>电竞-CSGO</td></tr>
+<tr data-s="DJ_无畏契约 电竞-无畏契约"><td class="seq">118</td><td class="ab">DJ_无畏契约</td><td>电竞-无畏契约</td></tr>
+<tr data-s="DJ_星际争霸 电竞-星际争霸"><td class="seq">119</td><td class="ab">DJ_星际争霸</td><td>电竞-星际争霸</td></tr>
+<tr data-s="DJ_PUBG 电竞-PUBG"><td class="seq">120</td><td class="ab">DJ_PUBG</td><td>电竞-PUBG</td></tr>
+<tr data-s="DJ_炉石传说 电竞-炉石传说"><td class="seq">121</td><td class="ab">DJ_炉石传说</td><td>电竞-炉石传说</td></tr>
+<tr data-s="DJ_守望先锋 电竞-守望先锋"><td class="seq">122</td><td class="ab">DJ_守望先锋</td><td>电竞-守望先锋</td></tr>
+<tr data-s="DJ_火箭联盟 电竞-火箭联盟"><td class="seq">123</td><td class="ab">DJ_火箭联盟</td><td>电竞-火箭联盟</td></tr>
+<tr data-s="DJ_彩虹六号 电竞-彩虹六号"><td class="seq">124</td><td class="ab">DJ_彩虹六号</td><td>电竞-彩虹六号</td></tr>
+<tr data-s="DJ_极限竞速 电竞-极限竞速"><td class="seq">125</td><td class="ab">DJ_极限竞速</td><td>电竞-极限竞速</td></tr>
+<tr data-s="DJ_传说对决 电竞-传说对决"><td class="seq">126</td><td class="ab">DJ_传说对决</td><td>电竞-传说对决</td></tr>
+<tr data-s="DJ_决赛时刻 电竞-决赛时刻"><td class="seq">127</td><td class="ab">DJ_决赛时刻</td><td>电竞-决赛时刻</td></tr>
+<tr data-s="DJ_反恐精英 电竞-反恐精英"><td class="seq">128</td><td class="ab">DJ_反恐精英</td><td>电竞-反恐精英</td></tr>
+<tr data-s="DJ_FIFA 电竞-FIFA"><td class="seq">129</td><td class="ab">DJ_FIFA</td><td>电竞-FIFA</td></tr>
+<tr data-s="DJ_魔兽争霸 电竞-魔兽争霸"><td class="seq">130</td><td class="ab">DJ_魔兽争霸</td><td>电竞-魔兽争霸</td></tr>
+<tr data-s="DJ_自由体育 电竞-自由体育"><td class="seq">131</td><td class="ab">DJ_自由体育</td><td>电竞-自由体育</td></tr>
+<tr data-s="VR赛马 虚拟赛马"><td class="seq">132</td><td class="ab">VR赛马</td><td>虚拟赛马</td></tr>
+<tr data-s="VR赛狗 虚拟赛狗"><td class="seq">133</td><td class="ab">VR赛狗</td><td>虚拟赛狗</td></tr>
+<tr data-s="VR足球 虚拟足球"><td class="seq">134</td><td class="ab">VR足球</td><td>虚拟足球</td></tr>
+<tr data-s="VR篮球 虚拟篮球"><td class="seq">135</td><td class="ab">VR篮球</td><td>虚拟篮球</td></tr>
+<tr data-s="VR网球 虚拟网球"><td class="seq">136</td><td class="ab">VR网球</td><td>虚拟网球</td></tr>
+<tr data-s="VR棒球 虚拟棒球"><td class="seq">137</td><td class="ab">VR棒球</td><td>虚拟棒球</td></tr>
+<tr data-s="VR冰球 虚拟冰球"><td class="seq">138</td><td class="ab">VR冰球</td><td>虚拟冰球</td></tr>
+<tr data-s="VR排球 虚拟排球"><td class="seq">139</td><td class="ab">VR排球</td><td>虚拟排球</td></tr>
+<tr data-s="VR手球 虚拟手球"><td class="seq">140</td><td class="ab">VR手球</td><td>虚拟手球</td></tr>
+<tr data-s="VR拳击/搏击 虚拟拳击/搏击"><td class="seq">141</td><td class="ab">VR拳击/搏击</td><td>虚拟拳击/搏击</td></tr>
+<tr data-s="VR综合格斗 虚拟综合格斗"><td class="seq">142</td><td class="ab">VR综合格斗</td><td>虚拟综合格斗</td></tr>
+<tr data-s="VR飞镖 虚拟飞镖"><td class="seq">143</td><td class="ab">VR飞镖</td><td>虚拟飞镖</td></tr>
+<tr data-s="VR赛车 虚拟赛车"><td class="seq">144</td><td class="ab">VR赛车</td><td>虚拟赛车</td></tr>
+<tr data-s="VR板球 虚拟板球"><td class="seq">145</td><td class="ab">VR板球</td><td>虚拟板球</td></tr>
+<tr data-s="VR美式足球 虚拟美式足球"><td class="seq">146</td><td class="ab">VR美式足球</td><td>虚拟美式足球</td></tr>
+<tr data-s="VR F1 虚拟F1"><td class="seq">147</td><td class="ab">VR F1</td><td>虚拟F1</td></tr>
+<tr data-s="VR澳式足球 虚拟澳式足球"><td class="seq">148</td><td class="ab">VR澳式足球</td><td>虚拟澳式足球</td></tr>
+<tr data-s="VR水球 虚拟水球"><td class="seq">149</td><td class="ab">VR水球</td><td>虚拟水球</td></tr>
+<tr data-s="VR橄榄球 虚拟橄榄球"><td class="seq">150</td><td class="ab">VR橄榄球</td><td>虚拟橄榄球</td></tr>
+<tr data-s="当前FP时长 当前封盘时长"><td class="seq">151</td><td class="ab">当前FP时长</td><td>当前封盘时长</td></tr>
+<tr data-s="FP原因 封盘原因"><td class="seq">152</td><td class="ab">FP原因</td><td>封盘原因</td></tr>
+<tr data-s="CP手名称 操盘手名称"><td class="seq">153</td><td class="ab">CP手名称</td><td>操盘手名称</td></tr>
+<tr data-s="TZJE排行 投注金额排行"><td class="seq">154</td><td class="ab">TZJE排行</td><td>投注金额排行</td></tr>
+<tr data-s="SHTZ排行 商户投注排行"><td class="seq">155</td><td class="ab">SHTZ排行</td><td>商户投注排行</td></tr>
+<tr data-s="YHTZ排行 用户投注排行"><td class="seq">156</td><td class="ab">YHTZ排行</td><td>用户投注排行</td></tr>
+<tr data-s="TZ标签 投注标签"><td class="seq">157</td><td class="ab">TZ标签</td><td>投注标签</td></tr>
+<tr data-s="全-ZDSL 全-注单数量"><td class="seq">158</td><td class="ab">全-ZDSL</td><td>全-注单数量</td></tr>
+<tr data-s="全-TZJE 全-投注金额"><td class="seq">159</td><td class="ab">全-TZJE</td><td>全-投注金额</td></tr>
+<tr data-s="全-平台SY 全-平台输赢"><td class="seq">160</td><td class="ab">全-平台SY</td><td>全-平台输赢</td></tr>
+<tr data-s="全-SYL 全-输赢率"><td class="seq">161</td><td class="ab">全-SYL</td><td>全-输赢率</td></tr>
+<tr data-s="CP方排行 操盘方排行"><td class="seq">162</td><td class="ab">CP方排行</td><td>操盘方排行</td></tr>
+<tr data-s="CP方 操盘方"><td class="seq">163</td><td class="ab">CP方</td><td>操盘方</td></tr>
+<tr data-s="有效TZJE 有效投注金额"><td class="seq">164</td><td class="ab">有效TZJE</td><td>有效投注金额</td></tr>
+<tr data-s="平台SY 平台输赢"><td class="seq">165</td><td class="ab">平台SY</td><td>平台输赢</td></tr>
+<tr data-s="SY率 输赢率"><td class="seq">166</td><td class="ab">SY率</td><td>输赢率</td></tr>
+<tr data-s="YHTZ标签 用户投注标签"><td class="seq">167</td><td class="ab">YHTZ标签</td><td>用户投注标签</td></tr>
+<tr data-s="DJYH 电竞用户"><td class="seq">168</td><td class="ab">DJYH</td><td>电竞用户</td></tr>
+<tr data-s="VR体育用户 虚拟体育用户"><td class="seq">169</td><td class="ab">VR体育用户</td><td>虚拟体育用户</td></tr>
+<tr data-s="VR赛马用户 虚拟赛马用户"><td class="seq">170</td><td class="ab">VR赛马用户</td><td>虚拟赛马用户</td></tr>
+<tr data-s="VR赛狗用户 虚拟赛狗用户"><td class="seq">171</td><td class="ab">VR赛狗用户</td><td>虚拟赛狗用户</td></tr>
+<tr data-s="VR足球用户 虚拟足球用户"><td class="seq">172</td><td class="ab">VR足球用户</td><td>虚拟足球用户</td></tr>
+<tr data-s="VR篮球用户 虚拟篮球用户"><td class="seq">173</td><td class="ab">VR篮球用户</td><td>虚拟篮球用户</td></tr>
+<tr data-s="VR网球用户 虚拟网球用户"><td class="seq">174</td><td class="ab">VR网球用户</td><td>虚拟网球用户</td></tr>
+<tr data-s="VR棒球用户 虚拟棒球用户"><td class="seq">175</td><td class="ab">VR棒球用户</td><td>虚拟棒球用户</td></tr>
+<tr data-s="VR冰球用户 虚拟冰球用户"><td class="seq">176</td><td class="ab">VR冰球用户</td><td>虚拟冰球用户</td></tr>
+<tr data-s="VR排球用户 虚拟排球用户"><td class="seq">177</td><td class="ab">VR排球用户</td><td>虚拟排球用户</td></tr>
+<tr data-s="VR手球用户 虚拟手球用户"><td class="seq">178</td><td class="ab">VR手球用户</td><td>虚拟手球用户</td></tr>
+<tr data-s="VR拳击/搏击用户 虚拟拳击/搏击用户"><td class="seq">179</td><td class="ab">VR拳击/搏击用户</td><td>虚拟拳击/搏击用户</td></tr>
+<tr data-s="VR综合格斗用户 虚拟综合格斗用户"><td class="seq">180</td><td class="ab">VR综合格斗用户</td><td>虚拟综合格斗用户</td></tr>
+<tr data-s="VR飞镖用户 虚拟飞镖用户"><td class="seq">181</td><td class="ab">VR飞镖用户</td><td>虚拟飞镖用户</td></tr>
+<tr data-s="VR赛车用户 虚拟赛车用户"><td class="seq">182</td><td class="ab">VR赛车用户</td><td>虚拟赛车用户</td></tr>
+<tr data-s="VR板球用户 虚拟板球用户"><td class="seq">183</td><td class="ab">VR板球用户</td><td>虚拟板球用户</td></tr>
+<tr data-s="VR美式足球用户 虚拟美式足球用户"><td class="seq">184</td><td class="ab">VR美式足球用户</td><td>虚拟美式足球用户</td></tr>
+<tr data-s="VR F1用户 虚拟F1用户"><td class="seq">185</td><td class="ab">VR F1用户</td><td>虚拟F1用户</td></tr>
+<tr data-s="VR澳式足球用户 虚拟澳式足球用户"><td class="seq">186</td><td class="ab">VR澳式足球用户</td><td>虚拟澳式足球用户</td></tr>
+<tr data-s="VR水球用户 虚拟水球用户"><td class="seq">187</td><td class="ab">VR水球用户</td><td>虚拟水球用户</td></tr>
+<tr data-s="VR橄榄球用户 虚拟橄榄球用户"><td class="seq">188</td><td class="ab">VR橄榄球用户</td><td>虚拟橄榄球用户</td></tr>
+<tr data-s="CG用户 串关用户"><td class="seq">189</td><td class="ab">CG用户</td><td>串关用户</td></tr>
+<tr data-s="DCG信息 单串关信息"><td class="seq">190</td><td class="ab">DCG信息</td><td>单串关信息</td></tr>
+<tr data-s="局内CG信息 局内串关信息"><td class="seq">191</td><td class="ab">局内CG信息</td><td>局内串关信息</td></tr>
+<tr data-s="局内CGTZJE 局内串关投注金额"><td class="seq">192</td><td class="ab">局内CGTZJE</td><td>局内串关投注金额</td></tr>
+<tr data-s="局内CGZDS 局内串关注单数"><td class="seq">193</td><td class="ab">局内CGZDS</td><td>局内串关注单数</td></tr>
+<tr data-s="局内CGTZRS 局内串关投注人数"><td class="seq">194</td><td class="ab">局内CGTZRS</td><td>局内串关投注人数</td></tr>
+<tr data-s="局内CGLJYLJE 局内串关累计盈利金额"><td class="seq">195</td><td class="ab">局内CGLJYLJE</td><td>局内串关累计盈利金额</td></tr>
+<tr data-s="局内CGYLL 局内串关盈利率"><td class="seq">196</td><td class="ab">局内CGYLL</td><td>局内串关盈利率</td></tr>
+<tr data-s="局内CG24小时变化趋势 局内串关24小时变化趋势"><td class="seq">197</td><td class="ab">局内CG24小时变化趋势</td><td>局内串关24小时变化趋势</td></tr>
+<tr data-s="CZ排行 彩种排行"><td class="seq">198</td><td class="ab">CZ排行</td><td>彩种排行</td></tr>
+<tr data-s="顶级SHTZ分布 顶级商户投注分布"><td class="seq">199</td><td class="ab">顶级SHTZ分布</td><td>顶级商户投注分布</td></tr>
+<tr data-s="...日均TZJE大于1W的新商户数量 ...日均投注金额大于1W的新商户数量"><td class="seq">200</td><td class="ab">...日均TZJE大于1W的新商户数量</td><td>...日均投注金额大于1W的新商户数量</td></tr>
+<tr data-s="...日均TZJE大于1W的老商户数量 ...日均投注金额大于1W的老商户数量"><td class="seq">201</td><td class="ab">...日均TZJE大于1W的老商户数量</td><td>...日均投注金额大于1W的老商户数量</td></tr>
+<tr data-s="统计当前日TZJE 统计当前日投注金额"><td class="seq">202</td><td class="ab">统计当前日TZJE</td><td>统计当前日投注金额</td></tr>
+<tr data-s="统计当前日TZRS 统计当前日投注人数"><td class="seq">203</td><td class="ab">统计当前日TZRS</td><td>统计当前日投注人数</td></tr>
+<tr data-s="统计当前日ZDSL 统计当前日注单数量"><td class="seq">204</td><td class="ab">统计当前日ZDSL</td><td>统计当前日注单数量</td></tr>
+<tr data-s="统计当前日YLJE 统计当前日盈利金额"><td class="seq">205</td><td class="ab">统计当前日YLJE</td><td>统计当前日盈利金额</td></tr>
+<tr data-s="TZYH平均平台收益 投注用户平均平台收益"><td class="seq">206</td><td class="ab">TZYH平均平台收益</td><td>投注用户平均平台收益</td></tr>
+<tr data-s="统计TZYH平均平台收益 统计投注用户平均平台收益"><td class="seq">207</td><td class="ab">统计TZYH平均平台收益</td><td>统计投注用户平均平台收益</td></tr>
+<tr data-s="STYHS 首投用户数"><td class="seq">208</td><td class="ab">STYHS</td><td>首投用户数</td></tr>
+<tr data-s="LYHTZS 老用户投注数"><td class="seq">209</td><td class="ab">LYHTZS</td><td>老用户投注数</td></tr>
+<tr data-s="统计当前日TZYH 统计当前日投注用户"><td class="seq">210</td><td class="ab">统计当前日TZYH</td><td>统计当前日投注用户</td></tr>
+<tr data-s="TZYH 投注用户"><td class="seq">211</td><td class="ab">TZYH</td><td>投注用户</td></tr>
+<tr data-s="人均TZE 人均投注额"><td class="seq">212</td><td class="ab">人均TZE</td><td>人均投注额</td></tr>
+<tr data-s="统计当前日人均TZJE 统计当前日人均投注金额"><td class="seq">213</td><td class="ab">统计当前日人均TZJE</td><td>统计当前日人均投注金额</td></tr>
+<tr data-s="忠诚用户TZRS 忠诚用户投注人数"><td class="seq">214</td><td class="ab">忠诚用户TZRS</td><td>忠诚用户投注人数</td></tr>
+<tr data-s="单均JE 单均金额"><td class="seq">215</td><td class="ab">单均JE</td><td>单均金额</td></tr>
+<tr data-s="统计当前日单均JE 统计当前日单均金额"><td class="seq">216</td><td class="ab">统计当前日单均JE</td><td>统计当前日单均金额</td></tr>
+</tbody></table>
+
+<script>
+const q=document.getElementById('q'),cnt=document.getElementById('count');
+const rows=[...document.querySelectorAll('tbody tr')];
+function norm(s){return (s||'').toLowerCase();}
+q.addEventListener('input',()=>{
+  const k=norm(q.value.trim());
+  let vis=0;
+  rows.forEach(r=>{
+    const hay=norm(r.getAttribute('data-s')+' '+r.textContent);
+    const show=!k||hay.includes(k);
+    r.classList.toggle('hidden',!show);
+    if(show) vis++;
+  });
+  cnt.textContent=k?`匹配 ${vis} 条`:'';
+  document.querySelectorAll('table').forEach(tb=>{
+    const any=[...tb.querySelectorAll('tbody tr')].some(r=>!r.classList.contains('hidden'));
+    tb.style.display=(k&&!any)?'none':'';
+  });
+});
+</script>
+</div></body></html>
