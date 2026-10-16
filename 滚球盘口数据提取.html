@@ -1,0 +1,458 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>滚球盘口数据提取</title>
+<style>
+/* Layout: PA Sports BI shell — fixed navy sidebar, white top bar, stacked cards (filters → summary → wide detail table). Single light theme, matching the reference prototype. */
+:root{--nav:#162638;--ink:#21334b;--muted:#748297;--line:#e4eaf1;--bg:#f3f6fa;--surface:#fff;--blue:#3068dc;--blue-pale:#edf3ff;--green:#13816c;--red:#c75356;--amber:#a9721b;--radius:12px;color-scheme:light;font-family:'PingFang SC','Microsoft YaHei',Arial,sans-serif;color:var(--ink);font-size:14px}
+[hidden]{display:none!important}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}
+button,select,input{font:inherit;color:inherit}button{border:1px solid #d7e0eb;background:#fff;border-radius:7px;padding:8px 13px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,box-shadow .15s,transform .15s}button:hover{background:#f4f7fd;border-color:#a3b8d6}button:active:not(:disabled){transform:translateY(1px)}button:disabled{opacity:.42;cursor:not-allowed}button.primary{background:var(--blue);border-color:var(--blue);color:#fff;padding-left:25px;padding-right:25px;box-shadow:0 2px 6px #3068dc22}button.primary:hover{background:#255ac3}button.text-button{border-color:transparent;background:transparent;color:var(--blue);padding:5px 7px}.btn-icon{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-weight:600}.icon{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}.btn-subtle{background:#f7f9fc;color:#425a78;border-color:#dce4ee}.btn-subtle:hover{background:#eef3fa;border-color:#b9c8dc}.btn-export-batch{color:#315b91;border-color:#bfd0e5;background:#f7faff}.btn-export-batch:hover{background:#edf4fc;border-color:#8eacd0}.btn-export-current{color:#fff;background:#3068dc;border-color:#3068dc;box-shadow:0 2px 6px #3068dc22}.btn-export-current:hover{color:#fff;background:#255ac3;border-color:#255ac3}.icon-only{width:32px;height:32px;padding:0;border-radius:7px}
+button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:3px solid #9cbcf7;outline-offset:2px}a{color:inherit;text-decoration:none}
+.muted{color:var(--muted)}.small-label{font-size:12px;color:var(--muted)}.num{font-variant-numeric:tabular-nums;text-align:right}.actions{display:flex;gap:8px;align-items:center}
+.badge{font-size:11px;font-weight:500;display:inline-flex;align-items:center;padding:4px 8px;border-radius:5px;vertical-align:middle;white-space:nowrap;background:#f0f3f7;color:#5f7089}.badge.blue{background:var(--blue-pale);color:var(--blue)}.badge.green{background:#e8f5f0;color:var(--green)}.badge.amber{background:#fcf0d8;color:var(--amber)}.badge.red{background:#fbecee;color:#b64f58}.badge.tiny{font-size:10px;padding:2px 6px}
+.sidebar{position:fixed;inset:0 auto 0 0;width:194px;background:var(--nav);color:#b6c4d4;display:flex;flex-direction:column;z-index:20}.brand{height:86px;display:flex;gap:10px;align-items:center;padding:0 20px;color:#fff}.brand>span{background:#3b70df;padding:8px 6px;border-radius:7px;font-weight:800;font-size:17px}.brand b{font-size:17px;letter-spacing:.2px}.brand small{display:block;font-weight:400;font-size:10px;color:#9aadc3;margin-top:5px;letter-spacing:1px}
+.nav-label{padding:28px 22px 13px;font-size:11px;color:#7c92aa}.nav-item{display:block;margin:0 10px 6px;border-radius:7px;background:#284468;color:#e9f0ff;padding:12px 10px;font-size:12px;border-left:3px solid #5b8eff}.nav-item span{font-size:17px;margin-right:5px}.nav-item.off{background:transparent;border-left-color:transparent;color:#8ea3bb;cursor:default}.nav-item.off em{font-style:normal;font-size:10px;color:#6f86a0;display:block;margin:5px 0 0 27px}
+.sidebar-bottom{margin:auto 19px 24px;font-size:11px}.sidebar-bottom i{width:6px;height:6px;display:inline-block;border-radius:50%;background:#52bb9e;margin-right:5px}.sidebar-bottom small{display:block;color:#768ea7;margin-top:9px}
+.workspace{margin-left:194px}.topbar{height:58px;background:#fff;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:0 30px;color:var(--muted);font-size:12px}.topbar span{margin:0 10px}.topbar strong{color:#47566b;font-weight:500}.top-right{display:flex;align-items:center;gap:10px}.avatar{display:grid;place-items:center;width:29px;height:29px;border-radius:50%;background:#eaf0f9;color:#536d90;font-size:10px}
+main{max-width:1800px;padding:28px 28px 0;margin:auto}.page-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;gap:14px}.eyebrow{font-size:10px;letter-spacing:1.6px;color:#8a99ad;margin-bottom:8px}h1{font-size:25px;letter-spacing:-.5px;margin:0;font-weight:650;text-wrap:balance}p{line-height:1.65}h2{font-size:15px;margin:0;font-weight:650}h2 .badge{margin-left:8px}.page-title p{margin:8px 0 0;color:var(--muted);font-size:12px}
+.demo-note{display:flex;align-items:center;gap:10px;font-size:11px;color:#76859a;margin-bottom:15px}
+.card{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);margin-bottom:14px;box-shadow:0 2px 5px #273e5c03;overflow:hidden}.section-heading{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;gap:12px}.section-heading>div:first-child{min-width:0}.section-heading p{font-size:11px;color:var(--muted);margin:6px 0 0}.section-heading.compact{padding:0 0 10px}.compact h2{font-size:13px}.compact>span{font-size:10px}
+.filters{padding:14px 16px 11px;overflow:visible}.filter-grid{display:grid;grid-template-columns:minmax(330px,1.65fr) repeat(3,minmax(145px,1fr)) auto;gap:10px 12px;align-items:end}.field{min-width:0}.field label{display:flex;justify-content:space-between;font-size:10px;color:#607086;margin-bottom:5px;gap:5px}.field label span{font-size:10px;color:#929fb0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.control{height:34px;width:100%;display:flex;align-items:center;justify-content:space-between;text-align:left;gap:8px;padding:0 10px;font-size:12px}.control>span:first-child{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.control>span:last-child{color:#8d9aad;flex-shrink:0}.control.accented{border-color:#bed0f0;background:#fcfdff}
+select{border:1px solid #d7e0eb;border-radius:7px;background:#fff;min-height:34px;padding:0 10px}.field select{width:100%;height:34px;font-size:12px}input{border:1px solid #d7e0eb;border-radius:6px;padding:8px 10px;background:#fff;min-width:0}.field input{width:100%;height:34px;font-size:12px;border-radius:7px}
+.query-actions{display:flex;align-items:center;gap:7px;height:34px}.query-actions button{height:34px;padding-top:0;padding-bottom:0}.inline-error{margin:8px 0 0;color:#b74448;font-size:11px}
+.applied-line{display:flex;justify-content:space-between;color:#8995a5;font-size:10px;padding:0 2px 9px;gap:20px}.applied-line>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.applied-line>span:last-child{white-space:nowrap}
+.date-range{display:flex;align-items:center;gap:7px;min-width:0}.date-range input{flex:1;width:0;min-width:145px;height:34px}.date-range>span{color:#94a0b0;flex:none}
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:2px 5px 20px}.stat-card{padding:0 20px;border-right:1px solid var(--line);min-width:0}.stat-card:last-child{border:none}.stat-label{font-size:12px;color:#6d7d91;display:flex;justify-content:space-between;gap:8px}.stat-number{font-size:25px;letter-spacing:-.7px;font-weight:650;font-variant-numeric:tabular-nums;line-height:1.3;margin-top:10px}.stat-number.alert{color:var(--red)}.stat-number.warn{color:var(--amber)}.stat-sub{font-size:11px;color:var(--muted);margin-top:9px;line-height:1.9}.stat-sub b{color:#51627a;font-weight:500;float:right;font-variant-numeric:tabular-nums}
+.coverage-line{border-top:1px solid var(--line);background:#fafbfd;padding:11px 21px;font-size:11px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;color:var(--muted)}.coverage-line b{color:#506079;font-weight:600;font-variant-numeric:tabular-nums}
+.tabs{display:flex;gap:18px;padding:0 21px;border-bottom:1px solid var(--line);flex-wrap:wrap}.tabs button{border:none;border-bottom:2px solid transparent;border-radius:0;background:none;padding:11px 1px;color:#778599;font-size:12px}.tabs button[aria-selected=true]{border-color:var(--blue);color:var(--blue);font-weight:600}.tabs span{margin-left:4px;font-size:10px;font-variant-numeric:tabular-nums}
+.col-toggles{display:flex;gap:14px;align-items:center;font-size:11px;color:#6d7d91;flex-wrap:wrap}.col-toggles label{display:inline-flex;gap:5px;align-items:center;cursor:pointer}.col-toggles input{width:14px;height:14px;padding:0;accent-color:var(--blue)}.toolbar-sep{width:1px;height:18px;background:var(--line)}
+.legend-line{display:flex;gap:18px;flex-wrap:wrap;padding:11px 21px;font-size:10px;color:#8b97a7;border-bottom:1px solid var(--line);background:#fcfdff}.legend-line i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;border:1px solid var(--line)}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:11px}th{background:#f7f9fc;color:#758398;text-align:left;font-weight:500;white-space:nowrap;padding:11px 13px;border-bottom:1px solid var(--line)}td{padding:11px 13px;white-space:nowrap;border-bottom:1px solid #edf1f6;color:#4e5f76;background:#fff}td small{display:block;color:#94a0b0;font-size:10px;margin-top:4px}td b{font-weight:600}th.num{text-align:right}
+.detail-layout{display:grid;grid-template-columns:272px minmax(0,1fr);border-top:1px solid var(--line)}.detail-main{min-width:0;display:flex;flex-direction:column}.match-index{border-right:1px solid var(--line);background:#fbfcfe;min-width:0;display:flex;flex-direction:column}.mi-head{display:flex;justify-content:space-between;align-items:center;padding:14px 14px 9px;font-size:12px}.mi-head span{font-size:10px;color:var(--muted)}.mi-search{padding:0 12px 10px}.mi-search input{width:100%;height:32px;font-size:11px}.mi-list{overflow:auto;max-height:min(74vh,820px);padding:0 8px 12px;display:flex;flex-direction:column;gap:2px}.mi-item{display:flex;width:100%;text-align:left;justify-content:space-between;align-items:flex-start;gap:8px;border:0;border-radius:7px;padding:9px;background:transparent;white-space:normal}.mi-item:hover{background:#f0f4fa}.mi-item[aria-current=true]{background:var(--blue-pale);box-shadow:inset 3px 0 var(--blue)}.mi-item[aria-current=true] b{color:var(--blue)}.mi-main{min-width:0}.mi-main b{display:block;font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mi-main small{display:block;font-size:10px;color:#8a99ad;margin-top:4px;line-height:1.5}.mi-lv{display:inline-block;font-size:9px;padding:1px 5px;border-radius:3px;background:#e9eef5;color:#5f7089;margin-right:5px}.mi-n{font-size:10px;color:#6d7d91;font-variant-numeric:tabular-nums;flex-shrink:0;padding-top:2px}.mi-n.zero{color:#b0bac8}.mi-all b{font-size:12px}.mi-empty{font-size:11px;color:#99a5b5;padding:16px 10px;text-align:center}.match-bar{padding:10px 18px;border-bottom:1px solid var(--line);background:linear-gradient(115deg,#f6f9ff,#fbfcff)}.mb-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.mb-title{min-width:0;display:flex;align-items:center;gap:9px;flex-wrap:wrap}.mb-title b{font-size:14px}.mb-title span{font-size:10px;color:var(--muted)}.mb-back{font-size:11px;padding:5px 8px}.single-controls{display:grid;grid-template-columns:minmax(190px,.7fr) minmax(540px,2fr) minmax(130px,.55fr) minmax(130px,.55fr) auto;gap:12px;align-items:end;padding:10px 18px;background:#fff;border-bottom:1px solid var(--line)}.primary-switches,.secondary-filters{display:contents}.switch-block{min-width:0}.switch-label,.secondary-filters label{display:flex;flex-direction:column;gap:5px;font-size:10px;color:#607086}.switch-label{font-weight:600}.seg{display:flex;border:1px solid #d7e0eb;border-radius:7px;overflow:hidden;background:#fff;width:100%}.seg button{flex:1;height:34px;border:0;border-radius:0;border-right:1px solid #e9eef5;padding:0 8px;font-size:11px;background:#fff;min-width:0}.seg button:last-child{border-right:0}.seg button:hover{background:#f7f9fd}.seg button[aria-pressed=true]{background:var(--blue);color:#fff;font-weight:600}.seg button[aria-pressed=true] span{color:#dbe7ff}.seg button span{margin-left:4px;font-size:9px;color:#8a99ad;font-variant-numeric:tabular-nums}.secondary-filters select{height:34px;width:100%;min-width:0;font-size:11px}.secondary-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;height:34px}.secondary-actions button{font-size:11px;padding:7px 9px}.filter-result{font-size:10px;color:#7c8ba0;font-variant-numeric:tabular-nums;white-space:nowrap}.index-toolbar select{height:34px;font-size:12px;min-width:120px}.idx-check{display:inline-flex;gap:6px;align-items:center;font-size:11px;color:#6d7d91;cursor:pointer}.idx-check input{width:14px;height:14px;padding:0;accent-color:var(--blue)}#miCount{margin-left:auto}.th-sort{border:0;background:none;padding:0;border-radius:0;font:inherit;color:inherit;display:inline-flex;gap:4px;align-items:center}.th-sort:hover{background:none;color:var(--blue)}.th-sort i{font-style:normal;font-size:10px;color:#b0bac8;width:8px}.th-sort.on{color:var(--blue);font-weight:600}.th-sort.on i{color:var(--blue)}.index-table .act{position:sticky;right:0;z-index:1;box-shadow:inset 1px 0 var(--line)}.index-table th.act{z-index:3}.index-table td.mid{color:#8a99ad;font-variant-numeric:tabular-nums}.index-toolbar{display:flex;align-items:center;gap:14px;padding:14px 21px;flex-wrap:wrap}.index-toolbar input[type=search]{width:min(320px,100%);height:34px;font-size:12px}.index-toolbar span{font-size:11px;color:var(--muted)}.index-shell{max-height:min(70vh,760px);overflow:auto;border-top:1px solid var(--line)}.index-table{min-width:1100px}.index-table th{position:sticky;top:0;z-index:2}.index-table tbody tr{cursor:pointer}.index-table tbody tr:hover td{background:#f6f9fe}.index-table td b{font-weight:600;color:var(--ink)}.index-table td .text-button{font-size:11px;padding:2px 4px}.index-table td.zero{color:#b0bac8}.detail-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 18px}.dt-left{display:flex;align-items:center;gap:8px;font-size:11px;min-width:0}.detail-toolbar .actions button,.dt-left button{font-size:11px;height:34px}.detail-shell{overflow:auto;max-height:min(70vh,760px);border-top:1px solid var(--line)}.detail-table{min-width:1180px}.detail-table thead tr:first-child th{position:sticky;top:0;z-index:4;height:31px;padding:7px 13px;font-size:10px;letter-spacing:.6px;color:#8a99ad;background:#fbfcfe;border-bottom:1px solid var(--line)}.detail-table thead tr:nth-child(2) th{position:sticky;top:31px;z-index:4}
+.detail-table thead tr:first-child th.stick{font-size:11px;letter-spacing:0;color:#758398;background:#f7f9fc;padding:11px 13px}.detail-table th.g-calc{background:#f1f6ff;color:#56739f}.detail-table thead tr:first-child th.g-calc{background:#eef4ff;color:#5d7bb0}.detail-table th.g-flag{background:#fdf8ee;color:#94723a}.detail-table thead tr:first-child th.g-flag{background:#fcf3e2;color:#9a7330}.detail-table th.gs{border-left:1px solid var(--line)}.detail-table td.gs{border-left:1px solid #edf1f6}
+.detail-table .stick{position:sticky;z-index:2}.detail-table .s1{left:0;width:64px;min-width:64px;max-width:64px;text-align:right;color:#8a99ad;font-variant-numeric:tabular-nums}.detail-table .s2{left:64px;min-width:146px;border-right:1px solid var(--line);font-variant-numeric:tabular-nums;color:#3d4f68}.detail-table th.stick{z-index:6}.detail-table tr.tl-start td{border-top:2px solid #dfe6f0}.detail-table td.team{max-width:190px;overflow:hidden;text-overflow:ellipsis}
+.detail-table tbody tr.data{cursor:pointer}.detail-table tbody tr.data:hover td{background:#fafcff}.detail-table td.changed{color:var(--ink);font-weight:600}
+.detail-table tr.alert td{background:#fff8f8}.detail-table tr.alert:hover td{background:#fff2f2}.detail-table tr.alert td.s1{box-shadow:inset 3px 0 var(--red)}.detail-table tr.seq td{background:#fffaf1}.detail-table tr.seq td.s1{box-shadow:inset 3px 0 #d39b3a}
+.hide-flag .c-flag{display:none}
+.chip{display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;margin-right:3px;background:#f0f3f7;color:#5f7089}.chip.line{background:var(--blue-pale);color:var(--blue)}.chip.odds{background:#fcf0d8;color:var(--amber)}.chip.score{background:#e8f5f0;color:var(--green)}
+.v-alert{color:#b64f58;font-weight:600}.v-warn{color:var(--amber);font-weight:600}.pos{color:var(--green)}.neg{color:var(--red)}
+.table-footer{font-size:10px;display:flex;align-items:center;justify-content:space-between;gap:15px;padding:12px 21px;color:#8b97a7;background:#fcfdff;line-height:1.6;border-top:1px solid var(--line)}
+.pager{display:flex;justify-content:space-between;align-items:center;padding:13px 21px;color:var(--muted);font-size:11px;gap:12px;flex-wrap:wrap}.pager button{font-size:11px}.pager select{min-height:30px;margin:0 4px;font-size:11px}
+.empty{text-align:center;color:#99a5b5;padding:38px;white-space:normal}.empty strong{display:block;font-weight:500;font-size:13px;color:#6c7e96;margin-bottom:8px}
+.page-footer{display:flex;justify-content:space-between;align-items:center;color:#98a3b3;font-size:10px;padding:4px 0 22px;gap:12px}.page-footer button{font-size:10px}
+.select-popup{position:fixed;z-index:70;background:#fff;width:360px;border-radius:9px;border:1px solid #d8e2ef;box-shadow:0 12px 40px #19335525;overflow:hidden}.select-search{padding:11px;border-bottom:1px solid var(--line)}input[type=search]{width:100%;font-size:12px}.select-search>span{display:block;color:#91a0b2;font-size:10px;margin-top:8px}.select-options{max-height:274px;overflow:auto;padding:5px}.select-option{display:flex;width:100%;align-items:center;justify-content:space-between;text-align:left;border:0;border-radius:5px;padding:10px;font-size:12px;white-space:normal;gap:10px}.select-option small{display:block;font-size:10px;color:#8f9eb0;margin-top:4px}.select-option.selected{background:#edf3ff;color:var(--blue)}.select-option:disabled{opacity:.5}.select-bottom{border-top:1px solid var(--line);padding:8px;display:flex;justify-content:flex-end;align-items:center;gap:6px}.select-bottom button{font-size:11px;padding:5px 8px}
+dialog{border:1px solid #dde5ef;border-radius:13px;padding:0;box-shadow:0 24px 100px #132e5738;max-height:85vh;width:min(720px,calc(100vw - 32px));color:var(--ink);background:#fff}dialog::backdrop{background:#13243866;backdrop-filter:blur(2px)}.dialog-head{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:18px 21px;border-bottom:1px solid var(--line)}.dialog-head>button,.dialog-head .actions>button:last-child{padding:4px 10px;font-size:20px;line-height:1.2}.dialog-head p{font-size:10px;margin:5px 0 0}.dialog-content{padding:18px 21px;overflow:auto}.dialog-foot{display:flex;justify-content:flex-end;gap:9px;padding:13px 21px;border-top:1px solid var(--line)}
+.prose{font-size:12px;line-height:1.8;max-height:62vh}.prose h3{margin:20px 0 8px;font-size:13px}.prose h3:first-child{margin-top:0}.prose p{color:#6e8096;margin:6px 0}.prose ul{color:#6e8096;padding-left:18px;margin:6px 0}.prose table{margin:10px 0;font-size:11px}.prose th,.prose td{padding:7px 10px;white-space:normal}.prose .formula{font-family:'Cambria Math',Cambria,'Times New Roman',serif;font-size:17px;color:var(--ink);background:#f6f9fe;border:1px solid #e1e9fa;border-radius:8px;padding:12px 16px;margin:10px 0;letter-spacing:.3px}.prose .formula i{color:#3569c6}.prose code{font-size:11px;background:#f0f3f7;border-radius:4px;padding:1px 5px;color:#4e5f76}
+.quick-dates{display:flex;gap:7px;margin:17px 0;flex-wrap:wrap}.quick-dates button{font-size:11px}.date-inputs{display:grid;grid-template-columns:1fr 1fr;gap:16px}.date-inputs label{font-size:11px;color:#6d819b}.date-inputs input{display:block;width:100%;margin-top:8px;font-size:12px}
+.drawer{margin:0 0 0 auto;height:100dvh;max-height:100dvh;max-width:none;width:min(1280px,calc(100vw - 50px));border-radius:12px 0 0 12px}.drawer[open]{display:flex;flex-direction:column}.drawer-summary{padding:12px 21px;font-size:11px;line-height:1.7;color:#75879d;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fbfcfe}.drawer-summary.point-focus{color:#263d5d;background:#fff6e6;border-left:4px solid #e29a2d;padding-left:17px;box-shadow:inset 0 0 0 1px #f4d7a8}.drawer-summary.point-focus b:first-child{display:inline-flex;align-items:center;color:#8b5708;background:#ffe4b5;border-radius:4px;padding:2px 7px;margin-right:4px}.drawer-table{flex:1;min-height:180px;overflow:auto}.drawer-table table{min-width:1180px}.drawer-table th{position:sticky;top:0;z-index:2}.drawer-table td{font-size:10px;padding:10px 11px}.drawer-table th{padding:10px 11px;font-size:10px}.drawer-table tr.focus td{background:#eef4ff}.drawer-table tr.alert td:first-child{box-shadow:inset 3px 0 var(--red)}.drawer-table tr.seq td:first-child{box-shadow:inset 3px 0 #d39b3a}.drawer-foot{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#8392a6;padding:12px 21px;border-top:1px solid var(--line);gap:10px}.drawer-foot button{font-size:11px}
+.trend{padding:14px 21px 8px;flex-shrink:0}.trend-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:6px}.trend-head h3{font-size:12px;margin:0;font-weight:600}.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:10px;color:#6d7d91;align-items:center}.legend span{display:inline-flex;align-items:center;gap:6px}.sw{display:inline-block;width:18px;height:0;border-top:2px solid var(--blue)}.sw.dash{border-top:2px dashed #6f7f95}.sw.band{height:10px;border:0;background:#3068dc17;border-top:1px dashed #9db6e8;border-bottom:1px dashed #9db6e8}.sw.dot{width:9px;height:9px;border:2px solid #fff;border-radius:50%;background:var(--red);box-shadow:0 0 0 1px #e8b9bb}.sw.rug{width:3px;height:11px;border:0;background:#c99130;border-radius:1px}.sw.tri{width:0;height:0;border:5px solid transparent;border-top:8px solid #d39b3a;border-bottom:0}
+.chart-wrap{position:relative}.chart-wrap svg{display:block;width:100%;height:auto;overflow:visible}.chart-tip{position:absolute;pointer-events:none;background:#1f344c;color:#fff;border-radius:7px;padding:9px 11px;font-size:11px;line-height:1.65;box-shadow:0 6px 20px #12294030;min-width:178px;z-index:3;font-variant-numeric:tabular-nums}.chart-tip b{font-weight:600}.chart-tip span{color:#a9bad0}
+.pre-query{padding:46px 20px 40px;text-align:center}.pre-query h2{font-size:14px;color:#4e6584}.pre-query p{color:#8a99ad;font-size:12px;margin:10px auto 18px;max-width:560px}.pre-query small{display:block;color:#a3afbf;font-size:10px;margin-top:10px}.empty-symbol{display:block;color:#9cb4d8;font-size:30px;margin-bottom:12px}.sw-dir{font-size:9px;color:#7f93b3;margin-left:5px;font-weight:400}.sw-tag{display:inline-block;font-size:9.5px;font-weight:500;color:var(--blue);background:var(--blue-pale);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:1px}.side{font-size:10px;color:#8a99ad;margin-left:5px;font-weight:400}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1f344c;color:#fff;padding:12px 22px;border-radius:8px;font-size:12px;box-shadow:0 6px 20px #12294025;z-index:200;max-width:calc(100vw - 32px)}
+.switch-label{margin-bottom:5px}
+@media(min-width:1650px){.stat-number{font-size:28px}}
+@media(max-width:1150px){.detail-layout{grid-template-columns:1fr}.match-index{border-right:0;border-bottom:1px solid var(--line)}.mi-list{max-height:230px}.sidebar{width:168px}.workspace{margin-left:168px}main{padding:22px 18px 0}.brand{padding:0 14px}.brand b{font-size:15px}.nav-item{font-size:11px}.filter-grid{grid-template-columns:minmax(300px,1.6fr) repeat(3,minmax(130px,1fr)) auto;overflow-x:auto;padding-bottom:2px}.single-controls{grid-template-columns:minmax(180px,.7fr) minmax(470px,2fr) 135px 135px auto;overflow-x:auto}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:25px}.stat-card:nth-child(2){border:none}h1{font-size:23px}.demo-note{align-items:start;line-height:1.6}.section-heading{flex-wrap:wrap}}
+@media(max-width:760px){.sidebar{display:none}.workspace{margin:0}.topbar{padding:0 16px}.top-right .badge{display:none}main{padding:20px 16px 0}.page-title{align-items:start;flex-direction:column}.filter-grid{grid-template-columns:1fr;overflow:visible}.date-field{grid-column:auto}.date-range input{flex:1;width:0;min-width:0}.query-actions{justify-content:flex-end}.demo-note{font-size:10px}.field label span{display:none}.section-heading{padding:17px 15px;align-items:start}.filters{padding:13px 15px 11px}.match-bar{padding-left:15px;padding-right:15px}.mb-top{align-items:flex-start}.single-controls{display:flex;flex-direction:column;align-items:stretch;padding:10px 15px;overflow:visible}.primary-switches,.secondary-filters{display:flex;flex-direction:column;gap:10px}.secondary-actions{width:100%;justify-content:space-between}.seg{flex-wrap:wrap}.seg button{min-width:33%;border-bottom:1px solid #e9eef5}.secondary-filters label,.secondary-filters select{width:100%}.stat-card{padding:0 15px}.stat-number{font-size:23px}.coverage-line{padding:11px 15px;gap:10px}.table-footer{flex-direction:column;align-items:start;gap:4px}.applied-line span:last-child{display:none}.tabs{padding:0 15px}.legend-line{padding:10px 15px}.drawer{width:100vw;border-radius:0}.date-inputs{grid-template-columns:1fr}.trend{padding:12px 15px 6px}.toolbar-sep{display:none}}
+/* UAT typography baseline: normal controls and data use 14px; supporting metadata uses 12px. */
+h1{font-size:21px}.nav-item,.topbar,h2,button,.field label,.control,.field select,.field input,table,.mi-head,.mi-main b,.mb-title b,.switch-label,.secondary-filters label,.seg button,.secondary-filters select,.index-toolbar select,.index-toolbar input[type=search],.detail-toolbar .actions button,input[type=search],.select-option,.date-inputs input{font-size:14px}.nav-item{font-weight:600;line-height:40px;padding-top:0;padding-bottom:0}.small-label,.badge,.section-heading p,.compact>span,.inline-error,.applied-line,.stat-label,.stat-sub,.coverage-line,.tabs button,.tabs span,.col-toggles,.legend-line,td small,.mi-head span,.mi-search input,.mi-main small,.mi-lv,.mi-n,.mi-empty,.mb-title span,.mb-top>button,.mb-back,.seg button span,.secondary-actions button,.filter-result,.idx-check,.index-toolbar span,.index-table td .text-button,.dt-left,.detail-table thead tr:first-child th,.detail-table thead tr:first-child th.stick,.chip,.table-footer,.pager,.pager button,.pager select,.select-search>span,.select-option small,.select-bottom button,.dialog-head p,.prose,.prose table,.prose code,.quick-dates button,.date-inputs label,.drawer-summary,.drawer-table td,.drawer-table th,.drawer-foot,.trend-head h3,.legend,.chart-tip,.pre-query p,.pre-query small,.sw-dir,.sw-tag,.side,.toast{font-size:12px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></symbol><symbol id="i-batch" viewBox="0 0 24 24"><path d="M5 7h14v11H5zM8 4h8M8 21h8"/><path d="M12 9v6m0 0 2.5-2.5M12 15l-2.5-2.5"/></symbol><symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5m0 0 5-5m-5 5 5 5"/></symbol><symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M7 15l4-4 3 2 5-6"/></symbol><symbol id="i-eye" viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.5"/></symbol><symbol id="i-sort" viewBox="0 0 24 24"><path d="M8 5v14m0-14L5 8m3-3 3 3M16 19V5m0 14-3-3m3 3 3-3"/></symbol></defs></svg>
+<aside class="sidebar"><div class="brand"><span>PA</span><b>Sports BI<small>体育数据报表</small></b></div><div class="nav-label">风控工作台</div><a class="nav-item" href="#" aria-current="page"><span>▦</span> 滚球盘口数据提取</a><div class="nav-item off" aria-disabled="true"><span>◇</span> 盘口预警验证<em>规划中</em></div></aside>
+<div class="workspace"><header class="topbar"><div>风控数据 <span>/</span> <strong>滚球盘口数据提取</strong></div><div class="top-right"><span class="avatar">PA</span></div></header>
+<main>
+<div class="page-title"><h1>滚球盘口数据提取</h1></div>
+
+<section class="card filters" aria-label="查询条件"><div class="section-heading compact"><h2>查询条件</h2><span class="muted" id="dirtyText">已应用当前条件</span></div>
+<div class="filter-grid">
+<div class="field date-field"><label>比赛日期</label><div class="date-range"><input id="dateStart" type="date" aria-label="开始日期"><span>~</span><input id="dateEnd" type="date" aria-label="结束日期"></div></div>
+<div class="field"><label for="levelControl">联赛等级</label><button class="control" id="levelControl" data-type="level"><span id="levelText"></span><span>⌄</span></button></div>
+<div class="field"><label for="leagueControl">联赛</label><button class="control" id="leagueControl" data-type="league"><span id="leagueText"></span><span>⌄</span></button></div>
+<div class="field"><label for="fmt">赛制</label><select id="fmt"><option value="all">全部赛制</option><option value="40">40 分钟（4×10）</option><option value="48">48 分钟（4×12）</option></select></div>
+<div class="query-actions"><button id="btnReset">重置</button><button class="primary" id="btnQuery">查询赛事</button></div>
+</div>
+<p class="inline-error" id="queryError" role="alert" hidden></p></section>
+
+<div class="applied-line" id="appliedLine" hidden><span id="appliedScope"></span><span id="queryStamp"></span></div>
+
+<section class="card pre-query" id="preQuery" aria-label="尚未查询"><span class="empty-symbol">▤</span><h2>设置查询条件后，点击「查询赛事」</h2></section>
+<section class="card" id="resultCard" aria-label="历史赛事查询结果" hidden><div class="section-heading" id="resultHeading"><div><h2>赛事索引 <span class="badge blue" id="tabIdx"></span></h2></div></div>
+<div id="indexPane"><div class="index-toolbar"><input type="search" id="miSearch" placeholder="搜索球队、联赛或赛事 ID" aria-label="搜索赛事" autocomplete="off"><span id="miCount"></span></div>
+<div class="table-shell index-shell"><table class="index-table"><thead><tr><th>赛事 ID</th><th><button class="th-sort" data-sort="time">比赛时间<i></i></button></th><th><button class="th-sort" data-sort="level">联赛等级<i></i></button></th><th>联赛</th><th>主队</th><th>客队</th><th class="num">赛制</th><th>赛果</th><th class="num">大小初盘</th><th class="num">让分初盘</th><th class="act">操作</th></tr></thead><tbody id="miList"></tbody></table></div>
+<div class="pager"><label>每页 <select id="idxSize"><option>20</option><option>50</option><option>100</option></select> 场</label><div class="actions"><button id="idxPrev">上一页</button><span id="idxPageText"></span><button id="idxNext">下一页</button></div></div></div>
+<div id="detailBlock" hidden>
+<div class="match-bar" id="matchBar" hidden><div class="mb-top"><div class="mb-title"><button class="btn-icon btn-subtle mb-back" id="btnMbBack"><svg class="icon"><use href="#i-back"/></svg>赛事索引</button><b id="mbTitle"></b><span id="mbMeta"></span></div></div></div>
+<div class="single-controls" id="singleControls" hidden><div class="primary-switches"><div class="switch-block"><span class="switch-label">玩法</span><div class="seg" id="segMarket" role="group" aria-label="玩法"></div></div><div class="switch-block"><span class="switch-label">时段</span><div class="seg" id="segPeriod" role="group" aria-label="时段"></div></div></div><div class="secondary-filters"><label>盘口分差绝对值<select id="singleMinDev"><option value="0">不限</option><option value="2">≥ 2</option><option value="3">≥ 3</option><option value="4">≥ 4</option><option value="5">≥ 5</option><option value="6">≥ 6</option><option value="8">≥ 8</option></select></label><label>赔率变动绝对值<select id="singleMinOdds"><option value="0">不限</option><option value="0.05">≥ 0.05</option><option value="0.09">≥ 0.09</option><option value="0.13">≥ 0.13</option><option value="0.17">≥ 0.17</option></select></label><div class="secondary-actions"><span class="filter-result" id="singleFilterResult"></span><button id="btnClearSingleFilters">清除筛选</button></div></div></div>
+<div class="detail-toolbar"><div class="dt-left"><span class="badge blue" id="sortBadge">按事件时间升序</span><button id="btnSort" class="btn-icon btn-subtle"><svg class="icon"><use href="#i-sort"/></svg><span>降序排列</span></button></div><div class="actions"><button class="btn-icon btn-subtle" id="btnMbTrend"><svg class="icon"><use href="#i-chart"/></svg>盘口走势</button><button class="btn-icon btn-export-current" id="btnExport" title="导出当前盘口明细，并附带赛事索引中的全部赛事信息"><svg class="icon"><use href="#i-download"/></svg>导出明细</button></div></div>
+<div class="detail-shell" tabindex="0" aria-label="盘口明细表，可上下左右滚动"><table class="detail-table" id="detailTable"><thead id="detailHead"></thead><tbody id="detailBody"></tbody></table></div>
+<div class="table-footer"><span>▲ / ▼ 主盘口切换 · <b style="font-weight:600;color:#21334b">加粗</b> 表示较上一行发生变化</span><span>可横向滚动</span></div>
+<div class="pager"><label>每页 <select id="pageSize"><option>50</option><option>100</option><option>200</option></select> 行</label><div class="actions"><button id="btnPrev">上一页</button><span id="pageText"></span><button id="btnNext">下一页</button></div></div>
+</div>
+</section>
+</main></div>
+
+<div class="select-popup" id="selectPopup" hidden><div class="select-search"><input id="selectSearch" type="search" placeholder="搜索名称或 ID" aria-label="搜索选项"><span id="selectMeta"></span></div><div id="selectOptions" class="select-options"></div><div class="select-bottom"><button class="text-button" id="btnLoadMore" hidden>加载更多</button><button id="btnSelectDone">完成</button></div></div>
+
+<dialog id="trendDrawer" class="drawer"><div class="dialog-head"><div><h2 id="trendTitle"></h2><p id="trendScope" class="muted"></p></div><div class="actions"><button aria-label="关闭走势" data-close="trendDrawer">×</button></div></div>
+<div class="trend"><div class="trend-head"><h3>当下盘口与理论盘口</h3><div class="legend"><span><i class="sw"></i>当下盘口（主盘口）</span><span><i class="sw dash"></i>理论盘口</span></div></div><div class="chart-wrap" id="trendChart"><div class="chart-tip" id="chartTip" hidden></div></div></div>
+<div class="drawer-summary" id="trendSummary"></div>
+<div class="drawer-summary" id="trendPointSummary">从单场盘口表格点击一行后，将在这里展示该时间点的完整计算摘要。</div>
+<div class="drawer-foot"><span>完整升序序列 · 不受阈值筛选影响</span><div class="actions"><button id="btnPrevTl">上一时段</button><button id="btnNextTl">下一时段</button></div></div></dialog>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+'use strict';
+// ---------- helpers ----------
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=(n,l=2)=>String(n).padStart(l,'0');
+const fmt=n=>Number(n).toLocaleString('en-US');
+const r2=x=>{const s=Math.sign(x);return s*Math.round(Math.abs(x)*100+1e-7)/100};
+const roundHalfAway=x=>{const s=x<0?-1:1;return s*Math.floor(Math.abs(x)+.5+1e-9)};
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const lineTxt=x=>(Object.is(x,-0)?0:x).toFixed(1);
+const sInt=n=>n>0?'+'+n:String(n);
+const toMY=hk=>hk<=1?hk:-r2(1/hk);
+const hkEq=my=>my>0?my:1/Math.abs(my);
+const myTxt=x=>x.toFixed(2);
+const sideName=r=>r.tl.market==='total'?(r.lowSide===1?'大':'小'):(r.lowSide===1?'主':'客');
+const swMark=r=>r.lineSwitch?'<span class="sw-dir" title="主盘口切换：'+lineTxt(r.prevLine)+' → '+lineTxt(r.line)+'">'+(r.line>r.prevLine?'▲':'▼')+'</span>':'';
+const sOdds=n=>n===null?'—':(n>0?'+':'')+n.toFixed(2);
+const pctTxt=(a,b)=>b?(a/b*100).toFixed(2)+'%':'—';
+const stamp=ms=>new Date(ms+8*3600000).toISOString().slice(0,19).replace('T',' ').replaceAll('-','/');
+const dateTxt=s=>s.replaceAll('-','/');
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(r){let u=0;while(u===0)u=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*r())}
+
+// ---------- demo catalogue ----------
+const LEAGUES=[
+ {id:'BL01',name:'NBA',level:1,fmt:48},{id:'BL02',name:'CBA',level:2,fmt:48},{id:'BL03',name:'欧洲篮球联赛',level:2,fmt:40},{id:'BL04',name:'WNBA',level:3,fmt:40},
+ {id:'BL05',name:'澳大利亚 NBL',level:4,fmt:40},{id:'BL06',name:'日本 B 联赛',level:5,fmt:40},{id:'BL07',name:'韩国 KBL',level:6,fmt:40},{id:'BL08',name:'法国 LNB',level:7,fmt:40},
+ {id:'BL09',name:'菲律宾 MPBL',level:8,fmt:40},{id:'BL10',name:'阿根廷 LNB',level:9,fmt:40},{id:'BL11',name:'波多黎各 BSN',level:10,fmt:40},{id:'BL12',name:'印尼 IBL',level:11,fmt:40},
+ {id:'BL13',name:'墨西哥 LNBP',level:12,fmt:40},{id:'BL14',name:'委内瑞拉 SPB',level:13,fmt:40}];
+const leagueMap=new Map(LEAGUES.map(l=>[l.id,l]));
+const MATCH_SEED=[
+ ['BL01','2026-05-08','08:00','Boston Celtics','New York Knicks',224.5,5.5,1.02,{}],
+ ['BL01','2026-05-10','10:30','Denver Nuggets','Oklahoma City Thunder',228.5,-2.5,0.99,{lineError:'spread'}],
+ ['BL02','2026-04-01','19:35','Zhejiang Guangsha','Beijing Ducks',206.5,1.5,1.0,{}],
+ ['BL02','2026-04-05','19:35','Liaoning Flying Leopards','Guangdong Southern Tigers',212.5,3.5,1.04,{}],
+ ['BL03','2026-05-22','02:00','Real Madrid','Panathinaikos',161.5,4.5,0.97,{}],
+ ['BL04','2026-08-01','07:30','Atlanta Dream','Seattle Storm',178.5,2.5,1.01,{}],
+ ['BL04','2026-05-09','07:00','New York Liberty','Connecticut Sun',159.5,7.5,1.08,{}],
+ ['BL04','2026-05-10','08:00','Indiana Fever','Dallas Wings',178.5,1.5,0.99,{}],
+ ['BL05','2026-04-12','17:30','Sydney Kings','Melbourne United',176.5,2.5,1.0,{}],
+ ['BL06','2026-04-18','18:05','Utsunomiya Brex','Chiba Jets',158.5,-1.5,0.96,{}],
+ ['BL07','2026-04-20','19:00','Seoul SK Knights','Changwon LG Sakers',156.5,1.5,1.0,{ot:true}],
+ ['BL08','2026-05-03','02:00','AS Monaco','Paris Basketball',165.5,6.5,1.02,{}],
+ ['BL09','2026-05-01','20:30','Biñan Tatak Gel','Basilan Viva Portmore',145.5,-3.5,1.01,{clockGlitch:true}],
+ ['BL10','2026-05-15','08:30','Boca Juniors','Instituto',152.5,2.5,0.95,{}],
+ ['BL11','2026-04-03','08:30','Criollos de Caguas','Cangrejeros de Santurce',170.5,1.5,1.03,{scoreFix:true}],
+ ['BL12','2026-06-07','19:00','Pelita Jaya','Satria Muda',152.5,4.5,1.0,{lineError:'total'}],
+ ['BL13','2026-06-20','09:30','Diablos Rojos del México','Halcones de Xalapa',166.5,-1.5,1.03,{}],
+ ['BL14','2026-07-11','07:00','Trotamundos de Carabobo','Guaros de Lara',162.5,3.5,0.98,{}]];
+const TEAM_POOL={
+ BL01:['Boston Celtics','New York Knicks','Denver Nuggets','Oklahoma City Thunder','Minnesota Timberwolves','Indiana Pacers','Cleveland Cavaliers','Golden State Warriors','Los Angeles Lakers','Dallas Mavericks'],
+ BL02:['Zhejiang Guangsha','Beijing Ducks','Liaoning Flying Leopards','Guangdong Southern Tigers','Shanghai Sharks','Xinjiang Flying Tigers','Shandong Hi-Speed','Zhejiang Golden Bulls'],
+ BL03:['Real Madrid','Panathinaikos','Olympiacos','Fenerbahçe','FC Barcelona','Anadolu Efes','Žalgiris Kaunas','Partizan','Virtus Bologna'],
+ BL04:['Atlanta Dream','Seattle Storm','New York Liberty','Connecticut Sun','Indiana Fever','Dallas Wings','Las Vegas Aces','Minnesota Lynx','Phoenix Mercury','Chicago Sky','Washington Mystics','Los Angeles Sparks'],
+ BL05:['Sydney Kings','Melbourne United','Perth Wildcats','Tasmania JackJumpers','Illawarra Hawks','Brisbane Bullets','Adelaide 36ers','New Zealand Breakers'],
+ BL06:['Utsunomiya Brex','Chiba Jets','Ryukyu Golden Kings','Alvark Tokyo','Nagoya Diamond Dolphins','Shimane Susanoo Magic','Kawasaki Brave Thunders'],
+ BL07:['Seoul SK Knights','Changwon LG Sakers','Suwon KT Sonicboom','Busan KCC Egis','Ulsan Hyundai Mobis Phoebus','Anyang Jung Kwan Jang'],
+ BL08:['AS Monaco','Paris Basketball','ASVEL','JL Bourg','Cholet Basket','SIG Strasbourg','Le Mans Sarthe'],
+ BL09:['Biñan Tatak Gel','Basilan Viva Portmore','Pampanga Giant Lanterns','Quezon Huskers','San Juan Knights','Nueva Ecija Rice Vanguards','Zamboanga Valientes'],
+ BL10:['Boca Juniors','Instituto','Quimsa','Obras Basket','Peñarol','Ferro Carril Oeste','Regatas Corrientes'],
+ BL11:['Criollos de Caguas','Cangrejeros de Santurce','Atléticos de San Germán','Vaqueros de Bayamón','Leones de Ponce','Capitanes de Arecibo','Gigantes de Carolina'],
+ BL12:['Pelita Jaya','Satria Muda','Prawira Bandung','Dewa United','RANS Simba','Bali United'],
+ BL13:['Diablos Rojos del México','Halcones de Xalapa','Soles de Mexicali','Fuerza Regia','Astros de Jalisco','Panteras de Aguascalientes'],
+ BL14:['Trotamundos de Carabobo','Guaros de Lara','Cocodrilos de Caracas','Marinos de Anzoátegui','Gaiteros del Zulia','Spartans Distrito Capital']};
+const LEAGUE_BASE={BL01:[226,'08:00'],BL02:[208,'19:35'],BL03:[162,'02:00'],BL04:[166,'07:30'],BL05:[176,'17:30'],BL06:[158,'18:05'],BL07:[157,'19:00'],BL08:[164,'02:00'],BL09:[148,'20:30'],BL10:[154,'08:30'],BL11:[170,'08:30'],BL12:[152,'19:00'],BL13:[166,'09:30'],BL14:[162,'07:00']};
+const HCAPS=[-6.5,-4.5,-3.5,-2.5,-1.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5];
+function generatedSeeds(){
+ const r=mulberry32(20260401),out=[],day0=Date.UTC(2026,3,1),busy=new Set(MATCH_SEED.flatMap(s=>[s[3]+'|'+s[1],s[4]+'|'+s[1]]));
+ LEAGUES.forEach(lg=>{const pool=TEAM_POOL[lg.id],[base,time]=LEAGUE_BASE[lg.id],n=lg.level<=4?13:10;
+  for(let k=0;k<n;k++){
+   let date,hi,ai,tries=0;do{date=new Date(day0+Math.floor(r()*153)*864e5).toISOString().slice(0,10);hi=Math.floor(r()*pool.length);ai=Math.floor(r()*(pool.length-1));if(ai>=hi)ai++}while((busy.has(pool[hi]+'|'+date)||busy.has(pool[ai]+'|'+date))&&++tries<50);busy.add(pool[hi]+'|'+date);busy.add(pool[ai]+'|'+date);
+   const [hh,mm]=time.split(':').map(Number),mins=(hh*60+mm+[0,0,30,60,-30][Math.floor(r()*5)]+1440)%1440;
+   out.push([lg.id,date,pad(Math.floor(mins/60))+':'+pad(mins%60),pool[hi],pool[ai],Math.round(base+(r()-.5)*14)+.5,HCAPS[Math.floor(r()*HCAPS.length)],Math.round((1+(r()-.5)*.07)*100)/100,{}]);
+  }});
+ return out;
+}
+const DEMO_END=new Date(Date.now()+8*3600000);DEMO_END.setUTCHours(0,0,0,0);
+const MATCHES=MATCH_SEED.concat(generatedSeeds()).map((s,i)=>{const [league,sourceDate,time,home,away,total,hcap,pace,flags]=s,date=new Date(DEMO_END.getTime()-(i%7)*864e5).toISOString().slice(0,10),lg=leagueMap.get(league);return {idx:i,league,leagueName:lg.name,level:lg.level,fmt:lg.fmt,date,time,home,away,total,hcap,pace,flags,sourceDate,startMs:Date.parse(date+'T'+time+':00+08:00')}}).sort((a,b)=>a.startMs-b.startMs||a.idx-b.idx);
+MATCHES.forEach((m,i)=>m.id='BK'+m.date.replaceAll('-','')+'-'+pad(i+1,3));
+const matchMap=new Map(MATCHES.map(m=>[m.id,m]));
+const MARKETS={total:{name:'大小',p1:'大赔率',p2:'小赔率',a:'当前总分'},spread:{name:'让分',p1:'主队赔率',p2:'客队赔率',a:'当前分差'}};
+const PERIODS={FT:'全场',H1:'上半场',Q1:'第1节',Q2:'第2节',Q3:'第3节',Q4:'第4节'};
+const PERIOD_ORDER=['FT','H1','Q1','Q2','Q3','Q4'];
+const ORD=['1st','2nd','3rd','4th'];
+
+// ---------- game simulation ----------
+function simulateGame(m,seed){
+ const r=mulberry32(seed),L=m.fmt*60,share=.5+m.hcap/(2*m.total)+(r()-.5)*.04,evRate=m.total*m.pace/L/2.1,ev=[];let t=0,h=0,a=0;
+ const run=end=>{for(;;){t+=(-Math.log(1-r())-Math.log(1-r())-Math.log(1-r()))/3/evRate;if(t>=end){t=end;return}const u=r(),pts=u<.58?2:u<.84?3:1;if(r()<share)h+=pts;else a+=pts;ev.push({t:Math.round(t),h,a})}};
+ run(L);const tiedReg=h===a;let ot=0;while(h===a&&ot<3){ot++;run(L+ot*300)}
+ return {ev,h,a,ot,tiedReg};
+}
+function buildGame(m){
+ let seed=9100+m.idx*131,g=null;
+ for(let k=0;k<400;k++){g=simulateGame(m,seed+k);if(!!m.flags.ot===g.tiedReg)break}
+ const q=m.fmt/4*60,ps=[];
+ for(let k=1;k<=4;k++)ps.push({k,s:(k-1)*q,e:k*q,label:ORD[k-1]+' Qtr',cn:'第'+k+'节',ot:false});
+ for(let i=1;i<=g.ot;i++)ps.push({k:4+i,s:4*q+(i-1)*300,e:4*q+i*300,label:'OT'+i,cn:'加时'+i,ot:true});
+ const rs=[],re=[],brk=[];let cur=0;
+ ps.forEach((p,i)=>{rs[i]=cur;re[i]=cur+(p.e-p.s)*1.55;brk[i]=p.k===1||p.k===3?130:p.k===2?900:150;cur=re[i]+brk[i]});
+ return {...g,ps,rs,re,brk,q};
+}
+function scoreAt(ev,gs){let h=0,a=0;for(const e of ev){if(e.t>gs)break;h=e.h;a=e.a}return {h,a}}
+function breakText(p){return p.k===1?'End of 1st Qtr':p.k===2?'Half Time':p.k===3?'End of 3rd Qtr':'End of '+(p.ot?p.label:'4th Qtr')}
+function breakTag(p){return p.k===2?'中场':p.k===1||p.k===3?'节间':'加时前'}
+function allowedDev(market,A){if(market==='total')return 5;const d=Math.abs(A);return d===0?3:d===1?4:d<=4?5:d<=7?6:7}
+
+function buildTimeline(m,game,market,period,seed){
+ const r=mulberry32(seed),C=m.fmt,qm=C/4,ps=game.ps;
+ const win=period==='FT'?ps:period==='H1'?ps.slice(0,2):[ps[Number(period[1])-1]];
+ const B=market==='total'?m.total:m.hcap,ticks=[];
+ win.forEach((p,i)=>{
+  if(i===0)ticks.push({gs:p.s,brk:false,p});
+  for(const e of game.ev)if(e.t>p.s&&e.t<=p.e)ticks.push({gs:Math.min(p.e,Math.round(e.t+1+r()*3)),brk:false,p});
+  let t=p.s+6+r()*20;while(t<p.e-1){ticks.push({gs:Math.round(t),brk:false,p,odds:true});t+=8-Math.log(1-r())*28}
+  if(i<win.length-1){const n=2+Math.floor(r()*3);for(let j=0;j<n;j++)ticks.push({gs:p.e,brk:true,p,bo:(j+1)/(n+1)})}
+ });
+ ticks.forEach(tk=>{const i=ps.indexOf(tk.p);tk.real=tk.brk?game.re[i]+tk.bo*game.brk[i]:game.rs[i]+(tk.gs-tk.p.s)*1.55+r()*1.5});
+ ticks.sort((x,y)=>x.real-y.real||x.gs-y.gs);
+ const base=scoreAt(game.ev,win[0].s),errIdx=m.flags.lineError===market&&period==='FT'?Math.floor(ticks.length*.55):-1;
+ let prevL=null,drift=0,lastKey='',lastTs=0,merged=0;const out=[];
+ ticks.forEach((tk,i)=>{
+  const p=tk.p,sc=scoreAt(game.ev,tk.gs),hs=sc.h-base.h,as=sc.a-base.a,A=market==='total'?hs+as:hs-as;
+  const remSec=tk.brk?0:p.e-tk.gs,jie2=period==='FT'?(p.ot?0:(4-p.k)*qm):period==='H1'?(p.k===1?qm:0):0;
+  const D=jie2+Math.floor(remSec/60)+r2((remSec%60)/60),el=tk.gs/60,Dm=tk.brk&&p.k>=4?5:D;
+  drift=drift*.92+gauss(r)*.25;let E;
+  if(market==='total'){const K=C*1.4;E=A+Dm*((sc.h+sc.a)+B/C*K)/(el+K)+drift}
+  else{const K=C*1.6;E=A+Dm*((sc.h-sc.a)+B/C*K)/(el+K)+drift*.6}
+  let L;
+  if(i===0&&period==='FT')L=B;else{let cand=Math.floor(E)+.5;if(market==='spread'&&Math.abs(cand)===.5)cand=E>=0?1.5:-1.5;L=prevL===null||Math.abs(E-prevL)>.9?cand:prevL}
+  let s=clamp((E-L)/1.2,-1,1);if(r()<.035)s=(r()<.5?-1:1)*(.85+r()*.15);
+  if(i===errIdx){L+=market==='total'?7:6;s=0}else prevL=L;
+  let p1=r2(clamp(.83-.13*s+(tk.odds?(r()-.5)*.04:0),.66,1.08)),p2=r2(clamp(1.66+.06*s*s-p1,.66,1.08));
+  if(i===0&&period==='FT'){p1=.83;p2=.83}
+  const key=[L,p1,p2,hs,as].join('|');if(key===lastKey){merged++;return}lastKey=key;
+  let ts=m.startMs+Math.round(tk.real)*1000;if(ts<=lastTs)ts=lastTs+1000;lastTs=ts;
+  out.push({ts,p,brk:tk.brk,remSec,hs,as,line:L,p1,p2});
+ });
+ // injected feed issues, kept for manual review (not removed)
+ if(period==='FT'&&m.flags.clockGlitch){const i=out.findIndex((x,j)=>x.p.k===3&&!x.brk&&x.remSec>330&&x.remSec<420&&out[j+1]&&out[j+1].ts-x.ts>3000);if(i>=0){const x=out[i];out.splice(i+1,0,{...x,ts:x.ts+1000,remSec:x.remSec-7,p1:r2(x.p1+.03),p2:r2(x.p2-.03)},{...x,ts:x.ts+2000})}}
+ if(period==='FT'&&m.flags.scoreFix){const i=out.findIndex((x,j)=>x.p.k===2&&!x.brk&&x.remSec>150&&x.remSec<420&&out[j+1]&&out[j+1].ts-x.ts>7000);if(i>=0){const x=out[i];out.splice(i+1,0,{...x,ts:x.ts+2000,hs:x.hs+2,p1:r2(x.p1-.02),p2:r2(x.p2+.02)},{...x,ts:x.ts+6000})}}
+ const tl={key:m.id+'|'+market+'|'+period,m,market,period,B,C,winStart:win[0].s,winEnd:win[win.length-1].e,periods:win,rows:out,merged:Math.max(0,Math.round((win[win.length-1].e-win[0].s)/6)-out.length)+merged};
+ out.forEach((row,i)=>{
+  const prev=out[i-1],A=market==='total'?row.hs+row.as:row.hs-row.as,p=row.p;
+  const jie2=period==='FT'?(p.ot?0:(4-p.k)*qm):period==='H1'?(p.k===1?qm:0):0,min=Math.floor(row.remSec/60),sec=row.remSec%60,sec2=r2(sec/60),nextP=ps[ps.indexOf(p)+1],D=r2(row.brk&&nextP&&nextP.ot?5:jie2+min+sec2);
+  const P=Number((A+B*D/C).toFixed(6)),dev=roundHalfAway(row.line-P),absDev=Math.abs(dev),allowed=allowedDev(market,A);
+  const raw=row.brk?breakText(p):(p.ot?p.label:p.label)+' '+pad(min)+':'+pad(sec);
+  row.m1=toMY(row.p1);row.m2=toMY(row.p2);const h1=hkEq(row.m1),h2=hkEq(row.m2),low=h1<=h2?1:2;
+  const chg=!prev?['首条']:[...(row.m1!==prev.m1||row.m2!==prev.m2?['赔率']:[]),...(row.line!==prev.line?['盘口']:[]),...(row.hs!==prev.hs||row.as!==prev.as?['比分']:[])];
+  const oddsChg=prev?r2((low===1?h1:h2)-hkEq(low===1?prev.m1:prev.m2)):null,oddsDiff=oddsChg===null?null:Math.abs(oddsChg);
+  const seq=!prev?'':row.hs<prev.hs||row.as<prev.as?'比分倒退':prev.p===p&&!prev.brk&&!row.brk&&row.remSec>prev.remSec?'时钟回跳':'';
+  Object.assign(row,{lowSide:low,lineSwitch:!!prev&&row.line!==prev.line,prevLine:prev?prev.line:null,tl,i,raw,jie2,min,sec,sec2,D,A,P,dev,absDev,allowed,lineAlert:absDev>allowed,chg,oddsChg,oddsDiff,oddsAlert:oddsDiff!==null&&oddsDiff>.16+1e-9,seq,x:(p.e-row.remSec-tl.winStart)/60,gs:p.e-row.remSec});
+ });
+ return tl;
+}
+// Games are simulated up front (scores, results); line timelines are built on first use and cached.
+MATCHES.forEach(m=>{m.game=buildGame(m);m.result=m.game.h+'-'+m.game.a;m.ot=m.game.ot});
+const TL_CACHE=new Map();
+function getTL(m,market,period){const key=m.id+'|'+market+'|'+period;let tl=TL_CACHE.get(key);if(!tl){tl=buildTimeline(m,m.game,market,period,7700+m.idx*97+(market==='total'?0:31)+PERIOD_ORDER.indexOf(period)*7);TL_CACHE.set(key,tl)}return tl}
+function tlByKey(key){const [id,mk,pd]=key.split('|'),m=matchMap.get(id);return m?getTL(m,mk,pd):null}
+
+// ---------- filters ----------
+function initialDates(){const now=new Date(Date.now()+8*3600000),end=now.toISOString().slice(0,10),start=new Date(now-6*864e5).toISOString().slice(0,10);return{start,end}}
+const defaults=()=>({...initialDates(),level:'all',league:'all',fmt:'all'});
+let draft=defaults(),applied=structuredClone(draft),view=[],desc=false,page=1,dropdown=null,queriedAt=Date.now();
+const levelLabel=l=>l==='all'?'全部等级':l+'级';
+function leaguesFor(f){return LEAGUES.filter(l=>f.level==='all'||l.level===Number(f.level))}
+function matchesFor(f){const ids=new Set(leaguesFor(f).map(l=>l.id));return MATCHES.filter(m=>ids.has(m.league)&&(f.league==='all'||m.league===f.league)&&m.date>=f.start&&m.date<=f.end&&(f.fmt==='all'||m.fmt===Number(f.fmt))).sort((a,b)=>a.startMs-b.startMs)}
+function validate(f){
+ if(!f.start||!f.end)return '请选择完整的比赛日期。';if(f.start>f.end)return '开始日期不能晚于结束日期。';
+ if((Date.parse(f.end)-Date.parse(f.start))/864e5+1>186)return '单次查询最多 186 天，请缩小日期范围。';
+ if(f.league!=='all'&&!leaguesFor(f).some(l=>l.id===f.league))return '所选联赛不属于当前等级，请重新选择联赛。';
+ return '';
+}
+function scopeText(f){return [dateTxt(f.start)+' ～ '+dateTxt(f.end),'篮球',levelLabel(f.level),f.league==='all'?'全部联赛':leagueMap.get(f.league).name,f.fmt==='all'?'全部赛制':f.fmt+' 分钟'].join(' / ')}
+function renderFilters(){
+ const lg=leaguesFor(draft);
+ $('dateStart').value=draft.start;$('dateEnd').value=draft.end;
+ $('levelText').textContent=levelLabel(draft.level)+(draft.level==='1'?' · 最高':draft.level==='13'?' · 最低':'');
+ $('leagueText').textContent=draft.league==='all'?'全部联赛':leagueMap.get(draft.league).name+' · '+leagueMap.get(draft.league).level+'级';
+ $('fmt').value=draft.fmt;
+ const dirty=JSON.stringify(draft)!==JSON.stringify(applied);$('dirtyText').textContent=!hasQueried?'尚未查询':dirty?'范围已修改，点击「查询赛事」更新结果':'已应用当前赛事范围';$('dirtyText').style.color=dirty?'#b38228':'';
+}
+function setFilter(k,v){draft[k]=v;if(k==='level')draft.league='all';renderFilters()}
+function optionsFor(type){
+ switch(type){
+  case 'level':return [{id:'all',label:'全部等级',sub:'1级最高 · 13级最低'}].concat(Array.from({length:13},(_,i)=>({id:String(i+1),label:(i+1)+'级'+(i===0?' · 最高':i===12?' · 最低':''),sub:LEAGUES.filter(l=>l.level===i+1).map(l=>l.name).join('、')})));
+  case 'league':return [{id:'all',label:'全部联赛',sub:levelLabel(draft.level)}].concat(leaguesFor(draft).map(l=>({id:l.id,label:l.name,sub:l.id+' · '+l.level+'级 · '+l.fmt+' 分钟'})));
+ }return [];
+}
+function currentValue(type){return draft[type]}
+function openSelect(type,anchor){if(dropdown?.type===type){closeSelect();return}closeSelect();dropdown={type,anchor};anchor.setAttribute('aria-expanded','true');$('selectSearch').value='';optionLimit=60;$('selectPopup').hidden=false;positionSelect();renderOptions();$('selectSearch').focus()}
+function positionSelect(){if(!dropdown)return;const r=dropdown.anchor.getBoundingClientRect(),pop=$('selectPopup'),w=Math.min(390,innerWidth-24);pop.style.width=w+'px';pop.style.left=Math.max(12,Math.min(r.left,innerWidth-w-12))+'px';const h=Math.min(405,innerHeight-28);pop.style.top=Math.max(12,Math.min(r.bottom+6,innerHeight-h-12))+'px'}
+function renderOptions(){
+ if(!dropdown)return;const q=$('selectSearch').value.trim().toLowerCase(),opts=optionsFor(dropdown.type).filter(o=>(o.label+' '+o.id+' '+o.sub).toLowerCase().includes(q)),cur=currentValue(dropdown.type);
+ $('selectMeta').textContent='匹配 '+fmt(opts.length)+' 项'+(opts.length>optionLimit?' · 已显示 '+optionLimit:'');$('btnLoadMore').hidden=optionLimit>=opts.length;const box=$('selectOptions');box.replaceChildren();
+ opts.slice(0,optionLimit).forEach(o=>{const b=document.createElement('button'),sel=cur===o.id;b.className='select-option'+(sel?' selected':'');b.disabled=!!o.disabled;b.setAttribute('aria-pressed',String(sel));b.innerHTML='<span>'+esc(o.label)+'<small>'+esc(o.sub)+'</small></span>'+(sel?'✓':'');b.onclick=()=>{if(dropdown.type!=='sport')setFilter(dropdown.type,o.id);closeSelect(true)};box.appendChild(b)});
+ if(!opts.length)box.innerHTML='<div class="empty">没有匹配选项</div>';
+}
+function closeSelect(focus=false){if(dropdown){dropdown.anchor.setAttribute('aria-expanded','false');if(focus)dropdown.anchor.focus()}$('selectPopup').hidden=true;dropdown=null}
+
+// ---------- query & render ----------
+let selMatch=null,selMarket='total',selPeriod='FT',selMinDev='0',selMinOdds='0',resultMatches=[],hasQueried=false;
+function rowPass(r){const minDev=Number(selMinDev),minOdds=Number(selMinOdds);return r.absDev>=minDev&&(minOdds===0||r.oddsDiff!==null&&r.oddsDiff>=minOdds-1e-9)}
+function runQuery(silent=false){
+ const err=validate(draft);$('queryError').hidden=!err;$('queryError').textContent=err;if(err){toast(err);return}
+ const btn=$('btnQuery');btn.disabled=true;btn.textContent='查询中…';
+ const go=()=>{applied=structuredClone(draft);resultMatches=matchesFor(applied);selMatch=null;resetIndexFilters();hasQueried=true;$('preQuery').hidden=true;$('resultCard').hidden=false;$('appliedLine').hidden=false;queriedAt=Date.now();page=1;btn.disabled=false;btn.textContent='查询赛事';renderAll();if(!silent)toast('已查询到 '+resultMatches.length+' 场历史赛事')};
+ silent?go():setTimeout(go,380);
+}
+function renderAll(){renderFilters();renderMeta();renderView()}
+function renderView(){
+ $('tabIdx').textContent=resultMatches.length+' 场';
+ $('appliedLine').hidden=!hasQueried||inMatch();$('indexPane').hidden=!!selMatch;$('detailBlock').hidden=!selMatch;$('resultHeading').hidden=!!selMatch;$('matchBar').hidden=!inMatch();$('singleControls').hidden=!inMatch();
+ if(!selMatch){renderIndex();return}
+ renderMatchBar();renderHead();renderTable();
+}
+const inMatch=()=>!!selMatch;
+const viewMarket=()=>selMarket,viewPeriod=()=>selPeriod;
+function viewRows(){if(!inMatch())return [];TLMAP=TLMAP||tlMap();const tl=TLMAP.get(selMatch+'|'+selMarket+'|'+selPeriod);return tl?tl.rows.filter(r=>rowPass(r)):[]}
+function renderMeta(){$('appliedScope').textContent=scopeText(applied);$('appliedScope').title=scopeText(applied);$('queryStamp').textContent='查询于 '+stamp(queriedAt).slice(0,16)+' UTC+8'}
+let idxPage=1,idxSort={key:'time',dir:1};
+function resetIndexFilters(){
+ $('miSearch').value='';idxPage=1;idxSort={key:'time',dir:1};
+}
+function indexList(){
+ const q=$('miSearch').value.trim().toLowerCase(),{key,dir}=idxSort;
+ const list=resultMatches.filter(m=>!q||(m.home+' '+m.away+' '+m.leagueName+' '+m.id).toLowerCase().includes(q));
+ const val=m=>key==='level'?m.level:m.startMs;
+ return list.sort((a,b)=>(val(a)-val(b))*dir||a.startMs-b.startMs);
+}
+function renderIndex(){
+ const list=indexList(),size=Number($('idxSize').value),pages=Math.max(1,Math.ceil(list.length/size));idxPage=clamp(idxPage,1,pages);
+ const filtered=list.length!==resultMatches.length;
+ $('miCount').textContent=filtered?fmt(list.length)+' / '+fmt(resultMatches.length)+' 场':fmt(resultMatches.length)+' 场';
+ document.querySelectorAll('.th-sort').forEach(b=>{const on=b.dataset.sort===idxSort.key;b.classList.toggle('on',on);b.querySelector('i').textContent=on?(idxSort.dir>0?'↑':'↓'):'↕';b.setAttribute('aria-sort',on?(idxSort.dir>0?'ascending':'descending'):'none')});
+ $('miList').innerHTML=list.slice((idxPage-1)*size,idxPage*size).map(m=>'<tr data-mid="'+m.id+'"><td class="mid">'+m.id+'</td><td>'+dateTxt(m.date)+' '+m.time+'</td><td>'+m.level+'级</td><td>'+esc(m.leagueName)+'</td><td><b>'+esc(m.home)+'</b></td><td><b>'+esc(m.away)+'</b></td><td class="num">'+m.fmt+' 分钟</td><td>'+m.result+(m.ot?' <span class="badge tiny">含加时</span>':'')+'</td><td class="num">'+lineTxt(m.total)+'</td><td class="num">'+lineTxt(m.hcap)+'</td><td class="act"><button class="btn-icon text-button" data-mid="'+m.id+'"><svg class="icon"><use href="#i-eye"/></svg>查看</button></td></tr>').join('')||'<tr><td colspan="11" class="empty"><strong>'+(resultMatches.length?'没有匹配的赛事':'当前条件下没有赛事')+'</strong><span>请调整查询条件后重试。</span></td></tr>';
+ $('idxPageText').textContent=idxPage+' / '+pages+' · 共 '+fmt(list.length)+' 场';$('idxPrev').disabled=idxPage===1;$('idxNext').disabled=idxPage===pages;
+}
+function selectMatch(id){selMatch=id||null;if(selMatch){selMarket='total';selPeriod='FT';selMinDev='0';selMinOdds='0'}page=1;renderView();const d=document.querySelector('.detail-shell');if(d)d.scrollTop=0}
+function renderMatchBar(){
+ if(!inMatch())return;const m=matchMap.get(selMatch);TLMAP=TLMAP||tlMap();
+ const cnt=(mk,pd)=>{const tl=TLMAP.get(m.id+'|'+mk+'|'+pd);return tl?tl.rows.length:0};
+ $('mbTitle').textContent=m.home+' vs '+m.away;
+ const curTl=TLMAP.get(m.id+'|'+selMarket+'|'+selPeriod);
+ $('mbMeta').textContent=m.leagueName+' · '+m.level+'级 · '+dateTxt(m.date)+' '+m.time+' UTC+8 · 赛制 '+m.fmt+' 分钟 · 赛果 '+m.result+(m.ot?'（含加时）':'')+' · '+m.id+' · 当前初盘 '+lineTxt(curTl.B);
+ $('segMarket').innerHTML=Object.entries(MARKETS).map(([k,x])=>'<button data-mk="'+k+'" aria-pressed="'+(k===selMarket)+'">'+x.name+'<span>'+cnt(k,selPeriod)+'</span></button>').join('');
+ $('segPeriod').innerHTML=PERIOD_ORDER.map(pd=>'<button data-pd="'+pd+'" aria-pressed="'+(pd===selPeriod)+'">'+PERIODS[pd]+'<span>'+cnt(selMarket,pd)+'</span></button>').join('');
+ $('singleMinDev').value=selMinDev;$('singleMinOdds').value=selMinOdds;
+ const total=curTl?curTl.rows.length:0,filtered=curTl?curTl.rows.filter(r=>rowPass(r)).length:0;
+ $('singleFilterResult').textContent=filtered===total?'共 '+fmt(total)+' 行':'筛选后 '+fmt(filtered)+' / 共 '+fmt(total)+' 行';
+ $('btnClearSingleFilters').disabled=selMinDev==='0'&&selMinOdds==='0';
+}
+function colsFor(market){
+ const mk=MARKETS[market];
+ return [
+  {g:'raw',label:'剩余时间',v:r=>esc(r.raw)},{g:'raw',label:'当下得分',v:r=>r.hs+'-'+r.as,c:'比分'},{g:'raw',label:mk.p1,num:1,v:r=>myTxt(r.m1),c:'赔率'},{g:'raw',label:'当下盘口',num:1,v:r=>lineTxt(r.line)+swMark(r),c:'盘口'},{g:'raw',label:mk.p2,num:1,v:r=>myTxt(r.m2),c:'赔率'},
+  {g:'calc',label:'剩余分钟',num:1,v:r=>r.D.toFixed(2)},{g:'calc',label:mk.a,num:1,v:r=>r.A},{g:'calc',label:'理论盘口',num:1,v:r=>r.P.toFixed(2)},{g:'calc',label:'盘口分差',num:1,v:r=>sInt(r.dev)},{g:'calc',label:'赔率变动（低赔方）',num:1,v:r=>r.oddsChg===null?'—':sOdds(r.oddsChg)+'<span class="side">'+sideName(r)+'</span>'}];
+}
+const GROUP_META={match:['赛事信息','',''],raw:['盘口原始数据','',''],calc:['计算字段','g-calc','']};
+let COLS=colsFor('total');
+function renderHead(){
+ const mkt=viewMarket();COLS=colsFor(mkt);const groups=[];COLS.forEach(c=>{const g=groups[groups.length-1];if(g&&g.g===c.g)g.n++;else groups.push({g:c.g,n:1})});
+ $('detailHead').innerHTML='<tr><th class="stick s1 num" rowspan="2" style="top:0;z-index:7">编号</th><th class="stick s2" rowspan="2" style="top:0;z-index:7">事件时间</th>'+groups.map(g=>{const [name,tint]=GROUP_META[g.g];return '<th colspan="'+g.n+'" class="gs '+tint+'">'+name+'</th>'}).join('')+'</tr><tr>'+COLS.map((c,i)=>{const [,tint]=GROUP_META[c.g];return '<th class="'+[tint,c.num?'num':'',i===0||COLS[i-1].g!==c.g?'gs':''].join(' ')+'">'+c.label+'</th>'}).join('')+'</tr>';
+}
+function renderTable(){
+ const asc=viewRows(),noMap=new Map(asc.map((r,i)=>[r,i+1]));view=desc?[...asc].reverse():asc;
+ const size=Number($('pageSize').value),pages=Math.max(1,Math.ceil(view.length/size));page=clamp(page,1,pages);
+ const slice=view.slice((page-1)*size,page*size);
+ let html='',last='';const span=COLS.length+2;
+ slice.forEach((r,k)=>{
+  const cls=['data',k>0&&r.tl.key!==last?'tl-start':''].join(' ');last=r.tl.key;
+  html+='<tr class="'+cls+'" data-key="'+r.tl.key+'" data-i="'+r.i+'" title="点击查看该场走势"><td class="stick s1">'+noMap.get(r)+'</td><td class="stick s2">'+stamp(r.ts)+'</td>'+COLS.map((c,i)=>'<td class="'+[c.cls||'',c.num?'num':'',i===0||COLS[i-1].g!==c.g?'gs':'',c.c&&r.chg.includes(c.c)?'changed':''].join(' ')+'">'+c.v(r)+'</td>').join('')+'</tr>';
+ });
+ if(!slice.length)html='<tr><td colspan="'+span+'" class="empty"><strong>当前条件下没有盘口记录</strong><span>请调整玩法、时段或筛选条件。</span></td></tr>';
+ $('detailBody').innerHTML=html;
+ $('pageText').textContent=page+' / '+pages+' · 共 '+fmt(view.length)+' 行';$('btnPrev').disabled=page===1;$('btnNext').disabled=page===pages;
+ $('sortBadge').textContent=desc?'按事件时间降序':'按事件时间升序';$('btnSort').querySelector('span').textContent=desc?'升序排列':'降序排列';
+}
+
+// ---------- trend drawer ----------
+let trendKey=null,focusIndex=null;
+let TLMAP={get:k=>tlByKey(k)};const tlMap=()=>TLMAP;
+function resultTimelines(){TLMAP=TLMAP||tlMap();return PERIOD_ORDER.map(pd=>TLMAP.get(selMatch+'|'+selMarket+'|'+pd))}
+function openTrend(key,fi=null){
+ TLMAP=TLMAP||tlMap();const tl=TLMAP.get(key);if(!tl)return;trendKey=key;focusIndex=fi;const m=tl.m,rows=tl.rows,mk=MARKETS[tl.market];
+ $('trendTitle').textContent=m.home+' vs '+m.away+' · '+PERIODS[tl.period]+mk.name;
+ $('trendScope').textContent=m.id+' · '+m.leagueName+' · '+m.level+'级 · '+dateTxt(m.date)+' '+m.time+' UTC+8 · 初盘 '+lineTxt(tl.B)+' · 赛制 '+tl.C+' 分钟 · 赛果 '+m.result+(m.ot?'（含加时）':'');
+ $('trendSummary').textContent='共 '+rows.length+' 个变化点';
+ const picked=fi===null?null:rows[fi];
+ $('trendPointSummary').classList.toggle('point-focus',!!picked);
+ $('trendPointSummary').innerHTML=picked?'<b>选中时间点</b>　'+stamp(picked.ts)+'　·　'+esc(picked.raw)+'　·　比分 '+picked.hs+'-'+picked.as+'　·　当下盘口 <b>'+lineTxt(picked.line)+'</b>　·　理论盘口 '+picked.P.toFixed(2)+'　·　盘口分差 '+sInt(picked.dev)+'　·　赔率变动 '+(picked.oddsChg===null?'—':sOdds(picked.oddsChg)+'（'+sideName(picked)+'）'):'从单场盘口表格点击一行后，将在这里展示该时间点的完整计算摘要。';
+ const list=resultTimelines(),idx=list.findIndex(t=>t.key===key);$('btnPrevTl').disabled=idx<=0;$('btnNextTl').disabled=idx<0||idx>=list.length-1;
+ if(!$('trendDrawer').open)openDialog('trendDrawer');
+ requestAnimationFrame(()=>renderChart());
+}
+function niceStep(span){const raw=span/5,mag=Math.pow(10,Math.floor(Math.log10(raw))),n=raw/mag;return (n<1.5?1:n<3?2:n<7?5:10)*mag}
+function renderChart(){
+ TLMAP=TLMAP||tlMap();const tl=TLMAP.get(trendKey);if(!tl)return;const box=$('trendChart'),W=Math.max(320,box.clientWidth||900),H=Math.round(clamp(W*.27,220,300)),M={l:48,r:14,t:26,b:34},iw=W-M.l-M.r,ih=H-M.t-M.b,rows=tl.rows;
+ const xMax=(tl.winEnd-tl.winStart)/60,ys=rows.flatMap(r=>[r.line,r.P]);let y0=Math.min(...ys),y1=Math.max(...ys);const pd=Math.max(1,(y1-y0)*.06);y0-=pd;y1+=pd;
+ const step=niceStep(y1-y0),X=x=>M.l+x/xMax*iw,Y=y=>M.t+(1-(y-y0)/(y1-y0))*ih;
+ let s='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="'+esc($('trendTitle').textContent)+' 当下盘口与理论盘口走势">';
+ for(let v=Math.ceil(y0/step)*step;v<=y1;v+=step)s+='<line x1="'+M.l+'" x2="'+(W-M.r)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="#edf1f6"/><text x="'+(M.l-8)+'" y="'+(Y(v)+3.5)+'" text-anchor="end" font-size="10" fill="#8a99ad">'+(Math.round(v*10)/10)+'</text>';
+ tl.periods.forEach((p,i)=>{const a=(p.s-tl.winStart)/60,b=(p.e-tl.winStart)/60;if(i>0)s+='<line x1="'+X(a)+'" x2="'+X(a)+'" y1="'+M.t+'" y2="'+(H-M.b)+'" stroke="#d9e2ee" stroke-dasharray="3 3"/>';s+='<text x="'+X((a+b)/2)+'" y="'+(M.t-10)+'" text-anchor="middle" font-size="10" fill="#8a99ad">'+p.cn+'</text>'});
+ const tickStep=xMax>30?(tl.C===48?6:5):xMax>12?(tl.C===48?3:2.5):(tl.C===48?2:2);for(let v=0;v<=xMax+1e-6;v+=tickStep)s+='<text x="'+X(v)+'" y="'+(H-M.b+16)+'" text-anchor="middle" font-size="10" fill="#8a99ad">'+(Math.round(v*10)/10)+'′</text>';
+ s+='<text x="'+(W-M.r)+'" y="'+(H-4)+'" text-anchor="end" font-size="10" fill="#a3afbf">比赛进程（分钟，自本时段开始）</text><line x1="'+M.l+'" x2="'+(W-M.r)+'" y1="'+(H-M.b)+'" y2="'+(H-M.b)+'" stroke="#d7e0eb"/>';
+ s+='<polyline points="'+rows.map(r=>X(r.x)+','+Y(r.P)).join(' ')+'" fill="none" stroke="#6f7f95" stroke-width="1.5" stroke-dasharray="5 4"/>';
+ let d='';rows.forEach((r,i)=>{d+=(i?'H'+X(r.x)+'V':'M'+X(r.x)+',')+Y(r.line)});d+='H'+X(rows[rows.length-1].x);
+ s+='<path d="'+d+'" fill="none" stroke="#3068dc" stroke-width="2" stroke-linejoin="round"/>';
+ if(focusIndex!==null&&rows[focusIndex]){const r=rows[focusIndex],fx=X(r.x),fy=Y(r.line),tx=fx>W-150?fx-10:fx+10,anchor=fx>W-150?'end':'start';s+='<rect x="'+(fx-6)+'" y="'+M.t+'" width="12" height="'+ih+'" fill="#e29a2d" fill-opacity=".12"/><line x1="'+fx+'" x2="'+fx+'" y1="'+M.t+'" y2="'+(H-M.b)+'" stroke="#c97d0b" stroke-width="2"/><circle cx="'+fx+'" cy="'+fy+'" r="10" fill="#fff" stroke="#c97d0b" stroke-width="3"/><circle cx="'+fx+'" cy="'+fy+'" r="4.5" fill="#e29a2d"/><rect x="'+(anchor==='start'?tx:tx-76)+'" y="'+(M.t+4)+'" width="76" height="22" rx="4" fill="#8b5708"/><text x="'+(anchor==='start'?tx+8:tx-8)+'" y="'+(M.t+19)+'" text-anchor="'+anchor+'" font-size="12" font-weight="600" fill="#fff">选中时间点</text>'}
+ s+='<g id="hoverLayer" pointer-events="none"></g><rect x="'+M.l+'" y="'+M.t+'" width="'+iw+'" height="'+ih+'" fill="transparent" id="hitArea"/></svg>';
+ const tip=$('chartTip');box.innerHTML=s;box.appendChild(tip);tip.hidden=true;
+ const svg=box.querySelector('svg'),layer=box.querySelector('#hoverLayer');
+ svg.querySelector('#hitArea').addEventListener('mousemove',e=>{
+  const rect=svg.getBoundingClientRect(),px=(e.clientX-rect.left)*W/rect.width,xv=(px-M.l)/iw*xMax;let best=rows[0];for(const r of rows){if(r.x<=xv+1e-9)best=r;else break}
+  const r=best,cx=X(r.x);layer.innerHTML='<line x1="'+cx+'" x2="'+cx+'" y1="'+M.t+'" y2="'+(H-M.b)+'" stroke="#21334b" stroke-opacity=".25"/><circle cx="'+cx+'" cy="'+Y(r.line)+'" r="4.5" fill="#3068dc" stroke="#fff" stroke-width="2"/><circle cx="'+cx+'" cy="'+Y(r.P)+'" r="3.5" fill="#6f7f95" stroke="#fff" stroke-width="1.5"/>';
+  const mk=MARKETS[tl.market];tip.innerHTML='<b>'+stamp(r.ts).slice(11)+'</b> <span>'+esc(r.raw)+'</span><br><span>比分</span> '+r.hs+'-'+r.as+'　<span>'+mk.a+'</span> '+r.A+'<br><span>当下盘口</span> <b>'+lineTxt(r.line)+'</b>　<span>理论</span> '+r.P.toFixed(2)+'<br><span>盘口分差</span> '+sInt(r.dev)+'<br><span>赔率（与明细一致）</span> '+myTxt(r.m1)+' / '+myTxt(r.m2)+(r.oddsDiff!==null?'<br><span>赔率变动（'+sideName(r)+'）</span> '+sOdds(r.oddsChg):'')+(r.lineSwitch?'<br><span>主盘口切换</span> '+lineTxt(r.prevLine)+' → '+lineTxt(r.line):'');
+  tip.hidden=false;const scale=rect.width/W,tx=cx*scale+14,tw=tip.offsetWidth;tip.style.left=(tx+tw>rect.width?cx*scale-tw-14:tx)+'px';tip.style.top=(M.t*scale+4)+'px';
+ });
+ svg.querySelector('#hitArea').addEventListener('mouseleave',()=>{layer.innerHTML='';tip.hidden=true});
+}
+
+// ---------- dialogs, toast, events ----------
+function openDialog(id){closeSelect();if(!$(id).open)$(id).showModal()}
+function closeDialog(id){$(id).close()}
+let toastTimer;function toast(t){$('toast').textContent=t;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,2600)}
+document.querySelectorAll('[data-type]').forEach(b=>b.addEventListener('click',()=>openSelect(b.dataset.type,b)));
+let optionLimit=60;$('selectSearch').addEventListener('input',()=>{optionLimit=60;$('selectOptions').scrollTop=0;renderOptions()});$('btnLoadMore').addEventListener('click',()=>{optionLimit+=60;renderOptions()});$('btnSelectDone').addEventListener('click',()=>closeSelect(true));
+$('fmt').addEventListener('change',e=>setFilter('fmt',e.target.value));
+$('btnQuery').addEventListener('click',()=>runQuery());$('btnReset').addEventListener('click',()=>{draft=defaults();$('queryError').hidden=true;renderFilters();toast('赛事范围已重置，点击「查询赛事」应用')});
+['dateStart','dateEnd'].forEach(id=>$(id).addEventListener('change',e=>{draft[id==='dateStart'?'start':'end']=e.target.value;renderFilters()}));
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeDialog(b.dataset.close)));
+$('btnExport').addEventListener('click',()=>toast('已开始导出 '+fmt(viewRows().length)+' 行明细，包含完整赛事信息'));
+$('miList').addEventListener('click',e=>{const b=e.target.closest('[data-mid]');if(b)selectMatch(b.dataset.mid)});$('miSearch').addEventListener('input',()=>{idxPage=1;renderIndex()});$('idxSize').addEventListener('change',()=>{idxPage=1;renderIndex()});$('idxPrev').addEventListener('click',()=>{idxPage--;renderIndex()});$('idxNext').addEventListener('click',()=>{idxPage++;renderIndex()});
+document.querySelectorAll('.th-sort').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.sort;idxSort=idxSort.key===k?{key:k,dir:-idxSort.dir}:{key:k,dir:k==='time'?1:-1};idxPage=1;renderIndex()}));
+$('segMarket').addEventListener('click',e=>{const b=e.target.closest('[data-mk]');if(!b)return;selMarket=b.dataset.mk;page=1;renderView()});$('segPeriod').addEventListener('click',e=>{const b=e.target.closest('[data-pd]');if(!b)return;selPeriod=b.dataset.pd;page=1;renderView()});
+$('singleMinDev').addEventListener('change',e=>{selMinDev=e.target.value;page=1;renderView()});$('singleMinOdds').addEventListener('change',e=>{selMinOdds=e.target.value;page=1;renderView()});
+$('btnClearSingleFilters').addEventListener('click',()=>{selMinDev='0';selMinOdds='0';page=1;renderView()});
+$('btnMbBack').addEventListener('click',()=>selectMatch(null));
+$('btnMbTrend').addEventListener('click',()=>openTrend(selMatch+'|'+selMarket+'|'+selPeriod));
+$('btnSort').addEventListener('click',()=>{desc=!desc;page=1;renderTable()});
+$('pageSize').addEventListener('change',()=>{page=1;renderTable()});$('btnPrev').addEventListener('click',()=>{page--;renderTable()});$('btnNext').addEventListener('click',()=>{page++;renderTable()});
+
+$('detailBody').addEventListener('click',e=>{const b=e.target.closest('[data-trend]');if(b){openTrend(b.dataset.trend);return}const tr=e.target.closest('tr.data');if(tr)openTrend(tr.dataset.key,Number(tr.dataset.i))});
+$('btnPrevTl').addEventListener('click',()=>{const l=resultTimelines(),i=l.findIndex(t=>t.key===trendKey);if(i>0)openTrend(l[i-1].key)});
+$('btnNextTl').addEventListener('click',()=>{const l=resultTimelines(),i=l.findIndex(t=>t.key===trendKey);if(i>=0&&i<l.length-1)openTrend(l[i+1].key)});
+document.addEventListener('pointerdown',e=>{if(dropdown&&!$('selectPopup').contains(e.target)&&!dropdown.anchor.contains(e.target))closeSelect()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dropdown){e.preventDefault();closeSelect(true)}});
+window.addEventListener('resize',()=>{closeSelect();if($('trendDrawer').open)renderChart()});
+document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)d.close()}}));
+window.Prototype={roundHalfAway,allowedDev,r2,tl:tlByKey,matches:MATCHES,sample:(A,B,C,D,L)=>{const P=Number((A+B*D/C).toFixed(6));return {P:P.toFixed(2),dev:roundHalfAway(L-P)}}};
+renderFilters();
+</script>
+
+</body></html>
