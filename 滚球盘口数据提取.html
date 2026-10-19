@@ -58,8 +58,8 @@ h1{font-size:21px}.nav-item,.topbar,h2,button,.field label,.control,.field selec
 </style>
 
 <svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></symbol><symbol id="i-batch" viewBox="0 0 24 24"><path d="M5 7h14v11H5zM8 4h8M8 21h8"/><path d="M12 9v6m0 0 2.5-2.5M12 15l-2.5-2.5"/></symbol><symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5m0 0 5-5m-5 5 5 5"/></symbol><symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M7 15l4-4 3 2 5-6"/></symbol><symbol id="i-eye" viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.5"/></symbol><symbol id="i-sort" viewBox="0 0 24 24"><path d="M8 5v14m0-14L5 8m3-3 3 3M16 19V5m0 14-3-3m3 3 3-3"/></symbol></defs></svg>
-<aside class="sidebar"><div class="brand"><span>PA</span><b>Sports BI<small>体育数据报表</small></b></div><div class="nav-label">风控工作台</div><a class="nav-item" href="#" aria-current="page"><span>▦</span> 滚球盘口数据提取</a><div class="nav-item off" aria-disabled="true"><span>◇</span> 盘口预警验证<em>规划中</em></div></aside>
-<div class="workspace"><header class="topbar"><div>风控数据 <span>/</span> <strong>滚球盘口数据提取</strong></div><div class="top-right"><span class="avatar">PA</span></div></header>
+<aside class="sidebar"><div class="brand"><span>PA</span><b>Sports BI<small>风控报表</small></b></div><div class="nav-label">风控管理台</div><a class="nav-item" href="投注接拒策略模拟分析.html"><span>▦</span> 投注接拒策略模拟分析</a><a class="nav-item" href="#" aria-current="page"><span>▦</span> 滚球盘口数据提取</a></aside>
+<div class="workspace"><header class="topbar"><div>风控报表 <span>/</span> 风控管理台 <span>/</span> <strong>滚球盘口数据提取</strong></div><div class="top-right"><span class="avatar">PA</span></div></header>
 <main>
 <div class="page-title"><h1>滚球盘口数据提取</h1></div>
 
@@ -415,7 +415,7 @@ function renderChart(){
  svg.querySelector('#hitArea').addEventListener('mousemove',e=>{
   const rect=svg.getBoundingClientRect(),px=(e.clientX-rect.left)*W/rect.width,xv=(px-M.l)/iw*xMax;let best=rows[0];for(const r of rows){if(r.x<=xv+1e-9)best=r;else break}
   const r=best,cx=X(r.x);layer.innerHTML='<line x1="'+cx+'" x2="'+cx+'" y1="'+M.t+'" y2="'+(H-M.b)+'" stroke="#21334b" stroke-opacity=".25"/><circle cx="'+cx+'" cy="'+Y(r.line)+'" r="4.5" fill="#3068dc" stroke="#fff" stroke-width="2"/><circle cx="'+cx+'" cy="'+Y(r.P)+'" r="3.5" fill="#6f7f95" stroke="#fff" stroke-width="1.5"/>';
-  const mk=MARKETS[tl.market];tip.innerHTML='<b>'+stamp(r.ts).slice(11)+'</b> <span>'+esc(r.raw)+'</span><br><span>比分</span> '+r.hs+'-'+r.as+'　<span>'+mk.a+'</span> '+r.A+'<br><span>当下盘口</span> <b>'+lineTxt(r.line)+'</b>　<span>理论</span> '+r.P.toFixed(2)+'<br><span>盘口分差</span> '+sInt(r.dev)+'<br><span>赔率（与明细一致）</span> '+myTxt(r.m1)+' / '+myTxt(r.m2)+(r.oddsDiff!==null?'<br><span>赔率变动（'+sideName(r)+'）</span> '+sOdds(r.oddsChg):'');
+  const mk=MARKETS[tl.market];tip.innerHTML='<b>'+stamp(r.ts).slice(11)+'</b> <span>'+esc(r.raw)+'</span><br><span>比分</span> '+r.hs+'-'+r.as+'　<span>'+mk.a+'</span> '+r.A+'<br><span>当下盘口</span> <b>'+lineTxt(r.line)+'</b>　<span>理论</span> '+r.P.toFixed(2)+'<br><span>盘口分差</span> '+sInt(r.dev)+'<br><span>赔率（马来盘）</span> '+myTxt(r.m1)+' / '+myTxt(r.m2)+(r.oddsDiff!==null?'<br><span>赔率变动（香港盘，'+sideName(r)+'）</span> '+sOdds(r.oddsChg):'');
   tip.hidden=false;const scale=rect.width/W,tx=cx*scale+14,tw=tip.offsetWidth;tip.style.left=(tx+tw>rect.width?cx*scale-tw-14:tx)+'px';tip.style.top=(M.t*scale+4)+'px';
  });
  svg.querySelector('#hitArea').addEventListener('mouseleave',()=>{layer.innerHTML='';tip.hidden=true});
