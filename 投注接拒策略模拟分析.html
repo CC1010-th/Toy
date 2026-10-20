@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>投注接拒策略模拟分析 · V1.21</title>
+    <title>投注接拒策略模拟分析 · V1.22</title>
     <style>
       :root {
         --nav: #162638;
@@ -1712,7 +1712,7 @@
       <a class="nav-item" href="#" aria-current="page"><span>▦</span> 投注接拒策略模拟分析</a>
       <a class="nav-item" href="滚球盘口数据提取.html"><span>▦</span> 滚球盘口数据提取</a>
       <div class="sidebar-bottom">
-        <i></i> 独立交互原型<small>本地演示数据 · V1.21</small>
+        <i></i> 独立交互原型<small>本地演示数据 · V1.22</small>
       </div>
     </aside>
     <div class="workspace">
@@ -2009,7 +2009,7 @@
           </section>
         </div>
         <footer class="page-footer">
-          <span>PA Sports BI · 需求讨论原型 V1.21 · 2026-10-19</span
+          <span>PA Sports BI · 需求讨论原型 V1.22 · 2026-10-19</span
           ><button class="text-button" onclick="openDialog('demoSettings')">
             原型演示设置
           </button>
@@ -4419,7 +4419,7 @@
               pp(d.margin) +
               '</td><td><button class="text-button row-link" onclick="openDrawer(\'all\',null,' +
               r.offset +
-              ')">查看 ↗</button></td></tr>'
+              ')">变化明细 ↗</button></td></tr>'
             );
           })
           .join("");
@@ -4558,6 +4558,12 @@
           filtered = filtered.filter((r) => r.status === "rejected");
         if (type === "unavailable")
           filtered = filtered.filter((r) => !r.canReplay);
+        if (offset !== null)
+          filtered = filtered.filter(
+            (r) =>
+              simulatedStatus(r, offset, configuration) !==
+              simulatedStatus(r, 0, configuration),
+          );
         drawer = {
           taskId: resultTaskId,
           rows: filtered,
@@ -4571,14 +4577,18 @@
                 ? "拒单明细"
                 : offset === null
                   ? "全部注单明细"
-                  : offsetLabel(offset) + "模拟注单明细",
+                  : offsetLabel(offset) + "变化注单明细",
         };
         $("drawerTitle").textContent = drawer.title;
         $("drawerScope").textContent =
           resultTaskId +
           " · " +
           scopeText(applied) +
-          (offset === null ? "" : " · 相对 T₀ " + signed(offset) + " 秒");
+          (offset === null
+            ? ""
+            : " · 相对 T₀ " +
+              signed(offset) +
+              " 秒 · 仅展示与 0 秒基准状态不同的注单");
         $("detailSearch").value = "";
         $("detailStatus").value = "all";
         $("detailEligibility").value = type === "unavailable" ? "no" : "all";
