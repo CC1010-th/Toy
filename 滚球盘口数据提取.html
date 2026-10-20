@@ -266,38 +266,35 @@ function initialDates(){const now=new Date(Date.now()+8*3600000),end=now.toISOSt
 const defaults=()=>({...initialDates(),level:'all',league:'all',fmt:'all'});
 let draft=defaults(),applied=structuredClone(draft),view=[],desc=false,page=1,dropdown=null,queriedAt=Date.now();
 const levelLabel=l=>l==='all'?'全部等级':l+'级';
-function leaguesFor(f){return LEAGUES.filter(l=>f.level==='all'||l.level===Number(f.level))}
-function matchesFor(f){const ids=new Set(leaguesFor(f).map(l=>l.id));return MATCHES.filter(m=>ids.has(m.league)&&(f.league==='all'||m.league===f.league)&&m.date>=f.start&&m.date<=f.end&&(f.fmt==='all'||m.fmt===Number(f.fmt))).sort((a,b)=>a.startMs-b.startMs)}
+function matchesFor(f){return MATCHES.filter(m=>(f.level==='all'||m.level===Number(f.level))&&(f.league==='all'||m.league===f.league)&&m.date>=f.start&&m.date<=f.end&&(f.fmt==='all'||m.fmt===Number(f.fmt))).sort((a,b)=>a.startMs-b.startMs)}
 function validate(f){
  if(!f.start||!f.end)return '请选择完整的比赛日期。';if(f.start>f.end)return '开始日期不能晚于结束日期。';
  if((Date.parse(f.end)-Date.parse(f.start))/864e5+1>186)return '单次查询最多 186 天，请缩小日期范围。';
- if(f.league!=='all'&&!leaguesFor(f).some(l=>l.id===f.league))return '所选联赛不属于当前等级，请重新选择联赛。';
  return '';
 }
 function scopeText(f){return [dateTxt(f.start)+' ～ '+dateTxt(f.end),'篮球',levelLabel(f.level),f.league==='all'?'全部联赛':leagueMap.get(f.league).name,f.fmt==='all'?'全部赛制':f.fmt+' 分钟'].join(' / ')}
 function renderFilters(){
- const lg=leaguesFor(draft);
  $('dateStart').value=draft.start;$('dateEnd').value=draft.end;
  $('levelText').textContent=levelLabel(draft.level);
  $('leagueText').textContent=draft.league==='all'?'全部联赛':leagueMap.get(draft.league).name;
  $('fmt').value=draft.fmt;
  const dirty=JSON.stringify(draft)!==JSON.stringify(applied);$('dirtyText').textContent=!hasQueried?'尚未查询':dirty?'范围已修改，点击「查询赛事」更新结果':'已应用当前赛事范围';$('dirtyText').style.color=dirty?'#b38228':'';
 }
-function setFilter(k,v){draft[k]=v;if(k==='level')draft.league='all';renderFilters()}
+function setFilter(k,v){draft[k]=v;renderFilters()}
 function optionsFor(type){
  switch(type){
   case 'level':return [{id:'all',label:'全部等级'}].concat(Array.from({length:13},(_,i)=>({id:String(i+1),label:(i+1)+'级'})));
-  case 'league':return [{id:'all',label:'全部联赛'}].concat(leaguesFor(draft).map(l=>({id:l.id,label:l.name})));
+  case 'league':return [{id:'all',label:'全部联赛'}].concat(LEAGUES.map(l=>({id:l.id,label:l.name})));
  }return [];
 }
 function currentValue(type){return draft[type]}
-function openSelect(type,anchor){if(dropdown?.type===type){closeSelect();return}closeSelect();dropdown={type,anchor};anchor.setAttribute('aria-expanded','true');$('selectSearch').value='';optionLimit=60;$('selectPopup').hidden=false;positionSelect();renderOptions();$('selectSearch').focus()}
+function openSelect(type,anchor){if(dropdown?.type===type){closeSelect();return}closeSelect();dropdown={type,anchor};anchor.setAttribute('aria-expanded','true');$('selectSearch').value='';$('selectSearch').placeholder=type==='league'?'输入联赛名称或 ID':'搜索名称或 ID';optionLimit=60;$('selectPopup').hidden=false;positionSelect();renderOptions();$('selectSearch').focus()}
 function positionSelect(){if(!dropdown)return;const r=dropdown.anchor.getBoundingClientRect(),pop=$('selectPopup'),w=Math.min(390,innerWidth-24);pop.style.width=w+'px';pop.style.left=Math.max(12,Math.min(r.left,innerWidth-w-12))+'px';const h=Math.min(405,innerHeight-28);pop.style.top=Math.max(12,Math.min(r.bottom+6,innerHeight-h-12))+'px'}
 function renderOptions(){
- if(!dropdown)return;const q=$('selectSearch').value.trim().toLowerCase(),opts=optionsFor(dropdown.type).filter(o=>(o.label+' '+o.id).toLowerCase().includes(q)),cur=currentValue(dropdown.type);
+ if(!dropdown)return;const q=$('selectSearch').value.trim().toLowerCase(),waitForLeague=dropdown.type==='league'&&!q,opts=waitForLeague?[]:optionsFor(dropdown.type).filter(o=>(o.label+' '+o.id).toLowerCase().includes(q)),cur=currentValue(dropdown.type);
  $('btnLoadMore').hidden=optionLimit>=opts.length;const box=$('selectOptions');box.replaceChildren();
  opts.slice(0,optionLimit).forEach(o=>{const b=document.createElement('button'),sel=cur===o.id;b.className='select-option'+(sel?' selected':'');b.disabled=!!o.disabled;b.setAttribute('aria-pressed',String(sel));b.innerHTML='<span>'+esc(o.label)+'</span>'+(sel?'✓':'');b.onclick=()=>{if(dropdown.type!=='sport')setFilter(dropdown.type,o.id);closeSelect(true)};box.appendChild(b)});
- if(!opts.length)box.innerHTML='<div class="empty">没有匹配选项</div>';
+ if(!opts.length)box.innerHTML='<div class="empty">'+(waitForLeague?'请输入联赛名称或 ID 搜索':'没有匹配选项')+'</div>';
 }
 function closeSelect(focus=false){if(dropdown){dropdown.anchor.setAttribute('aria-expanded','false');if(focus)dropdown.anchor.focus()}$('selectPopup').hidden=true;dropdown=null}
 

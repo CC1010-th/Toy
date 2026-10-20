@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>投注接拒策略模拟分析 PRD V1.21</title>
+<title>投注接拒策略模拟分析 PRD V1.23</title>
 <style>
 *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:20px}body{margin:0;background:#f4f6f9;color:#273142;font-family:"PingFang SC","Microsoft YaHei",Arial,sans-serif;font-size:14px;line-height:1.75}.layout{display:grid;grid-template-columns:270px minmax(0,1080px);gap:28px;justify-content:center;padding:30px 24px 60px}.toc{position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;padding:18px;background:#fff;border:1px solid #e5e9f0;border-radius:10px;box-shadow:0 5px 18px rgba(31,45,61,.06)}.toc-title{margin:0 0 10px;color:#172033;font-size:16px;font-weight:700}.toc a{display:block;padding:6px 8px;border-radius:5px;color:#59677b;text-decoration:none;line-height:1.45}.toc a:hover{background:#edf4ff;color:#2563eb}.doc{min-width:0;padding:42px 52px;background:#fff;border:1px solid #e5e9f0;border-radius:10px;box-shadow:0 8px 28px rgba(31,45,61,.06)}h1{margin:0 0 28px;padding-bottom:20px;border-bottom:3px solid #2563eb;color:#142033;font-size:30px;line-height:1.35}h2{margin:42px 0 17px;padding-top:4px;color:#172033;font-size:23px;line-height:1.4}h3{margin:29px 0 13px;color:#26364d;font-size:18px}h4{margin:23px 0 10px;color:#34445c;font-size:15px}p{margin:10px 0}ul,ol{margin:10px 0;padding-left:26px}li{margin:5px 0}strong{color:#172033}a{color:#2563eb}code{padding:2px 6px;border-radius:4px;background:#f1f4f8;color:#be123c;font-family:Consolas,"SFMono-Regular",monospace}pre{overflow:auto;margin:14px 0;padding:16px;border:1px solid #dfe5ec;border-radius:7px;background:#f7f9fb;line-height:1.55}pre code{padding:0;background:transparent;color:#26364d}table{display:block;width:100%;overflow-x:auto;margin:16px 0;border-collapse:collapse;border-spacing:0}thead{background:#edf4ff}th,td{min-width:110px;padding:10px 12px;border:1px solid #dfe5ec;text-align:left;vertical-align:top}th{color:#1d3557;font-weight:700}tr:nth-child(even) td{background:#fafbfd}blockquote{margin:16px 0;padding:10px 16px;border-left:4px solid #8cb4ff;background:#f4f8ff;color:#526174}hr{border:0;border-top:1px solid #e3e8ef;margin:30px 0}.doc>table:first-of-type{display:table}.doc>table:first-of-type th:first-child,.doc>table:first-of-type td:first-child{width:150px;min-width:150px}.topbar{display:flex;justify-content:space-between;gap:12px;margin:-12px 0 24px;color:#6b778c;font-size:13px}.badge{padding:3px 9px;border-radius:12px;background:#fff3d6;color:#9a6700;font-weight:600}@media(max-width:980px){.layout{display:block;padding:12px}.toc{position:static;max-height:none;margin-bottom:12px}.doc{padding:28px 22px}h1{font-size:24px}}@media print{body{background:#fff}.layout{display:block;padding:0}.toc{display:none}.doc{border:0;box-shadow:none;padding:0}a{color:inherit;text-decoration:none}pre,table{break-inside:avoid}}
 </style>
@@ -13,7 +13,7 @@
 <nav class="toc" aria-label="文档目录"><p class="toc-title">文档目录</p><a href="#section-1-文档基准及使用方式">1. 文档基准及使用方式</a>
 <a href="#section-2-范围-角色与术语">2. 范围、角色与术语</a>
 <a href="#section-3-页面结构与总体流程">3. 页面结构与总体流程</a>
-<a href="#section-4-f-01-筛选与级联">4. F-01：筛选与级联</a>
+<a href="#section-4-f-01-筛选与独立条件选择">4. F-01：筛选与独立条件选择</a>
 <a href="#section-5-f-02-异步任务与结果隔离">5. F-02：异步任务与结果隔离</a>
 <a href="#section-6-f-03-基础实际统计与覆盖">6. F-03：基础实际统计与覆盖</a>
 <a href="#section-7-f-04-事件关联与可模拟资格">7. F-04：事件关联与可模拟资格</a>
@@ -28,7 +28,7 @@
 <a href="#section-16-交付-联调与发布">16. 交付、联调与发布</a>
 <a href="#section-17-待确认事项及当前处理">17. 待确认事项及当前处理</a>
 <a href="#section-18-附录-可复现演示基线">18. 附录：可复现演示基线</a></nav>
-<main class="doc"><div class="topbar"><span>投注接拒策略模拟分析</span><span class="badge">评审稿 · V1.21</span></div><h1>投注接拒策略模拟分析 PRD｜产品需求文档（完整版）</h1>
+<main class="doc"><div class="topbar"><span>投注接拒策略模拟分析</span><span class="badge">评审稿 · V1.23</span></div><h1>投注接拒策略模拟分析 PRD｜产品需求文档（完整版）</h1>
 <table>
 <thead>
 <tr>
@@ -38,7 +38,7 @@
 </thead>
 <tbody><tr>
 <td>版本 / 日期</td>
-<td>V1.21 交互确认版 / 2026-10-19</td>
+<td>V1.23 交互确认版 / 2026-10-20</td>
 </tr>
 <tr>
 <td>状态</td>
@@ -71,7 +71,7 @@
 
 <p>本文完整定义页面、交互、计算及生产接入要求，不以旧版本变更记录作为开发说明。各章节使用以下三种性质区分依据：</p>
 <ul>
-<li><strong>页面基线</strong>：V1.21 已呈现的功能、字段、交互及显示口径，实施时应保持一致。</li>
+<li><strong>页面基线</strong>：V1.23 已呈现的功能、字段、交互及显示口径，实施时应保持一致。</li>
 <li><strong>生产要求</strong>：使该功能可在真实系统运行所需的后台、快照、权限、恢复等能力；不代表离线 HTML 已接入这些服务。</li>
 <li><strong>待确认口径</strong>：原型采用了演示假设、真实业务数据不足或需要现有引擎定义的事项，使用 D-01～D-06 编号在第 17 章归纳。</li>
 </ul>
@@ -88,7 +88,7 @@
 </thead>
 <tbody><tr>
 <td>F-01</td>
-<td>筛选与联赛等级级联</td>
+<td>筛选与独立条件选择</td>
 <td>BR-01、BR-02</td>
 </tr>
 <tr>
@@ -132,7 +132,7 @@
 <h3 id="section-2-1-本期范围">2.1 本期范围</h3>
 
 <p>本功能仅分析滚球注单，移除比赛阶段筛选，不支持赛前或全部阶段。先按滚球范围取数，再判断数据是否可模拟；赛前注单在入口排除，不作为不可模拟数据保留。该约束覆盖基础统计、配置覆盖、内部基准、模拟场景、参考样本以及全部注单明细。</p>
-<p>包含 10 项业务筛选、15 级联赛级联、足球三类玩法集事件映射、差异化系统配置、基础实际统计、不可模拟覆盖和明细、15 个非零偏移场景、多任务排队与并行、取消 / 重试、任务结果切换、配置规则与注单追溯。</p>
+<p>包含 10 项业务筛选、15 级联赛等级及独立的联赛 / 赛事搜索、足球三类玩法集事件映射、差异化系统配置、基础实际统计、不可模拟覆盖和明细、15 个非零偏移场景、多任务排队与并行、取消 / 重试、任务结果切换、配置规则与注单追溯。</p>
 <p>不包含导出、币种筛选、配置编辑、策略发布、自动推荐最优秒数、独立单场景对比、玩法级分析、独立全部拒单假设接入区、配置分类 Tab、时间滑杆或自定义时间点。比较表不显示历史实际行、0 行、场景绝对指标或平台净盈亏列；主统计区也不显示绝对平台净盈亏卡片。</p>
 <p>页面中的普通明细仍保留实际平台盈亏及假设接入盈亏字段。不可模拟明细是已恢复并保留的独立入口。</p>
 <h3 id="section-2-2-角色与访问边界">2.2 角色与访问边界</h3>
@@ -320,7 +320,7 @@
 </tr>
 </tbody></table>
 <p>已提交任务后，编辑或重置筛选不退回初始空白状态；任务列表筛选暂时无记录，也不隐藏整个任务区。不得以 0 值卡片、默认 10 秒配置或示例报表填充未生成的分析区。</p>
-<h2 id="section-4-f-01-筛选与级联">4. F-01：筛选与级联</h2>
+<h2 id="section-4-f-01-筛选与独立条件选择">4. F-01：筛选与独立条件选择</h2>
 
 <h3 id="section-4-1-筛选字段">4.1 筛选字段</h3>
 
@@ -349,19 +349,19 @@
 <td>联赛等级</td>
 <td>搜索单选：1～15 级</td>
 <td>1 级</td>
-<td>必填、单选；1 级最高、15 级最低；切换后重置联赛 / 赛事，不提供“全部等级”</td>
+<td>必填、单选；1 级最高、15 级最低；不提供“全部等级”，切换后不清空联赛或赛事</td>
 </tr>
 <tr>
 <td>联赛</td>
 <td>搜索单选：全部及匹配项</td>
 <td>全部联赛</td>
-<td>仅当前赛种、等级范围；选择后重置赛事</td>
+<td>与赛种、联赛等级及赛事不联动；打开下拉不预加载候选项，输入名称或 ID 后展示搜索结果</td>
 </tr>
 <tr>
 <td>赛事</td>
 <td>搜索单选：全部及匹配项</td>
 <td>全部赛事</td>
-<td>仅当前赛种、等级、联赛范围</td>
+<td>与赛种、联赛等级及联赛不联动；打开下拉不预加载候选项，输入名称或 ID 后展示搜索结果</td>
 </tr>
 <tr>
 <td>玩法集</td>
@@ -400,31 +400,38 @@
 <li>“应用时间”只修改筛选草稿；“取消”或关闭弹窗不修改原值。之后点击生成分析才提交任务。</li>
 <li>禁止选择未来时间；允许分钟级起止时间，不强制整天查询。</li>
 </ul>
-<h3 id="section-4-3-联赛等级及级联规则">4.3 联赛等级及级联规则</h3>
+<h3 id="section-4-3-赛种-联赛等级-联赛及赛事独立规则">4.3 赛种、联赛等级、联赛及赛事独立规则</h3>
 
-<p>固定提供 15 个精确等级，不提供“全部等级”，不是等级区间多选。联赛等级为必选单选，选项显示匹配联赛数量；1 级 / 15 级显示最高 / 最低。足球五大联赛和欧冠必须属于 1 级。</p>
+<p>固定提供 15 个精确等级，不提供“全部等级”，不是等级区间多选。联赛等级为必选单选；1 级 / 15 级显示最高 / 最低。足球五大联赛和欧冠的元数据等级仍为 1 级，但该归属不用于限制联赛或赛事下拉候选项。</p>
 <table>
 <thead>
 <tr>
 <th>操作</th>
-<th>等级</th>
+<th>联赛等级</th>
 <th>联赛</th>
 <th>赛事</th>
 <th>玩法体系</th>
 </tr>
 </thead>
 <tbody><tr>
+<td>切换赛种</td>
+<td>保留</td>
+<td>保留</td>
+<td>保留</td>
+<td>按现有玩法元数据规则处理</td>
+</tr>
+<tr>
 <td>切换等级</td>
 <td>应用新值</td>
-<td>恢复全部</td>
-<td>恢复全部</td>
+<td>保留</td>
+<td>保留</td>
 <td>保留</td>
 </tr>
 <tr>
 <td>选择具体联赛或全部联赛</td>
 <td>保留</td>
 <td>应用新值</td>
-<td>恢复全部</td>
+<td>保留</td>
 <td>保留</td>
 </tr>
 <tr>
@@ -449,20 +456,20 @@
 <td>足球进球类及接口返回的全部玩法</td>
 </tr>
 </tbody></table>
-<p>联赛选项和选中项标明其实际等级。选择某等级的“全部联赛”，含义是该等级内全部联赛，不能绕过等级条件。赛事列表即使在全部联赛状态，也必须受等级过滤。</p>
+<p>赛种、联赛等级、联赛和赛事是独立查询条件：任一字段变化不得自动清空、改写或过滤另外三个字段。提交时按用户最终选择的条件取交集；条件组合无数据时返回无数据结果，不将其判定为级联关系错误。联赛与赛事选中项仍可展示自身名称，但不得用元数据归属反向改写其他筛选值。</p>
 <p>足球一级原型目录为英超 FL001、西甲 FL002、意甲 FL003、德甲 FL004、法甲 FL005、欧冠 FL006。其余目录循环分配到 2～15 级，仅为演示映射；生产使用真实联赛元数据，不能依据名称或序号推算。</p>
 <h3 id="section-4-4-搜索-多选及校验">4.4 搜索、多选及校验</h3>
 
 <ul>
-<li>联赛、赛事、商户可搜索名称 / ID；联赛 / 赛事搜索只作用于当前级联范围。</li>
-<li>原型每次先展示最多 60 个匹配项，可加载更多；显示匹配总数和已显示数。生产目录采用服务端搜索 / 分页，不限制为最初加载的条目。</li>
+<li>联赛、赛事、商户可搜索名称 / ID。联赛和赛事下拉采用“搜索后展示”：打开时不返回、不展示候选列表；输入非空搜索词后才请求并展示匹配项，不受赛种、联赛等级或彼此选择结果限制，但仍须执行当前用户的数据权限过滤。</li>
+<li>搜索后的匹配项每次最多展示 60 个，可加载更多；显示匹配总数和已显示数。生产目录采用服务端搜索 / 分页，不限制为最初加载的条目。</li>
 <li>玩法集和玩法选项由服务端元数据动态返回，前端不得维护固定枚举；无可用玩法集或玩法时显示明确空态并禁止提交。</li>
 <li>玩法“全选搜索结果”只添加当前匹配项，不清除已有其他合法选择；“清空”使玩法为空，提交时阻止并提示。</li>
 <li>单选点击选项立即应用并关闭弹层；多选可连续勾选，点完成关闭。仅关闭选择弹层不回滚已经点击的选项；时间弹窗的取消行为另按 4.2。</li>
-<li>搜索无结果显示空态，不放宽等级、联赛或权限范围。</li>
+<li>联赛或赛事未输入搜索词时提示“搜索后展示”；搜索无结果显示空态，不自动推荐或放宽权限范围。</li>
 <li>所有筛选下拉选项只展示选项主名称，不在选项下方展示 ID、数量、归属、等级、事件类型或其他副说明小字；搜索仍可使用服务端允许的名称或 ID 字段。</li>
 <li>筛选字段标题右上角不展示联赛候选数、赛事候选数、已选玩法数或商户总数等数字统计；“必选·单选”“支持搜索”“UTC+8”等非数量型规则提示可保留。</li>
-<li>提交前和服务端均校验本期赛种为足球、联赛等级及玩法集必选且为单值、联赛所属等级、赛事所属范围、玩法属于接口返回的当前玩法集、商户权限、最近 90 天时间边界及至少一个玩法。</li>
+<li>提交前和服务端均校验本期赛种为足球、联赛等级及玩法集必选且为单值、联赛与赛事 ID 合法且有权访问、玩法属于接口返回的当前玩法集、商户权限、最近 90 天时间边界及至少一个玩法；不得再校验联赛必须属于所选等级或赛事必须属于所选联赛。</li>
 <li>修改条件只用于新任务；重置只恢复草稿，不提交任务、不取消现有任务。</li>
 </ul>
 <h3 id="section-4-5-任务范围展示">4.5 任务范围展示</h3>
@@ -1038,11 +1045,11 @@ R(k)  = P(k) / Q(k) × 100%，Q(k)=0 时为 null
 </tr>
 <tr>
 <td>非零场景查看</td>
-<td>当前任务所有订单及所选偏移的状态</td>
-<td>包含未发生变化和不可模拟订单，不仅列出增减部分</td>
+<td>所选偏移场景相对当前任务内部 0 秒基准重算结果发生状态变化的订单</td>
+<td>仅展示模拟状态不同的订单；未变化及不可模拟订单不进入该场景明细</td>
 </tr>
 </tbody></table>
-<p>明细标题、范围标明 taskId，场景明细同时标明偏移。任一任务在后台完成均不替换已打开明细。</p>
+<p>场景明细以同一任务、同一配置快照逐笔比较：<code>所选偏移场景模拟状态 ≠ 0 秒基准模拟状态</code> 时纳入；不得与历史实际状态比较，也不得先返回全量注单再仅靠前端过滤。明细标题、范围标明 taskId，场景明细同时标明偏移及“仅展示相对 0 秒基准发生变化的注单”。任一任务在后台完成均不替换已打开明细。</p>
 <p>所有明细入口均执行 5.7 的两天时效校验。任务汇总结果仍可永久查看，不因明细过期失效。</p>
 <h3 id="section-11-2-19-个显示字段">11.2 19 个显示字段</h3>
 
@@ -1154,7 +1161,7 @@ R(k)  = P(k) / Q(k) × 100%，Q(k)=0 时为 null
 <h3 id="section-11-3-筛选与分页">11.3 筛选与分页</h3>
 
 <p>搜索支持注单号、商户名称 / ID、赛事名称 / ID，原型也匹配玩法名称。另有实际状态、可模拟性及拒单理论分类筛选。理论分类为错失盈利（理论盈亏 &gt; 0）、规避亏损（&lt; 0）、无盈亏（= 0）；未知不进入无盈亏分类。</p>
-<p>各筛选在当前入口的数据子集内求交集，不能把子集以外的订单加回来。每页 50 / 100 / 200 条，默认 50；搜索、筛选、每页条数修改后回第 1 页。摘要基于全部匹配结果而非当前页，包含数量、正常 / 拒单数、金额及可模拟拒单数。</p>
+<p>各筛选在当前入口的数据子集内求交集，不能把子集以外的订单加回来。场景明细的服务端初始集合已限定为相对 0 秒基准发生状态变化的订单，后续搜索与筛选不能重新带入未变化订单。每页 50 / 100 / 200 条，默认 50；搜索、筛选、每页条数修改后回第 1 页。摘要基于全部匹配结果而非当前页，包含数量、正常 / 拒单数、金额及可模拟拒单数。</p>
 <p>不可模拟明细允许搜索、状态筛选和分页，始终不带入可模拟订单；选择只适用于可模拟拒单的理论分类时允许出现空结果。重新打开其他入口恢复可模拟性筛选。明细无导出按钮。</p>
 <h2 id="section-12-f-08-异常-空态及反馈">12. F-08：异常、空态及反馈</h2>
 
@@ -1169,7 +1176,7 @@ R(k)  = P(k) / Q(k) × 100%，Q(k)=0 时为 null
 </thead>
 <tbody><tr>
 <td>E-01</td>
-<td>日期、玩法或级联条件不合法</td>
+<td>日期、玩法或独立筛选值不合法</td>
 <td>提交前提示，不创建任务</td>
 <td>保持</td>
 </tr>
@@ -1306,8 +1313,8 @@ R(k)  = P(k) / Q(k) × 100%，Q(k)=0 时为 null
 </thead>
 <tbody><tr>
 <td>元数据查询</td>
-<td>赛种、等级、联赛、搜索词、游标 / 页码</td>
-<td>只返回合法且授权的联赛 / 赛事 / 玩法 / 商户及总量、版本</td>
+<td>字段类型、搜索词、权限上下文、游标 / 页码</td>
+<td>联赛 / 赛事仅在搜索词非空时查询，返回合法且授权的匹配项、总量及版本；不以赛种、联赛等级或彼此选择值作为候选过滤条件</td>
 </tr>
 <tr>
 <td>创建任务</td>
@@ -1352,7 +1359,7 @@ R(k)  = P(k) / Q(k) × 100%，Q(k)=0 时为 null
 <tr>
 <td>查询注单明细</td>
 <td>resultId、入口类型、非零偏移、搜索 / 筛选、分页</td>
-<td>先校验完成时间未超过 48 小时，再服务端过滤和分页；过期返回业务错误；默认 50 条</td>
+<td>先校验完成时间未超过 48 小时；非零场景由服务端按所选偏移状态与 0 秒基准状态不同过滤，再执行搜索、筛选和分页；过期返回业务错误；默认 50 条</td>
 </tr>
 </tbody></table>
 <h3 id="section-13-3-提交示例">13.3 提交示例</h3>
@@ -1465,21 +1472,21 @@ R(k)  = P(k) / Q(k) × 100%，Q(k)=0 时为 null
 </tr>
 <tr>
 <td>AC-07</td>
-<td>级联</td>
+<td>独立筛选</td>
 <td>已选联赛及赛事后切换等级</td>
-<td>两者重置全部；搜索和候选项不跨等级</td>
+<td>联赛及赛事保留原值，不自动清空或重新过滤</td>
 </tr>
 <tr>
 <td>AC-08</td>
-<td>级联</td>
+<td>独立筛选</td>
 <td>切换赛种</td>
-<td>等级 / 联赛 / 赛事重置，玩法体系更新</td>
+<td>联赛等级、联赛及赛事保留原值，不因赛种变化自动改写；玩法体系仍按既有玩法元数据规则处理</td>
 </tr>
 <tr>
 <td>AC-09</td>
-<td>级联</td>
-<td>在某一具体等级下选择联赛</td>
-<td>等级保持不变，只能选择该等级内联赛，联赛标明实际等级</td>
+<td>搜索后展示</td>
+<td>分别打开联赛、赛事下拉并保持搜索词为空</td>
+<td>不展示候选项，提示输入名称或 ID 搜索；输入搜索词后才展示授权范围内的匹配项</td>
 </tr>
 <tr>
 <td>AC-10</td>
@@ -1501,9 +1508,9 @@ R(k)  = P(k) / Q(k) × 100%，Q(k)=0 时为 null
 </tr>
 <tr>
 <td>AC-13</td>
-<td>校验</td>
-<td>注入跨等级联赛或跨联赛赛事 ID</td>
-<td>前后端校验拒绝，不按全部条件放行</td>
+<td>独立组合</td>
+<td>选择与联赛等级元数据归属不同的联赛，或选择不属于所选联赛的赛事</td>
+<td>允许提交并按全部独立条件取交集；无匹配数据时返回无数据结果，不报级联关系错误</td>
 </tr>
 <tr>
 <td>AC-14</td>
@@ -1653,7 +1660,7 @@ R(k)  = P(k) / Q(k) × 100%，Q(k)=0 时为 null
 <td>AC-38</td>
 <td>明细</td>
 <td>全部 / 拒单 / 不可模拟 / 场景入口</td>
-<td>初始集合正确，任务及偏移明确，场景包含未变化订单</td>
+<td>基础区三个入口保持各自初始集合；场景入口只包含所选偏移相对同任务 0 秒基准模拟状态发生变化的订单，并明确任务及偏移</td>
 </tr>
 <tr>
 <td>AC-39</td>
@@ -1769,6 +1776,18 @@ R(k)  = P(k) / Q(k) × 100%，Q(k)=0 时为 null
 <td>检查联赛、赛事、玩法及商户字段标题右上角</td>
 <td>不展示候选数量、已选数量或商户总数；非数量型规则提示可正常展示</td>
 </tr>
+<tr>
+<td>AC-58</td>
+<td>场景变化明细</td>
+<td>分别核对状态变化、状态未变化及不可模拟注单</td>
+<td>仅返回所选偏移模拟状态与 0 秒基准模拟状态不同的注单；未变化及不可模拟注单不返回；明细数量与比较表对应接拒数量变化可逐笔核对</td>
+</tr>
+<tr>
+<td>AC-59</td>
+<td>筛选无联动</td>
+<td>依次修改赛种、联赛等级、联赛和赛事</td>
+<td>任一字段变化均不清空、改写或限制另外三个字段，任务快照保存最终独立条件组合</td>
+</tr>
 </tbody></table>
 <h2 id="section-16-交付-联调与发布">16. 交付、联调与发布</h2>
 
@@ -1814,8 +1833,8 @@ R(k)  = P(k) / Q(k) × 100%，Q(k)=0 时为 null
 <tr>
 <td>D-04</td>
 <td>真实联赛等级、玩法映射、元数据版本</td>
-<td>已确认本期仅足球；联赛等级和玩法集必选单选；玩法集及玩法由元数据动态返回。真实等级及事件映射内容仍由数据方提供</td>
-<td>筛选级联、任务快照与查询范围</td>
+<td>已确认本期仅足球；联赛等级和玩法集必选单选；赛种、联赛等级、联赛、赛事互不联动；联赛与赛事搜索后展示；玩法集及玩法由元数据动态返回。真实等级及事件映射内容仍由数据方提供</td>
+<td>独立筛选、任务快照与查询范围</td>
 </tr>
 <tr>
 <td>D-05</td>
@@ -2045,7 +2064,7 @@ R(k)  = P(k) / Q(k) × 100%，Q(k)=0 时为 null
 <td align="right">-0.01</td>
 </tr>
 </tbody></table>
-<p>以上预期来自既有演示数据基线；V1.21 调整查询范围、筛选展示、保留及过期重生成交互，未修改计算样本。基础统计、场景增减及明细须从同一订单快照计算，不能为贴近预期而单独修改某个卡片或表格值。</p>
+<p>以上预期来自既有演示数据基线；V1.23 调整查询范围、筛选展示、保留、过期重生成交互、场景变化明细范围，以及赛种 / 联赛等级 / 联赛 / 赛事的独立筛选与搜索后展示规则，未修改计算样本。基础统计、场景增减及明细须从同一订单快照计算，不能为贴近预期而单独修改某个卡片或表格值。</p>
 </main>
 </div>
 </body>
