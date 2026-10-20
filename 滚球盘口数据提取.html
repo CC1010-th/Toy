@@ -181,8 +181,8 @@ const MATCHES=MATCH_SEED.concat(generatedSeeds()).map((s,i)=>{const [league,sour
 MATCHES.forEach((m,i)=>m.id='BK'+m.date.replaceAll('-','')+'-'+pad(i+1,3));
 const matchMap=new Map(MATCHES.map(m=>[m.id,m]));
 const MARKETS={total:{name:'大小',p1:'大赔率',p2:'小赔率',a:'当前总分'},spread:{name:'让分',p1:'主队赔率',p2:'客队赔率',a:'当前分差'}};
-const PERIODS={FT:'全场',H1:'上半场',Q1:'第1节',Q2:'第2节',Q3:'第3节',Q4:'第4节'};
-const PERIOD_ORDER=['FT','H1','Q1','Q2','Q3','Q4'];
+const PERIODS={FT:'全场',H1:'上半场',Q1:'第1节',Q2:'第2节',Q3:'第3节',Q4:'第4节',OT:'加时赛'};
+const PERIOD_ORDER=['FT','H1','Q1','Q2','Q3','Q4','OT'];
 const ORD=['1st','2nd','3rd','4th'];
 
 // ---------- game simulation ----------
@@ -209,8 +209,9 @@ function allowedDev(market,A){if(market==='total')return 5;const d=Math.abs(A);r
 
 function buildTimeline(m,game,market,period,seed){
  const r=mulberry32(seed),C=m.fmt,qm=C/4,ps=game.ps;
- const win=period==='FT'?ps:period==='H1'?ps.slice(0,2):[ps[Number(period[1])-1]];
+ const win=period==='FT'?ps:period==='H1'?ps.slice(0,2):period==='OT'?ps.filter(p=>p.ot):[ps[Number(period[1])-1]];
  const B=market==='total'?m.total:m.hcap,ticks=[];
+ if(!win.length)return {key:m.id+'|'+market+'|'+period,m,market,period,B,C,winStart:C*60,winEnd:C*60,periods:[],rows:[],merged:0};
  win.forEach((p,i)=>{
   if(i===0)ticks.push({gs:p.s,brk:false,p});
   for(const e of game.ev)if(e.t>p.s&&e.t<=p.e)ticks.push({gs:Math.min(p.e,Math.round(e.t+1+r()*3)),brk:false,p});
@@ -395,6 +396,7 @@ function openTrend(key,fi=null){
 function niceStep(span){const raw=span/5,mag=Math.pow(10,Math.floor(Math.log10(raw))),n=raw/mag;return (n<1.5?1:n<3?2:n<7?5:10)*mag}
 function renderChart(){
  TLMAP=TLMAP||tlMap();const tl=TLMAP.get(trendKey);if(!tl)return;const box=$('trendChart'),W=Math.max(320,box.clientWidth||900),H=Math.round(clamp(W*.27,220,300)),M={l:48,r:14,t:26,b:34},iw=W-M.l-M.r,ih=H-M.t-M.b,rows=tl.rows;
+ if(!rows.length){box.innerHTML='<div class="empty"><strong>当前比赛没有加时赛盘口记录</strong><span>可切换其他时段查看。</span></div>';return}
  const xMax=(tl.winEnd-tl.winStart)/60,ys=rows.flatMap(r=>[r.line,r.P]);let y0=Math.min(...ys),y1=Math.max(...ys);const pd=Math.max(1,(y1-y0)*.06);y0-=pd;y1+=pd;
  const step=niceStep(y1-y0),X=x=>M.l+x/xMax*iw,Y=y=>M.t+(1-(y-y0)/(y1-y0))*ih;
  let s='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="'+esc($('trendTitle').textContent)+' 当下盘口与理论盘口走势">';
