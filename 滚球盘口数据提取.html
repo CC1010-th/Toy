@@ -77,7 +77,7 @@ h1{font-size:21px}.nav-item,.topbar,h2,button,.field label,.control,.field selec
 
 <section class="card pre-query" id="preQuery" aria-label="尚未查询"><span class="empty-symbol">▤</span><h2>设置查询条件后，点击「查询赛事」</h2></section>
 <section class="card" id="resultCard" aria-label="历史赛事查询结果" hidden><div class="section-heading" id="resultHeading"><div><h2>赛事索引 <span class="badge blue" id="tabIdx"></span></h2></div></div>
-<div id="indexPane"><div class="index-toolbar"><input type="search" id="miSearch" placeholder="搜索球队、联赛或赛事 ID" aria-label="搜索赛事" autocomplete="off"><span id="miCount"></span></div>
+<div id="indexPane"><div class="index-toolbar"><input type="search" id="miSearch" placeholder="搜索球队或赛事 ID" aria-label="搜索球队或赛事 ID" autocomplete="off"><span id="miCount"></span></div>
 <div class="table-shell index-shell"><table class="index-table"><thead><tr><th>赛事 ID</th><th><button class="th-sort" data-sort="time">比赛时间<i></i></button></th><th><button class="th-sort" data-sort="level">联赛等级<i></i></button></th><th>联赛</th><th>主队</th><th>客队</th><th class="num">赛制</th><th>赛果</th><th class="num">大小初盘</th><th class="num">让分初盘</th><th class="act">操作</th></tr></thead><tbody id="miList"></tbody></table></div>
 <div class="pager"><label>每页 <select id="idxSize"><option>20</option><option>50</option><option>100</option></select> 场</label><div class="actions"><button id="idxPrev">上一页</button><span id="idxPageText"></span><button id="idxNext">下一页</button></div></div></div>
 <div id="detailBlock" hidden>
@@ -324,7 +324,7 @@ function resetIndexFilters(){
 }
 function indexList(){
  const q=$('miSearch').value.trim().toLowerCase(),{key,dir}=idxSort;
- const list=resultMatches.filter(m=>!q||(m.home+' '+m.away+' '+m.leagueName+' '+m.id).toLowerCase().includes(q));
+ const list=resultMatches.filter(m=>!q||(m.home+' '+m.away+' '+m.id).toLowerCase().includes(q));
  const val=m=>key==='level'?m.level:m.startMs;
  return list.sort((a,b)=>(val(a)-val(b))*dir||a.startMs-b.startMs);
 }
