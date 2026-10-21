@@ -15,7 +15,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible,[t
 main{max-width:1800px;padding:28px 28px 0;margin:auto}.page-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;gap:14px}.eyebrow{font-size:10px;letter-spacing:1.6px;color:#8a99ad;margin-bottom:8px}h1{font-size:25px;letter-spacing:-.5px;margin:0;font-weight:650;text-wrap:balance}p{line-height:1.65}h2{font-size:15px;margin:0;font-weight:650}h2 .badge{margin-left:8px}.page-title p{margin:8px 0 0;color:var(--muted);font-size:12px}
 .demo-note{display:flex;align-items:center;gap:10px;font-size:11px;color:#76859a;margin-bottom:15px}
 .card{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);margin-bottom:14px;box-shadow:0 2px 5px #273e5c03;overflow:hidden}.section-heading{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;gap:12px}.section-heading>div:first-child{min-width:0}.section-heading p{font-size:11px;color:var(--muted);margin:6px 0 0}.section-heading.compact{padding:0 0 10px}.compact h2{font-size:13px}.compact>span{font-size:10px}
-.filters{padding:14px 16px 11px;overflow:visible}.filter-grid{display:grid;grid-template-columns:minmax(330px,1.65fr) repeat(3,minmax(145px,1fr)) auto;gap:10px 12px;align-items:end}.field{min-width:0}.field label{display:flex;justify-content:space-between;font-size:10px;color:#607086;margin-bottom:5px;gap:5px}.field label span{font-size:10px;color:#929fb0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.filters{padding:14px 16px 11px;overflow:visible}.filter-grid{display:grid;grid-template-columns:minmax(310px,1.5fr) minmax(190px,.9fr) repeat(3,minmax(135px,.8fr)) auto;gap:10px 12px;align-items:end}.field{min-width:0}.field label{display:flex;justify-content:space-between;font-size:10px;color:#607086;margin-bottom:5px;gap:5px}.field label span{font-size:10px;color:#929fb0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .control{height:34px;width:100%;display:flex;align-items:center;justify-content:space-between;text-align:left;gap:8px;padding:0 10px;font-size:12px}.control>span:first-child{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.control>span:last-child{color:#8d9aad;flex-shrink:0}.control.accented{border-color:#bed0f0;background:#fcfdff}
 select{border:1px solid #d7e0eb;border-radius:7px;background:#fff;min-height:34px;padding:0 10px}.field select{width:100%;height:34px;font-size:12px}input{border:1px solid #d7e0eb;border-radius:6px;padding:8px 10px;background:#fff;min-width:0}.field input{width:100%;height:34px;font-size:12px;border-radius:7px}
 .query-actions{display:flex;align-items:center;gap:7px;height:34px}.query-actions button{height:34px;padding-top:0;padding-bottom:0}.inline-error{margin:8px 0 0;color:#b74448;font-size:11px}
@@ -50,7 +50,7 @@ dialog{border:1px solid #dde5ef;border-radius:13px;padding:0;box-shadow:0 24px 1
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1f344c;color:#fff;padding:12px 22px;border-radius:8px;font-size:12px;box-shadow:0 6px 20px #12294025;z-index:200;max-width:calc(100vw - 32px)}
 .switch-label{margin-bottom:5px}
 @media(min-width:1650px){.stat-number{font-size:28px}}
-@media(max-width:1150px){.detail-layout{grid-template-columns:1fr}.match-index{border-right:0;border-bottom:1px solid var(--line)}.mi-list{max-height:230px}.sidebar{width:168px}.workspace{margin-left:168px}main{padding:22px 18px 0}.brand{padding:0 14px}.brand b{font-size:15px}.nav-item{font-size:11px}.filter-grid{grid-template-columns:minmax(300px,1.6fr) repeat(3,minmax(130px,1fr)) auto;overflow-x:auto;padding-bottom:2px}.single-controls{grid-template-columns:minmax(180px,.7fr) minmax(470px,2fr) 135px 135px auto;overflow-x:auto}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:25px}.stat-card:nth-child(2){border:none}h1{font-size:23px}.demo-note{align-items:start;line-height:1.6}.section-heading{flex-wrap:wrap}}
+@media(max-width:1150px){.detail-layout{grid-template-columns:1fr}.match-index{border-right:0;border-bottom:1px solid var(--line)}.mi-list{max-height:230px}.sidebar{width:168px}.workspace{margin-left:168px}main{padding:22px 18px 0}.brand{padding:0 14px}.brand b{font-size:15px}.nav-item{font-size:11px}.filter-grid{grid-template-columns:minmax(300px,1.5fr) minmax(180px,.9fr) repeat(3,minmax(125px,.8fr)) auto;overflow-x:auto;padding-bottom:2px}.single-controls{grid-template-columns:minmax(180px,.7fr) minmax(470px,2fr) 135px 135px auto;overflow-x:auto}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:25px}.stat-card:nth-child(2){border:none}h1{font-size:23px}.demo-note{align-items:start;line-height:1.6}.section-heading{flex-wrap:wrap}}
 @media(max-width:760px){.sidebar{display:none}.workspace{margin:0}.topbar{padding:0 16px}.top-right .badge{display:none}main{padding:20px 16px 0}.page-title{align-items:start;flex-direction:column}.filter-grid{grid-template-columns:1fr;overflow:visible}.date-field{grid-column:auto}.date-range input{flex:1;width:0;min-width:0}.query-actions{justify-content:flex-end}.demo-note{font-size:10px}.field label span{display:none}.section-heading{padding:17px 15px;align-items:start}.filters{padding:13px 15px 11px}.match-bar{padding-left:15px;padding-right:15px}.mb-top{align-items:flex-start}.single-controls{display:flex;flex-direction:column;align-items:stretch;padding:10px 15px;overflow:visible}.primary-switches,.secondary-filters{display:flex;flex-direction:column;gap:10px}.secondary-actions{width:100%;justify-content:space-between}.seg{flex-wrap:wrap}.seg button{min-width:33%;border-bottom:1px solid #e9eef5}.secondary-filters label,.secondary-filters select{width:100%}.stat-card{padding:0 15px}.stat-number{font-size:23px}.coverage-line{padding:11px 15px;gap:10px}.table-footer{flex-direction:column;align-items:start;gap:4px}.applied-line span:last-child{display:none}.tabs{padding:0 15px}.legend-line{padding:10px 15px}.drawer{width:100vw;border-radius:0}.date-inputs{grid-template-columns:1fr}.trend{padding:12px 15px 6px}.toolbar-sep{display:none}}
 /* UAT typography baseline: normal controls and data use 14px; supporting metadata uses 12px. */
 h1{font-size:21px}.nav-item,.topbar,h2,button,.field label,.control,.field select,.field input,table,.mi-head,.mi-main b,.mb-title b,.switch-label,.secondary-filters label,.seg button,.secondary-filters select,.index-toolbar select,.index-toolbar input[type=search],.detail-toolbar .actions button,input[type=search],.select-option,.date-inputs input{font-size:14px}.nav-item{font-weight:600;line-height:40px;padding-top:0;padding-bottom:0}.small-label,.badge,.section-heading p,.compact>span,.inline-error,.applied-line,.stat-label,.stat-sub,.coverage-line,.tabs button,.tabs span,.col-toggles,.legend-line,td small,.mi-head span,.mi-search input,.mi-main small,.mi-lv,.mi-n,.mi-empty,.mb-title span,.mb-top>button,.mb-back,.secondary-actions button,.filter-result,.idx-check,.index-toolbar span,.index-table td .text-button,.dt-left,.detail-table thead tr:first-child th,.detail-table thead tr:first-child th.stick,.chip,.table-footer,.pager,.pager button,.pager select,.select-bottom button,.dialog-head p,.prose,.prose table,.prose code,.quick-dates button,.date-inputs label,.drawer-summary,.drawer-table td,.drawer-table th,.drawer-foot,.trend-head h3,.legend,.chart-tip,.pre-query p,.pre-query small,.sw-tag,.side,.toast{font-size:12px}
@@ -66,6 +66,7 @@ h1{font-size:21px}.nav-item,.topbar,h2,button,.field label,.control,.field selec
 <section class="card filters" aria-label="查询条件"><div class="section-heading compact"><h2>查询条件</h2><span class="muted" id="dirtyText">已应用当前条件</span></div>
 <div class="filter-grid">
 <div class="field date-field"><label>比赛日期</label><div class="date-range"><input id="dateStart" type="date" aria-label="开始日期"><span>~</span><input id="dateEnd" type="date" aria-label="结束日期"></div></div>
+<div class="field"><label for="matchKeyword">球队 / 赛事 ID</label><input id="matchKeyword" type="search" placeholder="输入球队名称或赛事 ID" autocomplete="off"></div>
 <div class="field"><label for="levelControl">联赛等级</label><button class="control" id="levelControl" data-type="level"><span id="levelText"></span><span>⌄</span></button></div>
 <div class="field"><label for="leagueControl">联赛</label><button class="control" id="leagueControl" data-type="league"><span id="leagueText"></span><span>⌄</span></button></div>
 <div class="field"><label for="fmt">赛制</label><select id="fmt"><option value="all">全部赛制</option><option value="40">40 分钟</option><option value="48">48 分钟</option></select></div>
@@ -77,7 +78,7 @@ h1{font-size:21px}.nav-item,.topbar,h2,button,.field label,.control,.field selec
 
 <section class="card pre-query" id="preQuery" aria-label="尚未查询"><span class="empty-symbol">▤</span><h2>设置查询条件后，点击「查询赛事」</h2></section>
 <section class="card" id="resultCard" aria-label="历史赛事查询结果" hidden><div class="section-heading" id="resultHeading"><div><h2>赛事索引 <span class="badge blue" id="tabIdx"></span></h2></div></div>
-<div id="indexPane"><div class="index-toolbar"><input type="search" id="miSearch" placeholder="搜索球队或赛事 ID" aria-label="搜索球队或赛事 ID" autocomplete="off"><span id="miCount"></span></div>
+<div id="indexPane">
 <div class="table-shell index-shell"><table class="index-table"><thead><tr><th>赛事 ID</th><th><button class="th-sort" data-sort="time">比赛时间<i></i></button></th><th><button class="th-sort" data-sort="level">联赛等级<i></i></button></th><th>联赛</th><th>主队</th><th>客队</th><th class="num">赛制</th><th>赛果</th><th class="num">大小初盘</th><th class="num">让分初盘</th><th class="act">操作</th></tr></thead><tbody id="miList"></tbody></table></div>
 <div class="pager"><label>每页 <select id="idxSize"><option>20</option><option>50</option><option>100</option></select> 场</label><div class="actions"><button id="idxPrev">上一页</button><span id="idxPageText"></span><button id="idxNext">下一页</button></div></div></div>
 <div id="detailBlock" hidden>
@@ -264,18 +265,19 @@ function tlByKey(key){const [id,mk,pd]=key.split('|'),m=matchMap.get(id);return 
 
 // ---------- filters ----------
 function initialDates(){const now=new Date(Date.now()+8*3600000),end=now.toISOString().slice(0,10),start=new Date(now-6*864e5).toISOString().slice(0,10);return{start,end}}
-const defaults=()=>({...initialDates(),level:'all',league:'all',fmt:'all'});
+const defaults=()=>({...initialDates(),keyword:'',level:'all',league:'all',fmt:'all'});
 let draft=defaults(),applied=structuredClone(draft),view=[],desc=false,page=1,dropdown=null,queriedAt=Date.now();
 const levelLabel=l=>l==='all'?'全部等级':l+'级';
-function matchesFor(f){return MATCHES.filter(m=>(f.level==='all'||m.level===Number(f.level))&&(f.league==='all'||m.league===f.league)&&m.date>=f.start&&m.date<=f.end&&(f.fmt==='all'||m.fmt===Number(f.fmt))).sort((a,b)=>a.startMs-b.startMs)}
+function matchesFor(f){const q=f.keyword.trim().toLowerCase();return MATCHES.filter(m=>(!q||(m.home+' '+m.away+' '+m.id).toLowerCase().includes(q))&&(f.level==='all'||m.level===Number(f.level))&&(f.league==='all'||m.league===f.league)&&m.date>=f.start&&m.date<=f.end&&(f.fmt==='all'||m.fmt===Number(f.fmt))).sort((a,b)=>a.startMs-b.startMs)}
 function validate(f){
  if(!f.start||!f.end)return '请选择完整的比赛日期。';if(f.start>f.end)return '开始日期不能晚于结束日期。';
  if((Date.parse(f.end)-Date.parse(f.start))/864e5+1>186)return '单次查询最多 186 天，请缩小日期范围。';
  return '';
 }
-function scopeText(f){return [dateTxt(f.start)+' ～ '+dateTxt(f.end),'篮球',levelLabel(f.level),f.league==='all'?'全部联赛':leagueMap.get(f.league).name,f.fmt==='all'?'全部赛制':f.fmt+' 分钟'].join(' / ')}
+function scopeText(f){return [dateTxt(f.start)+' ～ '+dateTxt(f.end),'篮球',f.keyword.trim()?'球队/赛事 '+f.keyword.trim():'全部球队/赛事',levelLabel(f.level),f.league==='all'?'全部联赛':leagueMap.get(f.league).name,f.fmt==='all'?'全部赛制':f.fmt+' 分钟'].join(' / ')}
 function renderFilters(){
  $('dateStart').value=draft.start;$('dateEnd').value=draft.end;
+ $('matchKeyword').value=draft.keyword;
  $('levelText').textContent=levelLabel(draft.level);
  $('leagueText').textContent=draft.league==='all'?'全部联赛':leagueMap.get(draft.league).name;
  $('fmt').value=draft.fmt;
@@ -321,18 +323,15 @@ function viewRows(){if(!inMatch())return [];TLMAP=TLMAP||tlMap();const tl=TLMAP.
 function renderMeta(){$('appliedScope').textContent=scopeText(applied);$('appliedScope').title=scopeText(applied);$('queryStamp').textContent='查询于 '+stamp(queriedAt).slice(0,16)+' UTC+8'}
 let idxPage=1,idxSort={key:'time',dir:1};
 function resetIndexFilters(){
- $('miSearch').value='';idxPage=1;idxSort={key:'time',dir:1};
+ idxPage=1;idxSort={key:'time',dir:1};
 }
 function indexList(){
- const q=$('miSearch').value.trim().toLowerCase(),{key,dir}=idxSort;
- const list=resultMatches.filter(m=>!q||(m.home+' '+m.away+' '+m.id).toLowerCase().includes(q));
+ const {key,dir}=idxSort,list=[...resultMatches];
  const val=m=>key==='level'?m.level:m.startMs;
  return list.sort((a,b)=>(val(a)-val(b))*dir||a.startMs-b.startMs);
 }
 function renderIndex(){
  const list=indexList(),size=Number($('idxSize').value),pages=Math.max(1,Math.ceil(list.length/size));idxPage=clamp(idxPage,1,pages);
- const filtered=list.length!==resultMatches.length;
- $('miCount').textContent=filtered?fmt(list.length)+' / '+fmt(resultMatches.length)+' 场':fmt(resultMatches.length)+' 场';
  document.querySelectorAll('.th-sort').forEach(b=>{const on=b.dataset.sort===idxSort.key;b.classList.toggle('on',on);b.querySelector('i').textContent=on?(idxSort.dir>0?'↑':'↓'):'↕';b.setAttribute('aria-sort',on?(idxSort.dir>0?'ascending':'descending'):'none')});
  $('miList').innerHTML=list.slice((idxPage-1)*size,idxPage*size).map(m=>'<tr data-mid="'+m.id+'"><td class="mid">'+m.id+'</td><td>'+dateTxt(m.date)+' '+m.time+'</td><td>'+m.level+'级</td><td>'+esc(m.leagueName)+'</td><td><b>'+esc(m.home)+'</b></td><td><b>'+esc(m.away)+'</b></td><td class="num">'+m.fmt+' 分钟</td><td>'+m.result+(m.ot?' <span class="badge tiny">含加时</span>':'')+'</td><td class="num">'+lineTxt(m.total)+'</td><td class="num">'+lineTxt(m.hcap)+'</td><td class="act"><button class="btn-icon text-button" data-mid="'+m.id+'"><svg class="icon"><use href="#i-eye"/></svg>查看</button></td></tr>').join('')||'<tr><td colspan="11" class="empty"><strong>'+(resultMatches.length?'没有匹配的赛事':'当前条件下没有赛事')+'</strong><span>请调整查询条件后重试。</span></td></tr>';
  $('idxPageText').textContent=idxPage+' / '+pages+' · 共 '+fmt(list.length)+' 场';$('idxPrev').disabled=idxPage===1;$('idxNext').disabled=idxPage===pages;
@@ -427,11 +426,13 @@ let toastTimer;function toast(t){$('toast').textContent=t;$('toast').hidden=fals
 document.querySelectorAll('[data-type]').forEach(b=>b.addEventListener('click',()=>openSelect(b.dataset.type,b)));
 let optionLimit=60;$('selectSearch').addEventListener('input',()=>{optionLimit=60;$('selectOptions').scrollTop=0;renderOptions()});$('btnLoadMore').addEventListener('click',()=>{optionLimit+=60;renderOptions()});$('btnSelectDone').addEventListener('click',()=>closeSelect(true));
 $('fmt').addEventListener('change',e=>setFilter('fmt',e.target.value));
+$('matchKeyword').addEventListener('input',e=>{draft.keyword=e.target.value;const dirty=JSON.stringify(draft)!==JSON.stringify(applied);$('dirtyText').textContent=!hasQueried?'尚未查询':dirty?'范围已修改，点击「查询赛事」更新结果':'已应用当前赛事范围';$('dirtyText').style.color=dirty?'#b38228':''});
+$('matchKeyword').addEventListener('keydown',e=>{if(e.key==='Enter')runQuery()});
 $('btnQuery').addEventListener('click',()=>runQuery());$('btnReset').addEventListener('click',()=>{draft=defaults();$('queryError').hidden=true;renderFilters();toast('赛事范围已重置，点击「查询赛事」应用')});
 ['dateStart','dateEnd'].forEach(id=>$(id).addEventListener('change',e=>{draft[id==='dateStart'?'start':'end']=e.target.value;renderFilters()}));
 document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeDialog(b.dataset.close)));
 $('btnExport').addEventListener('click',()=>toast('已开始导出 '+fmt(viewRows().length)+' 行明细，包含完整赛事信息'));
-$('miList').addEventListener('click',e=>{const b=e.target.closest('[data-mid]');if(b)selectMatch(b.dataset.mid)});$('miSearch').addEventListener('input',()=>{idxPage=1;renderIndex()});$('idxSize').addEventListener('change',()=>{idxPage=1;renderIndex()});$('idxPrev').addEventListener('click',()=>{idxPage--;renderIndex()});$('idxNext').addEventListener('click',()=>{idxPage++;renderIndex()});
+$('miList').addEventListener('click',e=>{const b=e.target.closest('[data-mid]');if(b)selectMatch(b.dataset.mid)});$('idxSize').addEventListener('change',()=>{idxPage=1;renderIndex()});$('idxPrev').addEventListener('click',()=>{idxPage--;renderIndex()});$('idxNext').addEventListener('click',()=>{idxPage++;renderIndex()});
 document.querySelectorAll('.th-sort').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.sort;idxSort=idxSort.key===k?{key:k,dir:-idxSort.dir}:{key:k,dir:k==='time'?1:-1};idxPage=1;renderIndex()}));
 $('segMarket').addEventListener('click',e=>{const b=e.target.closest('[data-mk]');if(!b)return;selMarket=b.dataset.mk;page=1;renderView()});$('segPeriod').addEventListener('click',e=>{const b=e.target.closest('[data-pd]');if(!b)return;selPeriod=b.dataset.pd;page=1;renderView()});
 $('singleMinDev').addEventListener('change',e=>{selMinDev=e.target.value;page=1;renderView()});$('singleMinOdds').addEventListener('change',e=>{selMinOdds=e.target.value;page=1;renderView()});
