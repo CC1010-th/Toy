@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>投注接拒策略模拟分析 PRD V1.23</title>
+<title>投注接拒策略模拟分析 PRD</title>
 <style>
 *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:20px}body{margin:0;background:#f4f6f9;color:#273142;font-family:"PingFang SC","Microsoft YaHei",Arial,sans-serif;font-size:14px;line-height:1.75}.layout{display:grid;grid-template-columns:270px minmax(0,1080px);gap:28px;justify-content:center;padding:30px 24px 60px}.toc{position:sticky;top:20px;align-self:start;max-height:calc(100vh - 40px);overflow:auto;padding:18px;background:#fff;border:1px solid #e5e9f0;border-radius:10px;box-shadow:0 5px 18px rgba(31,45,61,.06)}.toc-title{margin:0 0 10px;color:#172033;font-size:16px;font-weight:700}.toc a{display:block;padding:6px 8px;border-radius:5px;color:#59677b;text-decoration:none;line-height:1.45}.toc a:hover{background:#edf4ff;color:#2563eb}.doc{min-width:0;padding:42px 52px;background:#fff;border:1px solid #e5e9f0;border-radius:10px;box-shadow:0 8px 28px rgba(31,45,61,.06)}h1{margin:0 0 28px;padding-bottom:20px;border-bottom:3px solid #2563eb;color:#142033;font-size:30px;line-height:1.35}h2{margin:42px 0 17px;padding-top:4px;color:#172033;font-size:23px;line-height:1.4}h3{margin:29px 0 13px;color:#26364d;font-size:18px}h4{margin:23px 0 10px;color:#34445c;font-size:15px}p{margin:10px 0}ul,ol{margin:10px 0;padding-left:26px}li{margin:5px 0}strong{color:#172033}a{color:#2563eb}code{padding:2px 6px;border-radius:4px;background:#f1f4f8;color:#be123c;font-family:Consolas,"SFMono-Regular",monospace}pre{overflow:auto;margin:14px 0;padding:16px;border:1px solid #dfe5ec;border-radius:7px;background:#f7f9fb;line-height:1.55}pre code{padding:0;background:transparent;color:#26364d}table{display:block;width:100%;overflow-x:auto;margin:16px 0;border-collapse:collapse;border-spacing:0}thead{background:#edf4ff}th,td{min-width:110px;padding:10px 12px;border:1px solid #dfe5ec;text-align:left;vertical-align:top}th{color:#1d3557;font-weight:700}tr:nth-child(even) td{background:#fafbfd}blockquote{margin:16px 0;padding:10px 16px;border-left:4px solid #8cb4ff;background:#f4f8ff;color:#526174}hr{border:0;border-top:1px solid #e3e8ef;margin:30px 0}.doc>table:first-of-type{display:table}.doc>table:first-of-type th:first-child,.doc>table:first-of-type td:first-child{width:150px;min-width:150px}.topbar{display:flex;justify-content:space-between;gap:12px;margin:-12px 0 24px;color:#6b778c;font-size:13px}.badge{padding:3px 9px;border-radius:12px;background:#fff3d6;color:#9a6700;font-weight:600}@media(max-width:980px){.layout{display:block;padding:12px}.toc{position:static;max-height:none;margin-bottom:12px}.doc{padding:28px 22px}h1{font-size:24px}}@media print{body{background:#fff}.layout{display:block;padding:0}.toc{display:none}.doc{border:0;box-shadow:none;padding:0}a{color:inherit;text-decoration:none}pre,table{break-inside:avoid}}
 </style>
@@ -28,7 +28,7 @@
 <a href="#section-16-交付-联调与发布">16. 交付、联调与发布</a>
 <a href="#section-17-待确认事项及当前处理">17. 待确认事项及当前处理</a>
 <a href="#section-18-附录-可复现演示基线">18. 附录：可复现演示基线</a></nav>
-<main class="doc"><div class="topbar"><span>投注接拒策略模拟分析</span><span class="badge">评审稿 · V1.23</span></div><h1>投注接拒策略模拟分析 PRD｜产品需求文档（完整版）</h1>
+<main class="doc"><div class="topbar"><span>投注接拒策略模拟分析</span><span class="badge">V1.23 交互确认版</span></div><h1>投注接拒策略模拟分析 PRD｜产品需求文档（完整版）</h1>
 <table>
 <thead>
 <tr>
@@ -50,7 +50,7 @@
 </tr>
 <tr>
 <td>业务文档</td>
-<td><a href="%E6%8A%95%E6%B3%A8%E6%8E%A5%E6%8B%92%E7%AD%96%E7%95%A5%E6%A8%A1%E6%8B%9F%E5%88%86%E6%9E%90_MRD_%E5%AE%8C%E6%95%B4%E7%89%88_V1.16.md">MRD V1.23</a></td>
+<td><a href="%E6%8A%95%E6%B3%A8%E6%8E%A5%E6%8B%92%E7%AD%96%E7%95%A5%E6%A8%A1%E6%8B%9F%E5%88%86%E6%9E%90_MRD.html">MRD</a></td>
 </tr>
 <tr>
 <td>产品入口</td>
@@ -482,7 +482,7 @@
 
 <p>只有用户主动触发生成分析才进入提交校验；页面加载与筛选变更不调用提交接口。首次有效提交时显示任务区；每个有效任务的条件快照固定保存 <code>stage=live</code>，重试、重新生成及多任务切换保持该范围。用户可以连续提交多个不同条件的任务，不因已有计算而禁用生成分析。每次有效提交形成唯一 taskId、提交时间、条件副本、状态和结果引用。</p>
 <p>相同筛选、相同配置模式和执行模式的活动任务在原型中复用已有记录，提示并定位该任务。玩法多选顺序不影响等价性；不同等级不合并。成功、失败或取消后的相同条件可生成新任务。</p>
-<p>生产要求区分两种去重：同一提交请求的幂等重试返回同一任务；业务等价任务复用还必须考虑用户 / 租户、授权范围、数据时点、配置及规则版本。不能仅以筛选文本相同复用不同快照。重试业务任务必须使用新的提交标识，并保存 retryOf。</p>
+<p>生产要求区分两种去重：同一提交请求的幂等重试返回同一任务；业务等价任务复用还必须考虑用户、数据时点、配置及规则版本。不能仅以筛选文本相同复用不同快照。重试业务任务必须使用新的提交标识，并保存 retryOf。</p>
 <h3 id="section-5-2-队列和并行">5.2 队列和并行</h3>
 
 <ul>
@@ -1300,7 +1300,7 @@ R(k)  = P(k) / Q(k) × 100%，Q(k)=0 时为 null
 <td>第 11 章字段及订单唯一键、实际 / 理论结算来源、资格原因、命中规则引用</td>
 </tr>
 </tbody></table>
-<p>taskId 与 resultId 不可互换。接口必须保证所取 resultId 属于相应 taskId 及当前授权范围。内部 0 基准及场景绝对聚合用于计算和审计，不作为页面汇总行返回展示。</p>
+<p>taskId 与 resultId 不可互换。接口必须保证所取 resultId 属于相应 taskId，并校验当前用户的查询权限。内部 0 基准及场景绝对聚合用于计算和审计，不作为页面汇总行返回展示。</p>
 <h3 id="section-13-2-能力契约">13.2 能力契约</h3>
 
 <table>
