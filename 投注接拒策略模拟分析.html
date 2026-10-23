@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>投注接拒策略模拟分析 · V1.23</title>
+    <title>投注接拒策略模拟分析</title>
     <style>
       :root {
         --nav: #162638;
@@ -1712,7 +1712,7 @@
       <a class="nav-item" href="#" aria-current="page"><span>▦</span> 投注接拒策略模拟分析</a>
       <a class="nav-item" href="滚球盘口数据提取.html"><span>▦</span> 滚球盘口数据提取</a>
       <div class="sidebar-bottom">
-        <i></i> 独立交互原型<small>本地演示数据 · V1.23</small>
+        <i></i> 独立交互原型<small>本地演示数据 · V1.24</small>
       </div>
     </aside>
     <div class="workspace">
@@ -2009,7 +2009,7 @@
           </section>
         </div>
         <footer class="page-footer">
-          <span>PA Sports BI · 需求讨论原型 V1.23 · 2026-10-20</span
+          <span>PA Sports BI · 需求讨论原型 V1.24 · 2026-10-23</span
           ><button class="text-button" onclick="openDialog('demoSettings')">
             原型演示设置
           </button>
@@ -2051,7 +2051,7 @@
       </div>
       <div class="dialog-content">
         <p class="muted">
-          全部时间使用 UTC+8；仅可查看当前时间向前最近 90 天，不能选择未来时间。
+          全部时间使用 UTC+8；仅可查看当前时间向前最近 90 天，不能选择未来时间。赛事数据按 T+1 统计，赛事结束次日完成入库后方可查询。
         </p>
         <div class="quick-dates">
           <button onclick="quickDate('today')">今天</button
@@ -4597,12 +4597,8 @@
             "注单号 / 商户",
             "赛事 / 联赛",
             "玩法集 / 玩法",
-            "事件实例",
             "投注项 / 盘口",
             "投注时间 UTC+8",
-            GROUPS[applied.group].event,
-            "参考最早结算时间",
-            "事件前秒差",
             "实际状态",
             "模拟状态",
             "系统接拒时间",
@@ -4710,21 +4706,11 @@
                 "<small>" +
                 esc(GROUPS[r.group].name) +
                 "</small></td><td>" +
-                r.eventKey +
-                "</td><td>" +
                 esc(r.selection) +
                 " / " +
                 esc(r.line) +
                 "</td><td>" +
                 localStamp(r.betAt) +
-                "</td><td>" +
-                (r.referenceAt === null ? "—" : localStamp(r.referenceAt)) +
-                "</td><td>" +
-                (r.referenceSettlementAt === null
-                  ? "—"
-                  : localStamp(r.referenceSettlementAt)) +
-                '</td><td class="num">' +
-                (r.gapMs === null ? "—" : (r.gapMs / 1000).toFixed(3) + " s") +
                 '</td><td><span class="badge ' +
                 (r.status === "accepted" ? "green" : "amber") +
                 '">' +
