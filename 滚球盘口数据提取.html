@@ -55,6 +55,7 @@ dialog{border:1px solid #dde5ef;border-radius:13px;padding:0;box-shadow:0 24px 1
 /* UAT typography baseline: normal controls and data use 14px; supporting metadata uses 12px. */
 h1{font-size:21px}.nav-item,.topbar,h2,button,.field label,.control,.field select,.field input,table,.mi-head,.mi-main b,.mb-title b,.switch-label,.secondary-filters label,.seg button,.secondary-filters select,.index-toolbar select,.index-toolbar input[type=search],.detail-toolbar .actions button,input[type=search],.select-option,.date-inputs input{font-size:14px}.nav-item{font-weight:600;line-height:40px;padding-top:0;padding-bottom:0}.small-label,.badge,.section-heading p,.compact>span,.inline-error,.applied-line,.stat-label,.stat-sub,.coverage-line,.tabs button,.tabs span,.col-toggles,.legend-line,td small,.mi-head span,.mi-search input,.mi-main small,.mi-lv,.mi-n,.mi-empty,.mb-title span,.mb-top>button,.mb-back,.secondary-actions button,.filter-result,.idx-check,.index-toolbar span,.index-table td .text-button,.dt-left,.detail-table thead tr:first-child th,.detail-table thead tr:first-child th.stick,.chip,.table-footer,.pager,.pager button,.pager select,.select-bottom button,.dialog-head p,.prose,.prose table,.prose code,.quick-dates button,.date-inputs label,.drawer-summary,.drawer-table td,.drawer-table th,.drawer-foot,.trend-head h3,.legend,.chart-tip,.pre-query p,.pre-query small,.sw-tag,.side,.toast{font-size:12px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.switch-block select{width:100%;height:34px;min-width:0;border:1px solid #d7e0eb;border-radius:7px;background:#fff;padding:0 30px 0 10px;color:var(--ink);font-size:11px}.single-controls{grid-template-columns:minmax(150px,.55fr) minmax(540px,2fr) minmax(130px,.55fr) minmax(130px,.55fr) auto}@media(max-width:1150px){.single-controls{grid-template-columns:160px minmax(470px,2fr) 135px 135px auto}}@media(max-width:760px){.switch-block select{width:100%}}
 </style>
 
 <svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs><symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14"/></symbol><symbol id="i-batch" viewBox="0 0 24 24"><path d="M5 7h14v11H5zM8 4h8M8 21h8"/><path d="M12 9v6m0 0 2.5-2.5M12 15l-2.5-2.5"/></symbol><symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5m0 0 5-5m-5 5 5 5"/></symbol><symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M7 15l4-4 3 2 5-6"/></symbol><symbol id="i-eye" viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.5"/></symbol><symbol id="i-sort" viewBox="0 0 24 24"><path d="M8 5v14m0-14L5 8m3-3 3 3M16 19V5m0 14-3-3m3 3 3-3"/></symbol></defs></svg>
@@ -83,7 +84,7 @@ h1{font-size:21px}.nav-item,.topbar,h2,button,.field label,.control,.field selec
 <div class="pager"><label>每页 <select id="idxSize"><option>20</option><option>50</option><option>100</option></select> 场</label><div class="actions"><button id="idxPrev">上一页</button><span id="idxPageText"></span><button id="idxNext">下一页</button></div></div></div>
 <div id="detailBlock" hidden>
 <div class="match-bar" id="matchBar" hidden><div class="mb-top"><div class="mb-title"><button class="btn-icon btn-subtle mb-back" id="btnMbBack"><svg class="icon"><use href="#i-back"/></svg>赛事索引</button><b id="mbTitle"></b><span id="mbMeta"></span></div></div></div>
-<div class="single-controls" id="singleControls" hidden><div class="primary-switches"><div class="switch-block"><span class="switch-label">玩法</span><div class="seg" id="segMarket" role="group" aria-label="玩法"></div></div><div class="switch-block"><span class="switch-label">时段</span><div class="seg" id="segPeriod" role="group" aria-label="时段"></div></div></div><div class="secondary-filters"><label>盘口分差绝对值<select id="singleMinDev"><option value="0">不限</option><option value="2">≥ 2</option><option value="3">≥ 3</option><option value="4">≥ 4</option><option value="5">≥ 5</option><option value="6">≥ 6</option><option value="8">≥ 8</option></select></label><label>赔率变动绝对值<select id="singleMinOdds"><option value="0">不限</option><option value="0.05">≥ 0.05</option><option value="0.09">≥ 0.09</option><option value="0.13">≥ 0.13</option><option value="0.17">≥ 0.17</option></select></label><div class="secondary-actions"><span class="filter-result" id="singleFilterResult"></span><button id="btnClearSingleFilters">清除筛选</button></div></div></div>
+<div class="single-controls" id="singleControls" hidden><div class="primary-switches"><label class="switch-block"><span class="switch-label">玩法</span><select id="playSelect" aria-label="玩法"></select></label><div class="switch-block"><span class="switch-label">时段</span><div class="seg" id="segPeriod" role="group" aria-label="时段"></div></div></div><div class="secondary-filters"><label>盘口分差绝对值<select id="singleMinDev"><option value="0">不限</option><option value="2">≥ 2</option><option value="3">≥ 3</option><option value="4">≥ 4</option><option value="5">≥ 5</option><option value="6">≥ 6</option><option value="8">≥ 8</option></select></label><label>赔率变动绝对值<select id="singleMinOdds"><option value="0">不限</option><option value="0.05">≥ 0.05</option><option value="0.09">≥ 0.09</option><option value="0.13">≥ 0.13</option><option value="0.17">≥ 0.17</option></select></label><div class="secondary-actions"><span class="filter-result" id="singleFilterResult"></span><button id="btnClearSingleFilters">清除筛选</button></div></div></div>
 <div class="detail-toolbar"><div class="dt-left"><span class="badge blue" id="sortBadge">按事件时间升序</span><button id="btnSort" class="btn-icon btn-subtle"><svg class="icon"><use href="#i-sort"/></svg><span>降序排列</span></button></div><div class="actions"><button class="btn-icon btn-subtle" id="btnMbTrend"><svg class="icon"><use href="#i-chart"/></svg>盘口走势</button><button class="btn-icon btn-export-current" id="btnExport" title="导出当前盘口明细，并附带赛事索引中的全部赛事信息"><svg class="icon"><use href="#i-download"/></svg>导出明细</button></div></div>
 <div class="detail-shell" tabindex="0" aria-label="盘口明细表，可上下左右滚动"><table class="detail-table" id="detailTable"><thead id="detailHead"></thead><tbody id="detailBody"></tbody></table></div>
 <div class="table-footer"><span><b style="font-weight:600;color:#21334b">加粗</b> 表示较上一行发生变化</span><span>可横向滚动</span></div>
@@ -184,6 +185,14 @@ const matchMap=new Map(MATCHES.map(m=>[m.id,m]));
 const MARKETS={total:{name:'大小',p1:'大赔率',p2:'小赔率',a:'当前总分'},spread:{name:'让分',p1:'主队赔率',p2:'客队赔率',a:'当前分差'}};
 const PERIODS={FT:'全场',H1:'上半场',Q1:'第1节',Q2:'第2节',Q3:'第3节',Q4:'第4节',OT:'加时赛'};
 const PERIOD_ORDER=['FT','H1','Q1','Q2','Q3','Q4','OT'];
+const PLAY_OPTIONS=[
+ {id:'total_FT',label:'全场大小',market:'total',playPeriod:'FT'},{id:'total_H1',label:'上半场大小',market:'total',playPeriod:'H1'},
+ {id:'total_Q1',label:'第1节大小',market:'total',playPeriod:'Q1'},{id:'total_Q2',label:'第2节大小',market:'total',playPeriod:'Q2'},
+ {id:'total_Q3',label:'第3节大小',market:'total',playPeriod:'Q3'},{id:'total_Q4',label:'第4节大小',market:'total',playPeriod:'Q4'},
+ {id:'spread_FT',label:'全场让分',market:'spread',playPeriod:'FT'},{id:'spread_H1',label:'上半场让分',market:'spread',playPeriod:'H1'},
+ {id:'spread_Q1',label:'第1节让分',market:'spread',playPeriod:'Q1'},{id:'spread_Q2',label:'第2节让分',market:'spread',playPeriod:'Q2'},
+ {id:'spread_Q3',label:'第3节让分',market:'spread',playPeriod:'Q3'},{id:'spread_Q4',label:'第4节让分',market:'spread',playPeriod:'Q4'}];
+const PLAY_MAP=Object.fromEntries(PLAY_OPTIONS.map(x=>[x.id,x]));
 const ORD=['1st','2nd','3rd','4th'];
 
 // ---------- game simulation ----------
@@ -302,7 +311,7 @@ function renderOptions(){
 function closeSelect(focus=false){if(dropdown){dropdown.anchor.setAttribute('aria-expanded','false');if(focus)dropdown.anchor.focus()}$('selectPopup').hidden=true;dropdown=null}
 
 // ---------- query & render ----------
-let selMatch=null,selMarket='total',selPeriod='FT',selMinDev='0',selMinOdds='0',resultMatches=[],hasQueried=false;
+let selMatch=null,selPlay='total_FT',selMarket='total',selPeriod='FT',selMinDev='0',selMinOdds='0',resultMatches=[],hasQueried=false;
 function rowPass(r){const minDev=Number(selMinDev),minOdds=Number(selMinOdds);return r.absDev>=minDev&&(minOdds===0||r.oddsDiff!==null&&r.oddsDiff>=minOdds-1e-9)}
 function runQuery(silent=false){
  const err=validate(draft);$('queryError').hidden=!err;$('queryError').textContent=err;if(err){toast(err);return}
@@ -319,7 +328,9 @@ function renderView(){
 }
 const inMatch=()=>!!selMatch;
 const viewMarket=()=>selMarket,viewPeriod=()=>selPeriod;
-function viewRows(){if(!inMatch())return [];TLMAP=TLMAP||tlMap();const tl=TLMAP.get(selMatch+'|'+selMarket+'|'+selPeriod);return tl?tl.rows.filter(r=>rowPass(r)):[]}
+function periodCompatible(pd=selPeriod){const pp=PLAY_MAP[selPlay].playPeriod;return pp==='FT'||pd==='FT'||pp==='H1'&&['H1','Q1','Q2'].includes(pd)||pp===pd}
+function effectivePeriod(pd=selPeriod){const pp=PLAY_MAP[selPlay].playPeriod;return pd==='FT'&&pp!=='FT'?pp:pd}
+function viewRows(){if(!inMatch()||!periodCompatible())return [];TLMAP=TLMAP||tlMap();const tl=TLMAP.get(selMatch+'|'+selMarket+'|'+effectivePeriod());return tl?tl.rows.filter(r=>rowPass(r)):[]}
 function renderMeta(){$('appliedScope').textContent=scopeText(applied);$('appliedScope').title=scopeText(applied);$('queryStamp').textContent='查询于 '+stamp(queriedAt).slice(0,16)+' UTC+8'}
 let idxPage=1,idxSort={key:'time',dir:1};
 function resetIndexFilters(){
@@ -336,17 +347,18 @@ function renderIndex(){
  $('miList').innerHTML=list.slice((idxPage-1)*size,idxPage*size).map(m=>'<tr data-mid="'+m.id+'"><td class="mid">'+m.id+'</td><td>'+dateTxt(m.date)+' '+m.time+'</td><td>'+m.level+'级</td><td>'+esc(m.leagueName)+'</td><td><b>'+esc(m.home)+'</b></td><td><b>'+esc(m.away)+'</b></td><td class="num">'+m.fmt+' 分钟</td><td>'+m.result+(m.ot?' <span class="badge tiny">含加时</span>':'')+'</td><td class="num">'+lineTxt(m.total)+'</td><td class="num">'+lineTxt(m.hcap)+'</td><td class="act"><button class="btn-icon text-button" data-mid="'+m.id+'"><svg class="icon"><use href="#i-eye"/></svg>查看</button></td></tr>').join('')||'<tr><td colspan="11" class="empty"><strong>'+(resultMatches.length?'没有匹配的赛事':'当前条件下没有赛事')+'</strong><span>请调整查询条件后重试。</span></td></tr>';
  $('idxPageText').textContent=idxPage+' / '+pages+' · 共 '+fmt(list.length)+' 场';$('idxPrev').disabled=idxPage===1;$('idxNext').disabled=idxPage===pages;
 }
-function selectMatch(id){selMatch=id||null;if(selMatch){selMarket='total';selPeriod='FT';selMinDev='0';selMinOdds='0'}page=1;renderView();const d=document.querySelector('.detail-shell');if(d)d.scrollTop=0}
+function selectMatch(id){selMatch=id||null;if(selMatch){selPlay='total_FT';selMarket='total';selPeriod='FT';selMinDev='0';selMinOdds='0'}page=1;renderView();const d=document.querySelector('.detail-shell');if(d)d.scrollTop=0}
 function renderMatchBar(){
  if(!inMatch())return;const m=matchMap.get(selMatch);TLMAP=TLMAP||tlMap();
  $('mbTitle').textContent=m.home+' vs '+m.away;
- const curTl=TLMAP.get(m.id+'|'+selMarket+'|'+selPeriod);
+ const curTl=TLMAP.get(m.id+'|'+selMarket+'|'+effectivePeriod());
  $('mbMeta').textContent=m.leagueName+' · '+m.level+'级 · '+dateTxt(m.date)+' '+m.time+' UTC+8 · 赛制 '+m.fmt+' 分钟 · 赛果 '+m.result+(m.ot?'（含加时）':'')+' · '+m.id+' · 当前初盘 '+lineTxt(curTl.B);
- $('segMarket').innerHTML=Object.entries(MARKETS).map(([k,x])=>'<button data-mk="'+k+'" aria-pressed="'+(k===selMarket)+'">'+x.name+'</button>').join('');
+ $('playSelect').innerHTML=PLAY_OPTIONS.map(x=>'<option value="'+x.id+'">'+x.label+'</option>').join('');$('playSelect').value=selPlay;
  $('segPeriod').innerHTML=PERIOD_ORDER.map(pd=>'<button data-pd="'+pd+'" aria-pressed="'+(pd===selPeriod)+'">'+PERIODS[pd]+'</button>').join('');
  $('singleMinDev').value=selMinDev;$('singleMinOdds').value=selMinOdds;
- const total=curTl?curTl.rows.length:0,filtered=curTl?curTl.rows.filter(r=>rowPass(r)).length:0;
+ const compatible=periodCompatible(),total=compatible&&curTl?curTl.rows.length:0,filtered=compatible&&curTl?curTl.rows.filter(r=>rowPass(r)).length:0;
  $('singleFilterResult').textContent=filtered===total?'共 '+fmt(total)+' 行':'筛选后 '+fmt(filtered)+' / 共 '+fmt(total)+' 行';
+ $('btnMbTrend').disabled=total===0;
  $('btnClearSingleFilters').disabled=selMinDev==='0'&&selMinOdds==='0';
 }
 function colsFor(market){
@@ -379,7 +391,7 @@ function renderTable(){
 // ---------- trend drawer ----------
 let trendKey=null,focusIndex=null;
 let TLMAP={get:k=>tlByKey(k)};const tlMap=()=>TLMAP;
-function resultTimelines(){TLMAP=TLMAP||tlMap();return PERIOD_ORDER.map(pd=>TLMAP.get(selMatch+'|'+selMarket+'|'+pd))}
+function resultTimelines(){TLMAP=TLMAP||tlMap();const seen=new Set();return PERIOD_ORDER.filter(pd=>periodCompatible(pd)).map(pd=>effectivePeriod(pd)).filter(pd=>!seen.has(pd)&&seen.add(pd)).map(pd=>TLMAP.get(selMatch+'|'+selMarket+'|'+pd))}
 function openTrend(key,fi=null){
  TLMAP=TLMAP||tlMap();const tl=TLMAP.get(key);if(!tl)return;trendKey=key;focusIndex=fi;const m=tl.m,rows=tl.rows,mk=MARKETS[tl.market];
  $('trendTitle').textContent=m.home+' vs '+m.away+' · '+PERIODS[tl.period]+mk.name;
@@ -434,11 +446,11 @@ document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',
 $('btnExport').addEventListener('click',()=>toast('已开始导出 '+fmt(viewRows().length)+' 行明细，包含完整赛事信息'));
 $('miList').addEventListener('click',e=>{const b=e.target.closest('[data-mid]');if(b)selectMatch(b.dataset.mid)});$('idxSize').addEventListener('change',()=>{idxPage=1;renderIndex()});$('idxPrev').addEventListener('click',()=>{idxPage--;renderIndex()});$('idxNext').addEventListener('click',()=>{idxPage++;renderIndex()});
 document.querySelectorAll('.th-sort').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.sort;idxSort=idxSort.key===k?{key:k,dir:-idxSort.dir}:{key:k,dir:k==='time'?1:-1};idxPage=1;renderIndex()}));
-$('segMarket').addEventListener('click',e=>{const b=e.target.closest('[data-mk]');if(!b)return;selMarket=b.dataset.mk;page=1;renderView()});$('segPeriod').addEventListener('click',e=>{const b=e.target.closest('[data-pd]');if(!b)return;selPeriod=b.dataset.pd;page=1;renderView()});
+$('playSelect').addEventListener('change',e=>{selPlay=e.target.value;selMarket=PLAY_MAP[selPlay].market;page=1;renderView()});$('segPeriod').addEventListener('click',e=>{const b=e.target.closest('[data-pd]');if(!b)return;selPeriod=b.dataset.pd;page=1;renderView()});
 $('singleMinDev').addEventListener('change',e=>{selMinDev=e.target.value;page=1;renderView()});$('singleMinOdds').addEventListener('change',e=>{selMinOdds=e.target.value;page=1;renderView()});
 $('btnClearSingleFilters').addEventListener('click',()=>{selMinDev='0';selMinOdds='0';page=1;renderView()});
 $('btnMbBack').addEventListener('click',()=>selectMatch(null));
-$('btnMbTrend').addEventListener('click',()=>openTrend(selMatch+'|'+selMarket+'|'+selPeriod));
+$('btnMbTrend').addEventListener('click',()=>openTrend(selMatch+'|'+selMarket+'|'+effectivePeriod()));
 $('btnSort').addEventListener('click',()=>{desc=!desc;page=1;renderTable()});
 $('pageSize').addEventListener('change',()=>{page=1;renderTable()});$('btnPrev').addEventListener('click',()=>{page--;renderTable()});$('btnNext').addEventListener('click',()=>{page++;renderTable()});
 
