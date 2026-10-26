@@ -328,9 +328,10 @@ function renderView(){
 }
 const inMatch=()=>!!selMatch;
 const viewMarket=()=>selMarket,viewPeriod=()=>selPeriod;
-function periodCompatible(pd=selPeriod){const pp=PLAY_MAP[selPlay].playPeriod;return pp==='FT'||pd==='FT'||pp==='H1'&&['H1','Q1','Q2'].includes(pd)||pp===pd}
-function effectivePeriod(pd=selPeriod){const pp=PLAY_MAP[selPlay].playPeriod;return pd==='FT'&&pp!=='FT'?pp:pd}
-function viewRows(){if(!inMatch()||!periodCompatible())return [];TLMAP=TLMAP||tlMap();const tl=TLMAP.get(selMatch+'|'+selMarket+'|'+effectivePeriod());return tl?tl.rows.filter(r=>rowPass(r)):[]}
+function playPeriod(){return PLAY_MAP[selPlay].playPeriod}
+function selectedPlayTL(){TLMAP=TLMAP||tlMap();return inMatch()?TLMAP.get(selMatch+'|'+selMarket+'|'+playPeriod()):null}
+function rowsInPeriod(tl,pd=selPeriod){if(!tl)return[];if(pd==='FT')return tl.rows;if(pd==='H1')return tl.rows.filter(r=>!r.p.ot&&r.p.k<=2);if(pd==='OT')return tl.rows.filter(r=>r.p.ot);const k=Number(pd.slice(1));return tl.rows.filter(r=>!r.p.ot&&r.p.k===k)}
+function viewRows(){return rowsInPeriod(selectedPlayTL()).filter(r=>rowPass(r))}
 function renderMeta(){$('appliedScope').textContent=scopeText(applied);$('appliedScope').title=scopeText(applied);$('queryStamp').textContent='查询于 '+stamp(queriedAt).slice(0,16)+' UTC+8'}
 let idxPage=1,idxSort={key:'time',dir:1};
 function resetIndexFilters(){
@@ -351,12 +352,12 @@ function selectMatch(id){selMatch=id||null;if(selMatch){selPlay='total_FT';selMa
 function renderMatchBar(){
  if(!inMatch())return;const m=matchMap.get(selMatch);TLMAP=TLMAP||tlMap();
  $('mbTitle').textContent=m.home+' vs '+m.away;
- const curTl=TLMAP.get(m.id+'|'+selMarket+'|'+effectivePeriod());
+ const curTl=selectedPlayTL();
  $('mbMeta').textContent=m.leagueName+' · '+m.level+'级 · '+dateTxt(m.date)+' '+m.time+' UTC+8 · 赛制 '+m.fmt+' 分钟 · 赛果 '+m.result+(m.ot?'（含加时）':'')+' · '+m.id+' · 当前初盘 '+lineTxt(curTl.B);
  $('playSelect').innerHTML=PLAY_OPTIONS.map(x=>'<option value="'+x.id+'">'+x.label+'</option>').join('');$('playSelect').value=selPlay;
  $('segPeriod').innerHTML=PERIOD_ORDER.map(pd=>'<button data-pd="'+pd+'" aria-pressed="'+(pd===selPeriod)+'">'+PERIODS[pd]+'</button>').join('');
  $('singleMinDev').value=selMinDev;$('singleMinOdds').value=selMinOdds;
- const compatible=periodCompatible(),total=compatible&&curTl?curTl.rows.length:0,filtered=compatible&&curTl?curTl.rows.filter(r=>rowPass(r)).length:0;
+ const periodRows=rowsInPeriod(curTl),total=periodRows.length,filtered=periodRows.filter(r=>rowPass(r)).length;
  $('singleFilterResult').textContent=filtered===total?'共 '+fmt(total)+' 行':'筛选后 '+fmt(filtered)+' / 共 '+fmt(total)+' 行';
  $('btnMbTrend').disabled=total===0;
  $('btnClearSingleFilters').disabled=selMinDev==='0'&&selMinOdds==='0';
@@ -391,7 +392,7 @@ function renderTable(){
 // ---------- trend drawer ----------
 let trendKey=null,focusIndex=null;
 let TLMAP={get:k=>tlByKey(k)};const tlMap=()=>TLMAP;
-function resultTimelines(){TLMAP=TLMAP||tlMap();const seen=new Set();return PERIOD_ORDER.filter(pd=>periodCompatible(pd)).map(pd=>effectivePeriod(pd)).filter(pd=>!seen.has(pd)&&seen.add(pd)).map(pd=>TLMAP.get(selMatch+'|'+selMarket+'|'+pd))}
+function resultTimelines(){const tl=selectedPlayTL();return tl?[tl]:[]}
 function openTrend(key,fi=null){
  TLMAP=TLMAP||tlMap();const tl=TLMAP.get(key);if(!tl)return;trendKey=key;focusIndex=fi;const m=tl.m,rows=tl.rows,mk=MARKETS[tl.market];
  $('trendTitle').textContent=m.home+' vs '+m.away+' · '+PERIODS[tl.period]+mk.name;
@@ -450,7 +451,7 @@ $('playSelect').addEventListener('change',e=>{selPlay=e.target.value;selMarket=P
 $('singleMinDev').addEventListener('change',e=>{selMinDev=e.target.value;page=1;renderView()});$('singleMinOdds').addEventListener('change',e=>{selMinOdds=e.target.value;page=1;renderView()});
 $('btnClearSingleFilters').addEventListener('click',()=>{selMinDev='0';selMinOdds='0';page=1;renderView()});
 $('btnMbBack').addEventListener('click',()=>selectMatch(null));
-$('btnMbTrend').addEventListener('click',()=>openTrend(selMatch+'|'+selMarket+'|'+effectivePeriod()));
+$('btnMbTrend').addEventListener('click',()=>{const tl=selectedPlayTL();if(tl)openTrend(tl.key)});
 $('btnSort').addEventListener('click',()=>{desc=!desc;page=1;renderTable()});
 $('pageSize').addEventListener('change',()=>{page=1;renderTable()});$('btnPrev').addEventListener('click',()=>{page--;renderTable()});$('btnNext').addEventListener('click',()=>{page++;renderTable()});
 
