@@ -1712,7 +1712,7 @@
       <a class="nav-item" href="#" aria-current="page"><span>▦</span> 投注接拒策略模拟分析</a>
       <a class="nav-item" href="滚球盘口数据提取.html"><span>▦</span> 滚球盘口数据提取</a>
       <div class="sidebar-bottom">
-        <i></i> 独立交互原型<small>本地演示数据 · V1.24</small>
+        <i></i> 独立交互原型<small>本地演示数据 · V1.27</small>
       </div>
     </aside>
     <div class="workspace">
@@ -1768,7 +1768,7 @@
                 id="leagueLevelControl"
                 onclick="openSelect('leagueLevel',this)"
               >
-                <span id="leagueLevelText">1级 · 最高</span><span>⌄</span>
+                <span id="leagueLevelText">1级</span><span>⌄</span>
               </button>
             </div>
             <div class="field">
@@ -1917,6 +1917,9 @@
                   onclick="openDrawer('unavailable')"
                 >
                   不可模拟明细 ↗
+                </button
+                ><button class="text-button" onclick="exportCurrentTask()">
+                  导出当前任务 ↗
                 </button>
               </div>
             </div>
@@ -2002,14 +2005,14 @@
             <div class="table-footer">
               <span id="compareFoot"></span
               ><span
-                >金额单位：<b class="currency-text">USD</b
+                >金额单位：<b class="currency-text">CNY</b
                 >　·　左右滚动查看完整指标 →</span
               >
             </div>
           </section>
         </div>
         <footer class="page-footer">
-          <span>PA Sports BI · 需求讨论原型 V1.24 · 2026-10-23</span
+          <span>PA Sports BI · 需求讨论原型 V1.27 · 2026-10-30</span
           ><button class="text-button" onclick="openDialog('demoSettings')">
             原型演示设置
           </button>
@@ -2092,10 +2095,8 @@
         </p>
         <h3>联赛等级与独立筛选</h3>
         <p>
-          联赛等级共 15 级，1 级最高、15
-          级最低，必须选择一个具体等级，不提供全部等级。赛种、联赛等级、联赛和赛事之间互不联动，切换任一字段不清空或限制其他字段。联赛与赛事下拉默认不展示候选项，输入名称或 ID 搜索后才展示匹配结果。五大联赛与欧冠设为
-          1
-          级；其余目录等级为本地演示映射，生产以系统联赛元数据为准。玩法集同样必选单选，玩法集及玩法选项由元数据动态返回，不在前端写死。任务保留提交时的等级及玩法，后续编辑不会改变已提交任务。
+          联赛等级由后台元数据动态返回，必须选择一个具体等级，不提供全部等级；前端不固定等级数量。赛种、联赛等级、联赛和赛事之间互不联动，切换任一字段不清空或限制其他字段。联赛仍采用搜索后展示；赛事与商户的搜索输入、候选、空态和清空交互参考货量分析报表。五大联赛与欧冠在演示数据中设为 1
+          级；其余目录等级为本地演示映射，生产等级数量、名称及排序以后台元数据为准。玩法集固定为进球类、角球类、罚牌类且必选单选，各玩法集下的玩法选项动态返回。任务保留提交时的等级及玩法，后续编辑不会改变已提交任务。
         </p>
         <h3>异步分析与结果快照</h3>
         <p>
@@ -2183,8 +2184,8 @@
           </select></label
         >
         <p>
-          本期仅支持足球。生产玩法集及玩法选项从元数据服务动态获取；原型以本地模拟响应展示进球、角球和罚牌三类。演示目录覆盖
-          1～15 级，足球五大联赛与欧冠为 1
+          本期仅支持足球。玩法集固定为进球、角球和罚牌三类，各玩法集下的玩法选项从元数据服务动态获取。演示目录覆盖
+          1～20 级作为动态元数据示例，足球五大联赛与欧冠为 1
           级，其余等级为本地示例映射。现有订单集中在前 3 个 1
           级联赛、每联赛前 6 场；其他等级可体验独立条件组合和无样本结果。
         </p>
@@ -2435,7 +2436,8 @@
       }));
       const merchantMap = new Map(MERCHANTS.map((m) => [m.id, m]));
       // User-defined business levels; other directory entries are demonstration mappings.
-      const LEAGUE_LEVELS = Array.from({ length: 15 }, (_, i) => i + 1);
+      // 离线原型模拟后台元数据响应；生产不得固定等级数量。
+      const LEAGUE_LEVELS = Array.from({ length: 20 }, (_, i) => i + 1);
       const leagueLevelLabel = (level) =>
         level === undefined || level === "all"
           ? "全部等级"
@@ -2456,7 +2458,7 @@
           return "本功能仅支持滚球注单，请使用滚球范围生成分析。";
         const level = f.leagueLevel;
         if (!LEAGUE_LEVELS.some((n) => String(n) === String(level)))
-          return "联赛等级为必选单选，请选择 1～15 级。";
+          return "联赛等级为必选单选，请选择后台返回的有效等级。";
         if (!f.group || !sportGroups().includes(f.group))
           return "玩法集为必选单选，请选择有效玩法集。";
         if (
@@ -2695,13 +2697,13 @@
               const bounds =
                 sport === "football"
                   ? g === "goal"
-                    ? currency === "USD"
+                    ? currency === "CNY"
                       ? [100001, 149999]
                       : [3201, 5199]
-                    : currency === "USD"
+                    : currency === "CNY"
                       ? [9501, 14999]
                       : [801, 1599]
-                  : currency === "USD"
+                  : currency === "CNY"
                     ? [4801, 7599]
                     : [801, 1599];
               const target =
@@ -2849,7 +2851,7 @@
         merchant: "all",
         status: "all",
         stage: "live",
-        currency: "USD",
+        currency: "CNY",
         start: "2026-08-01T00:00",
         end: "2026-08-31T23:59",
       });
@@ -3224,13 +3226,9 @@
       function renderFilters() {
         $("dateText").textContent =
           draft.start.replace("T", " ") + " ～ " + draft.end.replace("T", " ");
-        $("leagueLevelText").textContent =
-          leagueLevelLabel(draft.leagueLevel) +
-          (draft.leagueLevel === "1"
-            ? " · 最高"
-            : draft.leagueLevel === "15"
-              ? " · 最低"
-              : "");
+        $("leagueLevelText").textContent = leagueLevelLabel(
+          draft.leagueLevel,
+        );
         $("sportText").textContent = "足球";
         $("leagueText").textContent =
           draft.league === "all"
@@ -3287,7 +3285,7 @@
             return LEAGUE_LEVELS.map((n) => ({
               id: String(n),
               label:
-                n + "级" + (n === 1 ? " · 最高" : n === 15 ? " · 最低" : ""),
+                n + "级",
               sub:
                 LEAGUES.football.filter((l) => l.level === n).length +
                 " 个联赛" +
@@ -3354,7 +3352,7 @@
         anchor.setAttribute("aria-expanded", "true");
         optionLimit = 60;
         $("selectSearch").value = "";
-        $("selectSearch").placeholder = ["league", "event"].includes(type)
+        $("selectSearch").placeholder = type === "league"
           ? "输入名称或 ID，搜索后展示"
           : "搜索名称或 ID";
         $("selectPopup").hidden = false;
@@ -3378,7 +3376,7 @@
       }
       function matchingOptions() {
         const q = $("selectSearch").value.trim().toLowerCase();
-        if (["league", "event"].includes(dropdown.type) && !q) return [];
+        if (dropdown.type === "league" && !q) return [];
         return optionsFor(dropdown.type).filter((x) =>
           (x.label + " " + x.id + " " + x.sub).toLowerCase().includes(q),
         );
@@ -3388,7 +3386,7 @@
         const opts = matchingOptions(),
           multi = dropdown.type === "markets";
         const searchRequired =
-          ["league", "event"].includes(dropdown.type) &&
+          dropdown.type === "league" &&
           !$("selectSearch").value.trim();
         $("selectMeta").textContent = searchRequired
           ? "搜索后展示"
@@ -3780,6 +3778,10 @@
           taskPage + " / " + pages + " · 共 " + all.length + " 项";
         $("taskPrev").disabled = taskPage === 1;
         $("taskNext").disabled = taskPage === pages;
+        if (currentStats)
+          $("refreshConfig").disabled = tasks.some(
+            (task) => task.autoView && TASK_ACTIVE.includes(task.state),
+          );
         $("resultNotice").hidden = !currentStats;
         if (currentStats) {
           const viewed = getTask(resultTaskId),
@@ -3984,6 +3986,7 @@
               job.warning || fmt(rows.length) + " 笔订单 · 15 个偏移场景已生成",
           });
           toast(job.id + " 已完成，可在任务列表中查看结果");
+          if (job.autoView) viewTaskResult(job.id);
         } catch (e) {
           if (
             e.name !== "AbortError" &&
@@ -4163,13 +4166,18 @@
         );
       }
       function refreshConfiguration() {
-        if (!currentStats) return;
+        if (!currentStats || $("refreshConfig").disabled) return;
         const viewed = getTask(resultTaskId);
-        submitTask(
+        $("refreshConfig").disabled = true;
+        const job = submitTask(
           applied,
           viewed.configMode,
           executionMode === "slow" ? "slow" : "normal",
         );
+        if (job) {
+          job.autoView = true;
+          toast("已生成新任务 " + job.id + "，完成后自动展示结果");
+        } else $("refreshConfig").disabled = false;
       }
       function applyDemoMode() {
         configMode = $("demoMode").value;
@@ -4191,6 +4199,13 @@
         document
           .querySelectorAll(".currency-text")
           .forEach((el) => (el.textContent = applied.currency));
+        $("refreshConfig").textContent = "↻ 重新生成";
+        $("refreshConfig").disabled = tasks.some(
+          (task) => task.autoView && TASK_ACTIVE.includes(task.state),
+        );
+        $("refreshConfig").title = $("refreshConfig").disabled
+          ? "新任务生成中，完成后自动展示结果"
+          : "使用当前查看结果的条件重新读取配置并计算";
         renderStats();
         renderConfiguration();
         renderComparison();
@@ -4615,6 +4630,14 @@
           "</tr>";
         filterDetails();
         openDialog("detailDrawer");
+      }
+      function exportCurrentTask() {
+        if (!resultTaskId) return toast("请先查看一个已完成任务的结果。");
+        toast(
+          "已创建 " +
+            resultTaskId +
+            " 的导出任务（原型演示）；导出范围及字段待需求方确认。",
+        );
       }
       function category(r) {
         if (r.status !== "rejected" || !r.canReplay) return null;
