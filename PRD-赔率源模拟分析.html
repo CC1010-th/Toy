@@ -1,0 +1,3454 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>赔率源模拟分析 PRD</title><style>
+:root{color-scheme:light;--text:#243047;--muted:#6b778a;--line:#dfe5ee;--head:#f5f7fa;--accent:#1677ff;--note:#eef5ff;--bg:#f3f5f8;--paper:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;font-size:14px;line-height:1.75}
+.wrap{display:flex;gap:24px;max-width:1440px;margin:0 auto;padding:28px 24px}
+nav.toc{position:sticky;top:20px;align-self:flex-start;width:250px;flex:none;max-height:calc(100vh - 40px);overflow:auto;background:var(--paper);border:1px solid #e7ebf0;border-radius:10px;padding:16px 14px;font-size:12.5px}
+nav.toc b{display:block;font-size:13px;margin-bottom:8px;color:#16233a}
+nav.toc a{display:block;color:#4a5a70;text-decoration:none;padding:4px 6px;border-radius:5px;line-height:1.45}
+nav.toc a:hover{background:var(--note);color:var(--accent)}
+nav.toc a.l3{padding-left:18px;font-size:12px;color:var(--muted)}
+main{flex:1;min-width:0;background:var(--paper);border:1px solid #e7ebf0;border-radius:10px;box-shadow:0 8px 30px rgba(31,45,61,.06);padding:44px 52px 72px}
+h1{margin:0 0 24px;font-size:28px;line-height:1.35;color:#16233a}
+h2{margin:40px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--line);font-size:21px;color:#1e2b43;scroll-margin-top:16px}
+h3{margin:26px 0 12px;font-size:16.5px;color:#263650;scroll-margin-top:16px}
+h4{margin:20px 0 10px;font-size:15px}
+p{margin:10px 0}ul,ol{margin:8px 0 14px;padding-left:25px}li{margin:4px 0}
+.tbl{overflow-x:auto;margin:14px 0 22px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 11px;border:1px solid var(--line);text-align:left;vertical-align:top;word-break:break-word}
+th{background:var(--head);color:#344054;font-weight:600;white-space:nowrap}
+tr:nth-child(even) td{background:#fbfcfe}
+td[align=right],th[align=right]{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+code{padding:2px 5px;border-radius:4px;background:#f2f4f7;color:#344054;font-family:Consolas,"SFMono-Regular",monospace;font-size:.92em}
+pre{background:#f6f8fb;border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow:auto}
+pre code{background:none;padding:0}
+blockquote{margin:12px 0;padding:10px 16px;background:var(--note);border-left:3px solid var(--accent);color:#3d5276;border-radius:0 6px 6px 0}
+blockquote p{margin:4px 0}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+hr{border:0;border-top:1px dashed var(--line);margin:28px 0}
+.mermaid svg{max-width:560px!important;height:auto}
+.mermaid{background:#fbfcfe;border:1px solid var(--line);border-radius:8px;padding:12px;margin:14px 0;text-align:center}
+@media(max-width:1000px){nav.toc{display:none}.wrap{padding:0}main{border:0;border-radius:0;padding:28px 18px}table{font-size:12px}}
+@media print{body{background:#fff;font-size:12px}nav.toc{display:none}.wrap{padding:0;max-width:none}main{border:0;box-shadow:none;padding:0}h2{break-after:avoid}tr{break-inside:avoid}}
+</style></head><body><div class="wrap"><nav class="toc"><b>目录</b><a class="l2" href="#s1">1. 文档基准及使用方式</a><a class="l3" href="#s2">1.1 本文约定</a><a class="l3" href="#s3">1.2 需求编号</a><a class="l3" href="#s4">1.3 与投注接拒策略模拟分析的复用与差异</a><a class="l2" href="#s5">2. 范围、角色与术语</a><a class="l3" href="#s6">2.1 本期范围</a><a class="l3" href="#s7">2.2 角色与访问边界</a><a class="l3" href="#s8">2.3 术语</a><a class="l2" href="#s9">3. 页面结构与总体流程</a><a class="l3" href="#s10">3.1 页面区域</a><a class="l3" href="#s11">3.2 主流程</a><a class="l3" href="#s12">3.3 筛选编辑与结果查看分离</a><a class="l3" href="#s13">3.4 初始状态与区域显示</a><a class="l2" href="#s14">4. F-01：筛选</a><a class="l3" href="#s15">4.1 筛选字段</a><a class="l3" href="#s16">4.2 时间范围</a><a class="l3" href="#s17">4.3 联赛等级、联赛与赛事的关系</a><a class="l3" href="#s18">4.4 搜索、多选及校验</a><a class="l3" href="#s19">4.5 任务范围展示</a><a class="l2" href="#s20">5. F-02：异步任务与结果隔离</a><a class="l3" href="#s21">5.1 为什么必须异步</a><a class="l3" href="#s22">5.2 提交与去重</a><a class="l3" href="#s23">5.3 队列和并行</a><a class="l3" href="#s24">5.4 状态和操作矩阵</a><a class="l3" href="#s25">5.5 进度与阶段说明</a><a class="l3" href="#s26">5.6 任务列表及详情</a><a class="l3" href="#s27">5.7 查看结果、重试与重新生成</a><a class="l3" href="#s28">5.8 提交限制与结果复用</a><a class="l2" href="#s29">6. F-03：基础实际统计与覆盖</a><a class="l3" href="#s30">6.1 基础卡片</a><a class="l3" href="#s31">6.2 覆盖统计行</a><a class="l2" href="#s32">7. F-04：报价匹配与可模拟资格</a><a class="l3" href="#s33">7.1 匹配规则</a><a class="l3" href="#s34">7.2 未匹配原因</a><a class="l3" href="#s35">7.3 可模拟资格</a><a class="l2" href="#s36">8. F-05：统计口径与赔率口径</a><a class="l3" href="#s37">8.1 统计口径：各源覆盖样本</a><a class="l3" href="#s38">8.2 赔率口径：原始赔率</a><a class="l3" href="#s39">8.3 不可模拟与无法模拟</a><a class="l3" href="#s40">8.4 无法模拟注单的展示</a><a class="l2" href="#s41">9. F-06：计算口径</a><a class="l3" href="#s42">9.1 逐笔重算</a><a class="l3" href="#s43">9.2 汇总</a><a class="l3" href="#s44">9.3 结论判断</a><a class="l3" href="#s45">9.4 选择偏差</a><a class="l3" href="#s46">9.5 数据守恒与发布校验</a><a class="l2" href="#s47">10. F-07：赔率源对比表</a><a class="l3" href="#s48">10.1 行与列</a><a class="l3" href="#s49">10.2 区域操作与提示</a><a class="l2" href="#s50">11. F-08：维度拆分表</a><a class="l3" href="#s51">11.1 维度与排序</a><a class="l3" href="#s52">11.2 列与单元格</a><a class="l2" href="#s53">12. F-09：注单明细与匹配情况</a><a class="l3" href="#s54">12.1 定位：定位与抽查，不做全量浏览</a><a class="l3" href="#s55">12.2 入口及初始范围</a><a class="l3" href="#s56">12.3 显示字段（36 列，每列一个数据，按数据来源分组）</a><a class="l3" href="#s57">12.4 查找、筛选、排序与上限</a><a class="l3" href="#s58">12.5 生产实现要求</a><a class="l3" href="#s59">12.6 匹配规则与覆盖弹窗</a><a class="l2" href="#s60">13. F-10：异常、空态及反馈</a><a class="l2" href="#s61">14. 数据模型与接口逻辑契约</a><a class="l3" href="#s62">14.1 任务及结果模型</a><a class="l3" href="#s63">14.2 能力契约</a><a class="l3" href="#s64">14.3 提交示例</a><a class="l3" href="#s65">14.4 数值协议</a><a class="l3" href="#s66">14.5 报价匹配的实现</a><a class="l3" href="#s67">14.6 快照、一致性及重结算</a><a class="l3" href="#s68">14.7 数据来源与取数条件（依据注单数据字典）</a><a class="l3" href="#s69">14.8 模拟明细存储与保留（Doris）</a><a class="l2" href="#s70">15. 非功能要求与运行指标</a><a class="l3" href="#s71">15.1 性能及容量</a><a class="l3" href="#s72">15.2 安全、权限与审计</a><a class="l3" href="#s73">15.3 可靠性与可恢复性</a><a class="l3" href="#s74">15.4 展示与可用性</a><a class="l3" href="#s75">15.5 使用与质量指标</a><a class="l2" href="#s76">16. 验收矩阵</a><a class="l2" href="#s77">17. 交付、联调与发布</a><a class="l3" href="#s78">17.1 交付清单</a><a class="l3" href="#s79">17.2 联调顺序</a><a class="l3" href="#s80">17.3 发布条件</a><a class="l2" href="#s81">18. 待确认事项及当前处理</a><a class="l2" href="#s82">19. 附录：可复现演示基线</a><a class="l3" href="#s83">19.1 数据说明</a><a class="l3" href="#s84">19.2 默认对比表：各源覆盖样本 · 原始赔率</a><a class="l3" href="#s85">19.3 无法模拟原因（各源笔数）</a><a class="l3" href="#s86">19.4 拆分示例（每个源两列：盈利率差 / 覆盖率）</a></nav><main><h1>赔率源模拟分析 PRD｜产品需求文档（完整版）</h1>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>文档属性</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日期</td>
+<td>2026-11-03</td>
+</tr>
+<tr>
+<td>状态</td>
+<td>评审稿；用于功能、数据、研发及测试对齐</td>
+</tr>
+<tr>
+<td>页面基线</td>
+<td><a href="OddsSourceSimulation_Prototype.html">OddsSourceSimulation_Prototype.html</a></td>
+</tr>
+<tr>
+<td>业务文档</td>
+<td><a href="OddsSourceSimulation_MRD.html">OddsSourceSimulation_MRD.html</a></td>
+</tr>
+<tr>
+<td>参照功能</td>
+<td>投注接拒策略模拟分析（共用异步任务、结果隔离与明细框架）；货量分析（商户筛选）；滚球盘口数据提取（联赛 / 赛事筛选）</td>
+</tr>
+<tr>
+<td>产品入口</td>
+<td>体育数据报表 → 分析工作台 → 赔率源模拟分析</td>
+</tr>
+<tr>
+<td>适用读者</td>
+<td>产品、交互、前后端、数据、赔率接入、结算、操盘、测试及运维</td>
+</tr>
+<tr>
+<td>主要输入</td>
+<td>高保真原型的可见内容、交互与内置计算逻辑；赔率源表现与分配方案的业务讨论；主玩法、足球范围与赔率源代码确认；注单数据字典（基础变量）；口径确认（各源覆盖样本 + 原始赔率）；模拟明细存 Doris、最多保留 3 天；提交限制确认；使用人员为运营、风控，页面不展示统计区间；取数排除规则与筛选规则评审结论</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>本次修订</strong>：</p>
+<ul>
+<li>取数规则：在取数时排除提前结算注单（含部分提前结算）、测试商户注单；重结算注单取最终结算结果；有效注单沿用全系统统一口径（2.1、2.3、7.3、14.6、14.7）。</li>
+<li>筛选规则：联赛等级与联赛不联动；联赛与赛事相互独立、均不预加载、输入名称或 ID 后搜索、按交集生效；商户改为树形多选（沿用货量分析），勾选父商户包含全部下级（4.1～4.5、5.2、5.8、14.1、14.3）。</li>
+<li>页面：不展示辅助说明文字，口径与解读说明集中在「数据口径 / 计算规则 / 匹配情况」弹窗；当前查询结果以次要样式展示（3.1、6.1、9.4、10.1、10.2、11.2）。</li>
+<li>待确认项新增 D-09～D-17（D-11 已确认）；D-04、D-08 中已确认的部分写入正文（第 18 章）。</li>
+<li>演示数据与默认任务结果不变。</li>
+</ul>
+<h2 id="s1">1. 文档基准及使用方式</h2>
+<h3 id="s2">1.1 本文约定</h3>
+<p>本文完整定义页面、交互、计算及生产接入要求。各章节使用以下三种性质区分依据：</p>
+<ul>
+<li><strong>页面基线</strong>：高保真原型已呈现的功能、字段、交互及显示口径，实施时应保持一致。</li>
+<li><strong>生产要求</strong>：功能在真实系统运行所需的后台、快照、明细存储（Doris）、权限、恢复等能力。离线 HTML 未接入这些服务。</li>
+<li><strong>待确认口径</strong>：原型采用了演示假设、真实数据不足或需由现有系统定义的事项，在第 18 章以 D-01～D-17 编号归纳。</li>
+</ul>
+<p>接口名及数据模型是逻辑契约建议，不是已部署的 API。性能目标、保留周期和生产并发不以演示耗时替代容量评估。</p>
+<h3 id="s3">1.2 需求编号</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>功能域</th>
+<th>对应 MRD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F-01</td>
+<td>筛选</td>
+<td>BR-01、BR-02</td>
+</tr>
+<tr>
+<td>F-02</td>
+<td>多任务异步分析及结果隔离</td>
+<td>BR-08、BR-09</td>
+</tr>
+<tr>
+<td>F-03</td>
+<td>基础实际统计与覆盖</td>
+<td>BR-05</td>
+</tr>
+<tr>
+<td>F-04</td>
+<td>报价匹配与可模拟资格</td>
+<td>BR-03</td>
+</tr>
+<tr>
+<td>F-05</td>
+<td>统计口径与赔率口径</td>
+<td>BR-04</td>
+</tr>
+<tr>
+<td>F-06</td>
+<td>重算、汇总、差值与结论</td>
+<td>BR-06</td>
+</tr>
+<tr>
+<td>F-07</td>
+<td>赔率源对比表</td>
+<td>BR-06</td>
+</tr>
+<tr>
+<td>F-08</td>
+<td>维度拆分表</td>
+<td>BR-07</td>
+</tr>
+<tr>
+<td>F-09</td>
+<td>注单明细与匹配情况追溯</td>
+<td>BR-10</td>
+</tr>
+<tr>
+<td>F-10</td>
+<td>异常、权限和运行保障</td>
+<td>BR-11</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="s4">1.3 与投注接拒策略模拟分析的复用与差异</h3>
+<p>两个功能都在历史注单上做回放比较，并且都需要异步计算。研发应把相同部分抽为公共能力，不要各自实现一遍。</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>能力</th>
+<th>处理方式</th>
+<th>本功能的差异</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>页面框架、侧栏、筛选卡片、时间弹窗</td>
+<td>直接复用</td>
+<td>增加比赛阶段、对比赔率源两个筛选项；赛种固定为足球，只读显示</td>
+</tr>
+<tr>
+<td>联赛等级、联赛、赛事筛选</td>
+<td>联赛 / 赛事沿用滚球盘口数据提取的搜索选择</td>
+<td>不复用接拒模拟的级联：联赛等级、联赛、赛事相互独立，按交集生效（4.3）</td>
+</tr>
+<tr>
+<td>商户筛选</td>
+<td>沿用货量分析的商户选择</td>
+<td>树形多选，勾选父商户包含全部下级（4.1）</td>
+</tr>
+<tr>
+<td>玩法集 / 玩法联动</td>
+<td>复用组件</td>
+<td>玩法集固定为「主玩法」（6 个玩法），不关联事件时间；玩法选项标明全场 / 半场、投注项数与是否含盘口线</td>
+</tr>
+<tr>
+<td>异步任务中心（排队、3 项并行、取消、重试、详情、查看结果）</td>
+<td>直接复用任务契约与组件</td>
+<td>阶段名称改为「读取注单与快照 → 匹配报价并重算 → 校验并生成结果」；进度按「赔率源 + 注单分片」计</td>
+</tr>
+<tr>
+<td>结果隔离（任务快照、A→B→A 一致、不自动切换）</td>
+<td>直接复用</td>
+<td>快照引用增加赔率快照版本与匹配规则版本</td>
+</tr>
+<tr>
+<td>基础实际统计卡片</td>
+<td>复用布局</td>
+<td>样本改为单关正常单；保留实际平台盈亏绝对值（本功能需要盈利额）</td>
+</tr>
+<tr>
+<td>配置区（当前接拒配置）</td>
+<td>不复用</td>
+<td>不单独展示配置卡片；「匹配情况」入口放在对比表右上角，弹窗为「匹配规则与覆盖」</td>
+</tr>
+<tr>
+<td>统一比较表</td>
+<td>复用表格组件</td>
+<td>行从「15 个时间偏移」改为「实际赔率 + 各赔率源」；增加覆盖率、无法模拟与结论列；口径固定，不提供切换</td>
+</tr>
+<tr>
+<td>维度拆分表</td>
+<td>新增</td>
+<td>接拒模拟本期无此区域</td>
+</tr>
+<tr>
+<td>注单明细抽屉</td>
+<td>复用组件</td>
+<td>定位为“定位与抽查”：36 列按数据字典分组，每列一个数据；默认按盈亏差绝对值排序，最多显示前 10,000 笔；按编号精确查找；不导出</td>
+</tr>
+<tr>
+<td>原型演示设置</td>
+<td>复用</td>
+<td>演示「快照缺失 / 快照读取失败」，不再演示接拒配置模式</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="s5">2. 范围、角色与术语</h2>
+<h3 id="s6">2.1 本期范围</h3>
+<p>本功能以投注时间范围内<strong>足球主玩法</strong>的<strong>单关正常单</strong>作为验证样本。主玩法包括全场独赢、全场让分、全场大小、半场独赢、半场让分、半场大小，共 6 个玩法。对每笔可模拟注单，在每个所选赔率源的历史快照中取投注时点的报价，按原注单的投注额、投注项、盘口和赛果重新结算，比较各源模拟的平台盈亏、盈利率与历史实际的差异。</p>
+<p>包含以下内容：</p>
+<ul>
+<li>10 项业务筛选；赛种固定为足球；联赛等级、联赛、赛事相互独立。</li>
+<li>赔率源的报价匹配。源列表由赔率源配置决定，统一以代码展示；原型为 N01、N02、L01、L02 四个启用源。</li>
+<li>固定口径：统计口径为各源覆盖样本，赔率口径为原始赔率；每个源单独列出无法模拟的注单。</li>
+<li>基础实际统计与覆盖，赔率源对比表，5 个维度的拆分表。</li>
+<li>匹配规则与各源覆盖原因、未匹配集中度；用于定位与抽查的注单明细。</li>
+<li>多任务排队与并行、取消 / 重试、任务结果切换。</li>
+</ul>
+<p>不包含以下内容：</p>
+<ul>
+<li>足球以外的赛种（篮球、网球等）。</li>
+<li>主玩法以外的玩法（如角球、罚牌、波胆、半全场、单双、入球数等）。</li>
+<li>拒单与串关的回放；提前结算注单、测试商户注单（均在取数时排除，不计入不可模拟，见 7.3、14.7）。</li>
+<li>导出（含明细导出）、币种筛选；明细的全量浏览与名称模糊搜索。</li>
+<li>赔率源配置或分配比例的编辑与发布，以及自动执行分配方案。</li>
+<li>盘口线插值或跨线换算。</li>
+<li>统一水位口径与口径切换；收盘价（CLV）分析、会员分层筛选（见 MRD 后续规划）。</li>
+</ul>
+<p>「最佳表现源」仅为分析标注，不构成自动推荐或分配动作。</p>
+<h3 id="s7">2.2 角色与访问边界</h3>
+<p>操盘、风控、赔率运营及管理人员按现有系统授权使用。生产服务必须同时校验功能权限、任务访问权限和商户 / 租户数据范围；筛选“全部”表示权限范围内的全部。赔率源原始报价属于商业敏感数据，明细中的源报价字段应遵循赔率接入相关的数据权限（D-07）。</p>
+<h3 id="s8">2.3 术语</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>术语</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主玩法</td>
+<td>本期唯一的玩法集：全场独赢、全场让分、全场大小、半场独赢、半场让分、半场大小</td>
+</tr>
+<tr>
+<td>独赢</td>
+<td>不含盘口线的胜负玩法，为主胜 / 和局 / 客胜三项；全场按 90 分钟（含补时）赛果，半场按上半场赛果</td>
+</tr>
+<tr>
+<td>验证样本</td>
+<td>筛选范围内主玩法的单关正常单（已接单，含尚未结算）；拒单、串关、提前结算注单、测试商户注单不在样本内；结算结果为取消的注单是否计入见 D-17</td>
+</tr>
+<tr>
+<td>可模拟注单</td>
+<td>验证样本中已结算、结算明细完整、投注项 / 盘口映射完整的注单</td>
+</tr>
+<tr>
+<td>不可模拟注单</td>
+<td>验证样本中不满足上述条件的注单；保留在基础统计中，不参与任何源的重算</td>
+</tr>
+<tr>
+<td>实际赔率 / 实际赔率源</td>
+<td>注单下注时平台对玩家展示并成交的赔率，及该赔率所依据的源</td>
+</tr>
+<tr>
+<td>对比赔率源</td>
+<td>用户选择参与回放的赔率源，可包含注单的实际赔率源</td>
+</tr>
+<tr>
+<td>赔率源代码</td>
+<td>N01、N02、L01、L02 等；页面、任务、明细与文档统一以代码标识赔率源，不显示供应商名称</td>
+</tr>
+<tr>
+<td>报价匹配</td>
+<td>在某源快照中，找到与注单同赛事、同玩法、同盘口线、同投注项，且在投注时间之前、时差不超过容差的最后一次有效报价</td>
+</tr>
+<tr>
+<td>已匹配 / 未匹配</td>
+<td>某注单在某源是否匹配到报价；未匹配原因见 7.2</td>
+</tr>
+<tr>
+<td>原始赔率</td>
+<td>源对该投注项的报价换算为十进制赔率后的值，含该源自身水位；本期唯一赔率口径</td>
+</tr>
+<tr>
+<td>已模拟注单</td>
+<td>某源已匹配到报价并完成重算的可模拟注单</td>
+</tr>
+<tr>
+<td>无法模拟（按源）</td>
+<td>可模拟注单中，投注时缺少某源报价、对该源无法重算的注单；可模拟 = 已模拟 + 无法模拟</td>
+</tr>
+<tr>
+<td>各源覆盖样本</td>
+<td>每个源只用自己的已模拟注单统计；本期唯一统计口径</td>
+</tr>
+<tr>
+<td>覆盖率</td>
+<td>某源已模拟笔数 ÷ 可模拟笔数</td>
+</tr>
+<tr>
+<td>配对比较</td>
+<td>在同一批注单上，模拟盈亏与实际盈亏逐笔相减后汇总</td>
+</tr>
+<tr>
+<td>百分点</td>
+<td>两个百分比直接相减的单位，例如 4.32% − 3.49% = +0.83 个百分点</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="s9">3. 页面结构与总体流程</h2>
+<h3 id="s10">3.1 页面区域</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>区域</th>
+<th>页面内容</th>
+<th>关键行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>标题</td>
+<td>页面名称、演示数据标识、数据口径按钮</td>
+<td>打开口径弹窗</td>
+</tr>
+<tr>
+<td>查询条件</td>
+<td>时间、赛种、比赛阶段、等级、联赛、赛事、玩法集、玩法、商户、对比赔率源</td>
+<td>修改下一任务的条件；重置；生成分析</td>
+</tr>
+<tr>
+<td>分析任务</td>
+<td>并行计数、任务状态筛选、任务列表和分页</td>
+<td>初始隐藏，首次有效提交后展示；单项取消、重试、详情、查看结果</td>
+</tr>
+<tr>
+<td>当前任务提示</td>
+<td>正在查看的任务编号和范围</td>
+<td>定位当前任务</td>
+</tr>
+<tr>
+<td>当前查询结果</td>
+<td>4 张基础卡片、覆盖统计、2 个明细入口；以次要样式展示（字号小于对比表、浅色背景）</td>
+<td>内容属于当前查看的成功任务</td>
+</tr>
+<tr>
+<td>赔率源对比表</td>
+<td>右上角「匹配情况」「计算规则」「重新生成」；实际 + 各源共 N+1 行，17 列、每列一个数据；底部只标注金额单位</td>
+<td>倒数第二列查看已模拟注单，最后一列查询无法模拟注单</td>
+</tr>
+<tr>
+<td>维度拆分表</td>
+<td>5 个维度页签、矩阵表、分页</td>
+<td>切换维度；行内查看明细</td>
+</tr>
+<tr>
+<td>页脚</td>
+<td>原型演示设置</td>
+<td>本地演示快照异常 / 任务异常</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="s11">3.2 主流程</h3>
+<div class="mermaid"><svg id="my-svg" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="flowchart" style="max-width: 844.898px; background-color: transparent;" viewBox="0 0 844.8984375 1921.59375" role="graphics-document document" aria-roledescription="flowchart-v2"><style>#my-svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;fill:#333;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#my-svg .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#my-svg .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#my-svg .error-icon{fill:#552222;}#my-svg .error-text{fill:#552222;stroke:#552222;}#my-svg .edge-thickness-normal{stroke-width:1px;}#my-svg .edge-thickness-thick{stroke-width:3.5px;}#my-svg .edge-pattern-solid{stroke-dasharray:0;}#my-svg .edge-thickness-invisible{stroke-width:0;fill:none;}#my-svg .edge-pattern-dashed{stroke-dasharray:3;}#my-svg .edge-pattern-dotted{stroke-dasharray:2;}#my-svg .marker{fill:#333333;stroke:#333333;}#my-svg .marker.cross{stroke:#333333;}#my-svg svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;}#my-svg p{margin:0;}#my-svg .label{font-family:"trebuchet ms",verdana,arial,sans-serif;color:#333;}#my-svg .cluster-label text{fill:#333;}#my-svg .cluster-label span{color:#333;}#my-svg .cluster-label span p{background-color:transparent;}#my-svg .label text,#my-svg span{fill:#333;color:#333;}#my-svg .node rect,#my-svg .node circle,#my-svg .node ellipse,#my-svg .node polygon,#my-svg .node path{fill:#ECECFF;stroke:#9370DB;stroke-width:1px;}#my-svg .rough-node .label text,#my-svg .node .label text,#my-svg .image-shape .label,#my-svg .icon-shape .label{text-anchor:middle;}#my-svg .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#my-svg .rough-node .label,#my-svg .node .label,#my-svg .image-shape .label,#my-svg .icon-shape .label{text-align:center;}#my-svg .node.clickable{cursor:pointer;}#my-svg .root .anchor path{fill:#333333!important;stroke-width:0;stroke:#333333;}#my-svg .arrowheadPath{fill:#333333;}#my-svg .edgePath .path{stroke:#333333;stroke-width:1px;}#my-svg .flowchart-link{stroke:#333333;fill:none;}#my-svg .edgeLabel{background-color:rgba(232,232,232, 0.8);text-align:center;}#my-svg .edgeLabel p{background-color:rgba(232,232,232, 0.8);}#my-svg .edgeLabel rect{opacity:0.5;background-color:rgba(232,232,232, 0.8);fill:rgba(232,232,232, 0.8);}#my-svg .labelBkg{background-color:rgba(232, 232, 232, 0.5);}#my-svg .cluster rect{fill:#ffffde;stroke:#aaaa33;stroke-width:1px;}#my-svg .cluster text{fill:#333;}#my-svg .cluster span{color:#333;}#my-svg div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:12px;background:hsl(80, 100%, 96.2745098039%);border:1px solid #aaaa33;border-radius:2px;pointer-events:none;z-index:100;}#my-svg .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#333;}#my-svg rect.text{fill:none;stroke-width:0;}#my-svg .icon-shape,#my-svg .image-shape{background-color:rgba(232,232,232, 0.8);text-align:center;}#my-svg .icon-shape p,#my-svg .image-shape p{background-color:rgba(232,232,232, 0.8);padding:2px;}#my-svg .icon-shape .label rect,#my-svg .image-shape .label rect{opacity:0.5;background-color:rgba(232,232,232, 0.8);fill:rgba(232,232,232, 0.8);}#my-svg .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#my-svg .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#my-svg .node .neo-node{stroke:#9370DB;}#my-svg [data-look="neo"].node rect,#my-svg [data-look="neo"].cluster rect,#my-svg [data-look="neo"].node polygon{stroke:#9370DB;filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg [data-look="neo"].swimlane.cluster rect{filter:none;}#my-svg [data-look="neo"].node path{stroke:#9370DB;stroke-width:1px;}#my-svg [data-look="neo"].node .outer-path{filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg [data-look="neo"].node .neo-line path{stroke:#9370DB;filter:none;}#my-svg [data-look="neo"].node circle{stroke:#9370DB;filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg [data-look="neo"].node circle .state-start{fill:#000000;}#my-svg [data-look="neo"].icon-shape .icon{fill:#9370DB;filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg [data-look="neo"].icon-shape .icon-neo path{stroke:#9370DB;filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}</style><g><marker id="my-svg_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"/></marker><marker id="my-svg_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"/></marker><g class="root"><g class="clusters"/><g class="edgePaths"><path d="M342.5,62L342.5,66.167C342.5,70.333,342.5,78.667,342.5,86.333C342.5,94,342.5,101,342.5,104.5L342.5,108" id="my-svg-L_Z_A_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_Z_A_0" data-points="W3sieCI6MzQyLjUsInkiOjYyfSx7IngiOjM0Mi41LCJ5Ijo4N30seyJ4IjozNDIuNSwieSI6MTEyfV0=" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M297.327,166L290.356,170.167C283.385,174.333,269.442,182.667,262.471,190.333C255.5,198,255.5,205,255.5,208.5L255.5,212" id="my-svg-L_A_K_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_A_K_0" data-points="W3sieCI6Mjk3LjMyNjkyMzA3NjkyMzEsInkiOjE2Nn0seyJ4IjoyNTUuNSwieSI6MTkxfSx7IngiOjI1NS41LCJ5IjoyMTZ9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M255.5,270L255.5,274.167C255.5,278.333,255.5,286.667,255.5,294.333C255.5,302,255.5,309,255.5,312.5L255.5,316" id="my-svg-L_K_B_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_K_B_0" data-points="W3sieCI6MjU1LjUsInkiOjI3MH0seyJ4IjoyNTUuNSwieSI6Mjk1fSx7IngiOjI1NS41LCJ5IjozMjB9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M219.953,402.453L201.628,414.545C183.302,426.636,146.651,450.818,128.326,487.076C110,523.333,110,571.667,110,595.833L110,620" id="my-svg-L_B_C_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_B_C_0" data-points="W3sieCI6MjE5Ljk1MzQxNjE0OTA2ODMyLCJ5Ijo0MDIuNDUzNDE2MTQ5MDY4MzV9LHsieCI6MTEwLCJ5Ijo0NzV9LHsieCI6MTEwLCJ5Ijo2MjR9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M291.047,402.453L309.372,414.545C327.698,426.636,364.349,450.818,382.674,468.409C401,486,401,497,401,502.5L401,508" id="my-svg-L_B_R_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_B_R_0" data-points="W3sieCI6MjkxLjA0NjU4Mzg1MDkzMTY1LCJ5Ijo0MDIuNDUzNDE2MTQ5MDY4MzV9LHsieCI6NDAxLCJ5Ijo0NzV9LHsieCI6NDAxLCJ5Ijo1MTJ9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M342.342,731.342L330.701,747.285C319.061,763.228,295.781,795.114,284.14,838.023C272.5,880.932,272.5,934.865,272.5,988.797C272.5,1042.729,272.5,1096.661,272.5,1134.294C272.5,1171.927,272.5,1193.26,272.5,1212.594C272.5,1231.927,272.5,1249.26,272.5,1266.594C272.5,1283.927,272.5,1301.26,272.5,1318.594C272.5,1335.927,272.5,1353.26,272.5,1370.594C272.5,1387.927,272.5,1405.26,272.5,1422.594C272.5,1439.927,272.5,1457.26,272.5,1474.594C272.5,1491.927,272.5,1509.26,272.5,1526.594C272.5,1543.927,272.5,1561.26,289.12,1573.937C305.739,1586.614,338.978,1594.635,355.598,1598.645L372.217,1602.655" id="my-svg-L_R_H_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_R_H_0" data-points="W3sieCI6MzQyLjM0MTU0MzUxMzk1NzMzLCJ5Ijo3MzEuMzQxNTQzNTEzOTU3M30seyJ4IjoyNzIuNSwieSI6ODI3fSx7IngiOjI3Mi41LCJ5Ijo5ODguNzk2ODc1fSx7IngiOjI3Mi41LCJ5IjoxMTUwLjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxMjE0LjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxMjY2LjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxMzE4LjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxMzcwLjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxNDIyLjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxNDc0LjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxNTI2LjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxNTc4LjU5Mzc1fSx7IngiOjM3Ni4xMDU3NjkyMzA3NjkyLCJ5IjoxNjAzLjU5Mzc1fV0=" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M444.4,746.6L450.483,760C456.566,773.4,468.732,800.2,474.815,819.1C480.898,838,480.898,849,480.898,854.5L480.898,860" id="my-svg-L_R_L_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_R_L_0" data-points="W3sieCI6NDQ0LjM5OTU3MjU4NDMzODMsInkiOjc0Ni42MDA0Mjc0MTU2NjE4fSx7IngiOjQ4MC44OTg0Mzc1LCJ5Ijo4Mjd9LHsieCI6NDgwLjg5ODQzNzUsInkiOjg2NH1d" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M448.811,1081.506L444.825,1093.021C440.84,1104.535,432.869,1127.564,428.884,1144.579C424.898,1161.594,424.898,1172.594,424.898,1178.094L424.898,1183.594" id="my-svg-L_L_C2_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_L_C2_0" data-points="W3sieCI6NDQ4LjgxMDYyNjMyMjcyNzYsInkiOjEwODEuNTA1OTM4ODIyNzI3Nn0seyJ4Ijo0MjQuODk4NDM3NSwieSI6MTE1MC41OTM3NX0seyJ4Ijo0MjQuODk4NDM3NSwieSI6MTE4Ny41OTM3NX1d" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M539.449,1055.043L553.524,1070.968C567.599,1086.894,595.749,1118.744,617.669,1140.44C639.59,1162.137,655.282,1173.68,663.127,1179.452L670.973,1185.223" id="my-svg-L_L_D_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_L_D_0" data-points="W3sieCI6NTM5LjQ0ODc1Mjc3MTQ0MSwieSI6MTA1NS4wNDM0MzQ3Mjg1NTl9LHsieCI6NjIzLjg5ODQzNzUsInkiOjExNTAuNTkzNzV9LHsieCI6Njc0LjE5NTMxMjUsInkiOjExODcuNTkzNzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M710.898,1241.594L710.898,1245.76C710.898,1249.927,710.898,1258.26,710.898,1265.927C710.898,1273.594,710.898,1280.594,710.898,1284.094L710.898,1287.594" id="my-svg-L_D_E_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_D_E_0" data-points="W3sieCI6NzEwLjg5ODQzNzUsInkiOjEyNDEuNTkzNzV9LHsieCI6NzEwLjg5ODQzNzUsInkiOjEyNjYuNTkzNzV9LHsieCI6NzEwLjg5ODQzNzUsInkiOjEyOTEuNTkzNzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M710.898,1345.594L710.898,1349.76C710.898,1353.927,710.898,1362.26,710.898,1369.927C710.898,1377.594,710.898,1384.594,710.898,1388.094L710.898,1391.594" id="my-svg-L_E_F_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_E_F_0" data-points="W3sieCI6NzEwLjg5ODQzNzUsInkiOjEzNDUuNTkzNzV9LHsieCI6NzEwLjg5ODQzNzUsInkiOjEzNzAuNTkzNzV9LHsieCI6NzEwLjg5ODQzNzUsInkiOjEzOTUuNTkzNzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M710.898,1449.594L710.898,1453.76C710.898,1457.927,710.898,1466.26,710.898,1473.927C710.898,1481.594,710.898,1488.594,710.898,1492.094L710.898,1495.594" id="my-svg-L_F_G_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_F_G_0" data-points="W3sieCI6NzEwLjg5ODQzNzUsInkiOjE0NDkuNTkzNzV9LHsieCI6NzEwLjg5ODQzNzUsInkiOjE0NzQuNTkzNzV9LHsieCI6NzEwLjg5ODQzNzUsInkiOjE0OTkuNTkzNzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M710.898,1553.594L710.898,1557.76C710.898,1561.927,710.898,1570.26,693.687,1578.442C676.476,1586.624,642.054,1594.655,624.842,1598.67L607.631,1602.685" id="my-svg-L_G_H_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_G_H_0" data-points="W3sieCI6NzEwLjg5ODQzNzUsInkiOjE1NTMuNTkzNzV9LHsieCI6NzEwLjg5ODQzNzUsInkiOjE1NzguNTkzNzV9LHsieCI6NjAzLjczNTcyNzE2MzQ2MTUsInkiOjE2MDMuNTkzNzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M488,1657.594L488,1661.76C488,1665.927,488,1674.26,488,1681.927C488,1689.594,488,1696.594,488,1700.094L488,1703.594" id="my-svg-L_H_I_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_H_I_0" data-points="W3sieCI6NDg4LCJ5IjoxNjU3LjU5Mzc1fSx7IngiOjQ4OCwieSI6MTY4Mi41OTM3NX0seyJ4Ijo0ODgsInkiOjE3MDcuNTkzNzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M488,1785.594L488,1789.76C488,1793.927,488,1802.26,488,1809.927C488,1817.594,488,1824.594,488,1828.094L488,1831.594" id="my-svg-L_I_J_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_I_J_0" data-points="W3sieCI6NDg4LCJ5IjoxNzg1LjU5Mzc1fSx7IngiOjQ4OCwieSI6MTgxMC41OTM3NX0seyJ4Ijo0ODgsInkiOjE4MzUuNTkzNzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M716.805,1187.594L718.154,1181.427C719.503,1175.26,722.201,1162.927,723.549,1129.794C724.898,1096.661,724.898,1042.729,724.898,988.797C724.898,934.865,724.898,880.932,724.898,824.633C724.898,768.333,724.898,709.667,724.898,651C724.898,592.333,724.898,533.667,724.898,488.333C724.898,443,724.898,411,724.898,381C724.898,351,724.898,323,724.898,300.333C724.898,277.667,724.898,260.333,724.898,243C724.898,225.667,724.898,208.333,674.826,192.858C624.753,177.382,524.608,163.764,474.536,156.955L424.464,150.146" id="my-svg-L_D_A_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_D_A_0" data-points="W3sieCI6NzE2LjgwNDY4NzUsInkiOjExODcuNTkzNzV9LHsieCI6NzI0Ljg5ODQzNzUsInkiOjExNTAuNTkzNzV9LHsieCI6NzI0Ljg5ODQzNzUsInkiOjk4OC43OTY4NzV9LHsieCI6NzI0Ljg5ODQzNzUsInkiOjgyN30seyJ4Ijo3MjQuODk4NDM3NSwieSI6NjUxfSx7IngiOjcyNC44OTg0Mzc1LCJ5Ijo0NzV9LHsieCI6NzI0Ljg5ODQzNzUsInkiOjM3OX0seyJ4Ijo3MjQuODk4NDM3NSwieSI6Mjk1fSx7IngiOjcyNC44OTg0Mzc1LCJ5IjoyNDN9LHsieCI6NzI0Ljg5ODQzNzUsInkiOjE5MX0seyJ4Ijo0MjAuNSwieSI6MTQ5LjYwNjczNzkwMDE3NzczfV0=" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="L_Z_A_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_A_K_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_K_B_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(110, 475)"><g class="label" data-id="L_B_C_0" transform="translate(-8, -12)"><foreignObject width="16" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>否</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(401, 475)"><g class="label" data-id="L_B_R_0" transform="translate(-8, -12)"><foreignObject width="16" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>是</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(272.5, 1318.59375)"><g class="label" data-id="L_R_H_0" transform="translate(-8, -12)"><foreignObject width="16" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>是</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(480.8984375, 827)"><g class="label" data-id="L_R_L_0" transform="translate(-8, -12)"><foreignObject width="16" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>否</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(424.8984375, 1150.59375)"><g class="label" data-id="L_L_C2_0" transform="translate(-8, -12)"><foreignObject width="16" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>否</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(602.34883, 1126.21151)"><g class="label" data-id="L_L_D_0" transform="translate(-8, -12)"><foreignObject width="16" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>是</p></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_D_E_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_E_F_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_F_G_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_G_H_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_H_I_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_I_J_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_D_A_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g></g><g class="nodes"><g class="node default" id="my-svg-flowchart-Z-0" data-look="classic" transform="translate(342.5, 35)"><rect class="basic label-container" style="" x="-112.2265625" y="-27" width="224.453125" height="54"/><g class="label" style="" transform="translate(-82.2265625, -12)"><rect/><foreignObject width="164.453125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>进入页面 仅初始化筛选</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-A-1" data-look="classic" transform="translate(342.5, 139)"><rect class="basic label-container" style="" x="-78" y="-27" width="156" height="54"/><g class="label" style="" transform="translate(-48, -12)"><rect/><foreignObject width="96" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>编辑筛选条件</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-K-3" data-look="classic" transform="translate(255.5, 243)"><rect class="basic label-container" style="" x="-94" y="-27" width="188" height="54"/><g class="label" style="" transform="translate(-64, -12)"><rect/><foreignObject width="128" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>用户点击生成分析</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-B-5" data-look="classic" transform="translate(255.5, 379)"><polygon points="59,0 118,-59 59,-118 0,-59" class="label-container" transform="translate(-58.5, 59)"/><g class="label" style="" transform="translate(-32, -12)"><rect/><foreignObject width="64" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>校验通过</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-C-7" data-look="classic" transform="translate(110, 651)"><rect class="basic label-container" style="" x="-102" y="-27" width="204" height="54"/><g class="label" style="" transform="translate(-72, -12)"><rect/><foreignObject width="144" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>保留编辑并提示原因</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-R-9" data-look="classic" transform="translate(401, 651)"><polygon points="139,0 278,-139 139,-278 0,-139" class="label-container" transform="translate(-138.5, 139)"/><g class="label" style="" transform="translate(-100, -24)"><rect/><foreignObject width="200" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>3 天内有相同条件的成功结果</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-H-11" data-look="classic" transform="translate(488, 1630.59375)"><rect class="basic label-container" style="" x="-126" y="-27" width="252" height="54"/><g class="label" style="" transform="translate(-96, -12)"><rect/><foreignObject width="192" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>用户点击对应任务查看结果</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-L-13" data-look="classic" transform="translate(480.8984375, 988.796875)"><polygon points="124.796875,0 249.59375,-124.796875 124.796875,-249.59375 0,-124.796875" class="label-container" transform="translate(-124.296875, 124.796875)"/><g class="label" style="" transform="translate(-97.796875, -12)"><rect/><foreignObject width="195.59375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>未超 500 万笔且有当日配额</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-C2-15" data-look="classic" transform="translate(424.8984375, 1214.59375)"><rect class="basic label-container" style="" x="-110" y="-27" width="220" height="54"/><g class="label" style="" transform="translate(-80, -12)"><rect/><foreignObject width="160" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>提示原因，不创建任务</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-D-17" data-look="classic" transform="translate(710.8984375, 1214.59375)"><rect class="basic label-container" style="" x="-126" y="-27" width="252" height="54"/><g class="label" style="" transform="translate(-96, -12)"><rect/><foreignObject width="192" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>生成独立任务并显示任务区</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-E-19" data-look="classic" transform="translate(710.8984375, 1318.59375)"><rect class="basic label-container" style="" x="-104.2265625" y="-27" width="208.453125" height="54"/><g class="label" style="" transform="translate(-74.2265625, -12)"><rect/><foreignObject width="148.453125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>排队 读取注单与快照</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-F-21" data-look="classic" transform="translate(710.8984375, 1422.59375)"><rect class="basic label-container" style="" x="-112.2265625" y="-27" width="224.453125" height="54"/><g class="label" style="" transform="translate(-82.2265625, -12)"><rect/><foreignObject width="164.453125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>逐源匹配报价 分片重算</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-G-23" data-look="classic" transform="translate(710.8984375, 1526.59375)"><rect class="basic label-container" style="" x="-102" y="-27" width="204" height="54"/><g class="label" style="" transform="translate(-72, -12)"><rect/><foreignObject width="144" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>守恒校验并发布结果</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-I-27" data-look="classic" transform="translate(488, 1746.59375)"><rect class="basic label-container" style="" x="-130" y="-39" width="260" height="78"/><g class="label" style="" transform="translate(-100, -24)"><rect/><foreignObject width="200" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>整体应用 基础统计 匹配规则 对比表 拆分表</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-J-29" data-look="classic" transform="translate(488, 1874.59375)"><rect class="basic label-container" style="" x="-130" y="-39" width="260" height="78"/><g class="label" style="" transform="translate(-100, -24)"><rect/><foreignObject width="200" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>切换维度 查看明细与匹配情况</p></span></div></foreignObject></g></g></g></g></g><defs><filter id="my-svg-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"/></filter></defs><defs><filter id="my-svg-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"/></filter></defs></svg></div>
+
+<h3 id="s12">3.3 筛选编辑与结果查看分离</h3>
+<p>页面维护三个独立对象：正在编辑的筛选、各任务已提交条件、当前查看结果的任务 ID。</p>
+<ul>
+<li>用户修改筛选不改变已提交的任务。</li>
+<li>任务完成不自动更换报表。</li>
+<li>点击「查看结果」不反向覆盖筛选区的编辑。</li>
+</ul>
+<p>首次打开页面只初始化框架、说明、筛选控件和默认值，分析区域保持空白。此时不提交任务、不查询注单、不读取赔率快照，也不启动进度轮询。原型的随机注单与报价快照同样延迟到首次有效任务读取数据时才生成。</p>
+<p>首次点击「生成分析」并通过校验后，创建任务并展示任务列表与等待提示。任务成功后，用户点击该任务的「查看结果」，才显示基础统计、匹配规则、对比表、拆分表和明细入口。校验失败只在筛选区提示，不生成任务，也不显示分析区。</p>
+<p>以下操作都不触发计算：修改或重置筛选、打开或关闭数据口径与演示设置、切换维度页签。演示设置中的「应用并生成分析」是明确的手动提交入口，遵循同样的校验与展示规则。</p>
+<h3 id="s13">3.4 初始状态与区域显示</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>页面状态</th>
+<th>任务区</th>
+<th>等待 / 结果提示</th>
+<th>报表区</th>
+<th>计算行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>首次进入，无任务</td>
+<td>隐藏</td>
+<td>隐藏</td>
+<td>隐藏</td>
+<td>不查询注单或快照</td>
+</tr>
+<tr>
+<td>仅编辑 / 重置，或首次提交校验失败</td>
+<td>隐藏</td>
+<td>隐藏；错误只在筛选区显示</td>
+<td>隐藏</td>
+<td>不创建任务</td>
+</tr>
+<tr>
+<td>首次有效提交，排队或计算中</td>
+<td>显示</td>
+<td>显示等待状态</td>
+<td>隐藏</td>
+<td>独立异步执行</td>
+</tr>
+<tr>
+<td>已成功，但尚未查看</td>
+<td>显示</td>
+<td>提示点击「查看结果」</td>
+<td>隐藏</td>
+<td>不自动切换、不重算</td>
+</tr>
+<tr>
+<td>首个任务失败 / 已取消</td>
+<td>保留记录</td>
+<td>显示暂无结果及重试提示</td>
+<td>隐藏</td>
+<td>用户主动重试</td>
+</tr>
+<tr>
+<td>已查看成功结果</td>
+<td>显示</td>
+<td>显示当前结果所属任务</td>
+<td>显示该任务完整快照</td>
+<td>新任务不覆盖当前结果</td>
+</tr>
+</tbody>
+</table></div>
+<p>不得用 0 值卡片、默认覆盖率或示例报表填充尚未生成的分析区。</p>
+<p>页面不展示辅助说明文字（区块说明段落、字段旁的固定提示、表格底部的长说明、分页说明）。口径、规则与解读说明集中在「数据口径」「计算规则」「匹配情况」弹窗中；状态类文字（筛选是否已修改、任务进度、当前查看的任务、空态与操作提示）照常显示。</p>
+<h2 id="s14">4. F-01：筛选</h2>
+<h3 id="s15">4.1 筛选字段</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>组件 / 选项</th>
+<th>原型默认</th>
+<th>行为与校验</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>投注时间</td>
+<td>时间范围弹窗，精确到分钟，UTC+8</td>
+<td>2026-09-01 00:00～2026-09-30 23:59</td>
+<td>必填；开始不晚于结束；包含结束分钟；最多 62 天</td>
+</tr>
+<tr>
+<td>赛种</td>
+<td>只读显示，标注「本期仅足球」</td>
+<td>足球</td>
+<td>本期固定，不可切换；保留字段位置以便后续扩展其他赛种</td>
+</tr>
+<tr>
+<td>比赛阶段</td>
+<td>下拉：全部阶段、赛前、滚球</td>
+<td>全部阶段</td>
+<td>只过滤注单阶段；两种阶段使用不同报价容差</td>
+</tr>
+<tr>
+<td>联赛等级</td>
+<td>搜索单选：全部、1～15 级</td>
+<td>全部等级</td>
+<td>1 级最高；与联赛、赛事不联动（4.3）</td>
+</tr>
+<tr>
+<td>联赛</td>
+<td>搜索单选，不预加载；输入联赛名称或 ID 后展示结果</td>
+<td>全部联赛</td>
+<td>候选为当前赛种全部联赛，不按等级过滤；选择或切换不影响已选赛事（4.3）</td>
+</tr>
+<tr>
+<td>赛事</td>
+<td>搜索单选，不预加载；输入赛事名称或 ID 后展示结果</td>
+<td>全部赛事</td>
+<td>候选为当前赛种全部赛事，不按联赛过滤；选择后不反向限定联赛（4.3）</td>
+</tr>
+<tr>
+<td>玩法集</td>
+<td>搜索单选；本期只有「主玩法」</td>
+<td>主玩法</td>
+<td>保留控件以便后续增加玩法集；切换后玩法改为该集合全部玩法</td>
+</tr>
+<tr>
+<td>玩法</td>
+<td>搜索多选，6 项</td>
+<td>主玩法全部 6 个玩法</td>
+<td>至少一项；只能是主玩法 6 项</td>
+</tr>
+<tr>
+<td>商户</td>
+<td>树形多选（沿用货量分析）</td>
+<td>全部商户（未选）</td>
+<td>默认展示一级商户，按实际父子结构逐级展开；按名称 / 编号搜索；已选商户以标签列出，可删除单项或清空；勾选父商户时查询范围包含其全部层级的下级商户，下级随之显示为已选；未选即全部商户；选项须经权限过滤</td>
+</tr>
+<tr>
+<td>对比赔率源</td>
+<td>搜索多选，按代码展示（原型 4 个）</td>
+<td>全部启用源</td>
+<td>至少一项；可包含注单的实际赔率源；按固定源顺序保存</td>
+</tr>
+</tbody>
+</table></div>
+<p>本期不提供「实际赔率源」筛选。需要观察某个源承接的注单时，使用维度拆分的「按实际赔率源」，或在明细中查看「实际赔率源」列。</p>
+<p>主玩法 6 个玩法及其投注项如下。玩法按此顺序展示，也是维度拆分「按玩法」的行顺序。</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>玩法</th>
+<th>投注项</th>
+<th>盘口线</th>
+<th>半赢半输 / 走水</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全场独赢</td>
+<td>主胜 / 和局 / 客胜（3 项）</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td>全场让分</td>
+<td>主队 / 客队</td>
+<td>有；含 0.25 / 0.75 分盘</td>
+<td>四分之一盘半赢半输；整数盘走水</td>
+</tr>
+<tr>
+<td>全场大小</td>
+<td>大 / 小</td>
+<td>有；含 0.25 / 0.75 分盘</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>半场独赢</td>
+<td>主胜 / 和局 / 客胜（3 项）</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td>半场让分</td>
+<td>主队 / 客队</td>
+<td>有</td>
+<td>同全场让分</td>
+</tr>
+<tr>
+<td>半场大小</td>
+<td>大 / 小</td>
+<td>有</td>
+<td>同全场大小</td>
+</tr>
+</tbody>
+</table></div>
+<p>「让分」为平台统一叫法，即足球让球。生产以系统玩法元数据为准（D-05）。</p>
+<p>页面没有币种筛选，原型金额为 USD，生产币种策略见 D-06。筛选区底部右侧显示“今日任务 x / 10 · 单任务上限 500 万笔”（5.8）。商户类型、分类、等级、风险等级等商户风控标签筛选是否增加见 D-14。</p>
+<h3 id="s16">4.2 时间范围</h3>
+<ul>
+<li>界面输入使用 UTC+8；传输应携带时区或使用统一 UTC 时刻。</li>
+<li>查询区间为 <code>[开始分钟起点, 结束分钟起点 + 60 秒)</code>。</li>
+<li>有效区间不超过 62 × 24 小时。反向、空值、无法解析的时间均不能应用。</li>
+<li>快捷项为今天、最近 7 天、最近 30 天、最近 60 天、本月、演示月份。</li>
+<li>「应用时间」只修改筛选草稿，「取消」不修改原值。</li>
+</ul>
+<p>62 天上限为本期规则，沿用接拒模拟。若业务需要按整个赛季比较，需结合单任务注单上限与明细存储量评估（14.8）后再放宽，不能放宽后同步计算（D-08）。</p>
+<h3 id="s17">4.3 联赛等级、联赛与赛事的关系</h3>
+<p>联赛等级、联赛、赛事是三个相互独立的筛选条件：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>等级</th>
+<th>联赛</th>
+<th>赛事</th>
+<th>玩法体系</th>
+<th>其他</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>切换等级（含切回全部）</td>
+<td>应用新值</td>
+<td>保留</td>
+<td>保留</td>
+<td>保留</td>
+<td>保留</td>
+</tr>
+<tr>
+<td>选择或切换联赛</td>
+<td>保留</td>
+<td>应用新值</td>
+<td>保留（不清空、不改写、不过滤）</td>
+<td>保留</td>
+<td>保留</td>
+</tr>
+<tr>
+<td>选择赛事</td>
+<td>保留</td>
+<td>保留（不反向限定）</td>
+<td>应用新值</td>
+<td>保留</td>
+<td>保留</td>
+</tr>
+<tr>
+<td>切换玩法集</td>
+<td>保留</td>
+<td>保留</td>
+<td>保留</td>
+<td>清除旧玩法，选择新集合全部玩法</td>
+<td>保留</td>
+</tr>
+<tr>
+<td>点击重置</td>
+<td>全部</td>
+<td>全部</td>
+<td>全部</td>
+<td>足球主玩法全部 6 个玩法</td>
+<td>全部阶段、全部商户、全部启用源</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>联赛、赛事下拉均不预加载，打开时只提示输入；输入名称或 ID 后才展示搜索结果。</li>
+<li>查询时，联赛等级、联赛、赛事按 AND（取交集）生效。</li>
+<li>允许选择"不属于该联赛"或"不属于该等级"的组合；组合后没有匹配数据时正常返回空结果，不提示级联关系错误。</li>
+<li>服务端只校验联赛 ID、赛事 ID 本身是否合法，不校验"赛事必须属于所选联赛""联赛必须属于所选等级"。</li>
+</ul>
+<p>足球五大联赛与欧冠为 1 级；其余等级是演示映射，生产使用真实联赛元数据。</p>
+<h3 id="s18">4.4 搜索、多选及校验</h3>
+<ul>
+<li>联赛、赛事输入名称或 ID 后搜索，候选为当前赛种全部联赛 / 赛事；商户按名称或编号搜索，搜索结果显示上级路径。原型每次显示最多 60 项（商户 100 项），可加载更多或继续输入缩小范围。</li>
+<li>多选（玩法、对比赔率源）支持「全选搜索结果」「清空」，提交时不能为空；商户多选可为空（表示全部商户）。</li>
+<li>提交前与服务端均校验：等级枚举、联赛 ID 与赛事 ID 本身合法（不校验相互归属）、商户 ID 合法、玩法集所属赛种、玩法所属集合、对比赔率源枚举与启用状态、商户权限、时间区间。</li>
+<li>修改条件只用于新任务；重置只恢复草稿，不提交任务、不取消现有任务。</li>
+</ul>
+<h3 id="s19">4.5 任务范围展示</h3>
+<p>任务标题为「玩法集 · 阶段 · 等级 · 联赛 · N 个源」；只选部分玩法时为「主玩法（N 个玩法）」，提交条件中列出所选玩法名称。任务条件、详情与已应用范围展示全部条件，包括所选商户（注明含下级）和对比源名单。「全部等级」与「1 级」、对比源集合不同，都是不同的任务条件。重试和重新生成保留原条件。</p>
+<h2 id="s20">5. F-02：异步任务与结果隔离</h2>
+<h3 id="s21">5.1 为什么必须异步</h3>
+<p>赔率源回放的计算量明显大于接拒模拟，主要来自报价匹配：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>计算特点</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读取注单</td>
+<td>足球主玩法单月可达十万级，赛季级更多</td>
+<td>与接拒模拟相当</td>
+</tr>
+<tr>
+<td>报价匹配</td>
+<td>每笔注单 × 每个源，按赛事 + 玩法 + 盘口线 + 投注项定位，再在时间轴上找投注时间之前最后一条报价；滚球报价按秒级更新，快照体量远大于注单</td>
+<td>主要耗时，随源数线性增长</td>
+</tr>
+<tr>
+<td>重算与汇总</td>
+<td>每笔已匹配注单 × 每个源 × (总表 + 5 个维度)</td>
+<td>计算密集但可分片合并</td>
+</tr>
+<tr>
+<td>守恒校验</td>
+<td>覆盖原因、样本、拆分盈亏逐项对账</td>
+<td>发布前必须完成</td>
+</tr>
+</tbody>
+</table></div>
+<p>因此本功能沿用接拒模拟的异步任务契约：提交即返回任务 ID；后台分阶段执行，支持取消检查点；结果原子发布；用户主动查看。匹配在任务内按分组 as-of 归并完成（14.5），逐笔结果写入 Doris 明细表并最多保留 3 天（14.8）。</p>
+<h3 id="s22">5.2 提交与去重</h3>
+<p>只有用户主动点击「生成分析」才进入提交校验。首次有效提交时显示任务区。每次有效提交形成唯一 taskId、提交时间、条件副本、状态和结果引用。</p>
+<p>原型对相同筛选、相同演示快照模式和执行模式的活动任务，复用已有记录并定位。玩法、对比源与商户的多选顺序不影响等价性。相同条件已有成功结果时按 5.8 直接复用；失败或取消后的相同条件可生成新任务。</p>
+<p>生产去重与复用还必须考虑用户 / 租户、授权范围、注单数据时点、赔率快照版本、匹配规则版本和计算规则版本，不能只按筛选文本相同就复用。提交还受单任务上限与每日配额限制（5.8）。重试必须使用新的提交标识，并保存 retryOf。</p>
+<h3 id="s23">5.3 队列和并行</h3>
+<ul>
+<li>原型最多 3 项处于准备、计算或校验阶段，其余排队；按提交先后分配名额，列表按提交倒序展示。</li>
+<li>成功、失败或确认取消后释放名额，由最早等待项补入。</li>
+<li>单项取消、失败或重试不影响其他任务；翻页、查看详情或结果不暂停计算。</li>
+<li>生产并发由服务端控制，并考虑用户与租户公平性；匹配阶段对快照存储的读压力需单独限流（D-08）。</li>
+<li>后台计算不依赖浏览器停留；任务与结果须持久化，返回页面后可恢复。离线 HTML 刷新后丢失任务是演示边界。</li>
+</ul>
+<h3 id="s24">5.4 状态和操作矩阵</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>状态码</th>
+<th>页面名称</th>
+<th>占执行名额</th>
+<th>可用操作</th>
+<th>结果发布</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>queued</td>
+<td>排队中</td>
+<td>否</td>
+<td>取消任务、任务详情</td>
+<td>否</td>
+</tr>
+<tr>
+<td>preparing</td>
+<td>准备数据</td>
+<td>是</td>
+<td>取消任务、任务详情</td>
+<td>否</td>
+</tr>
+<tr>
+<td>running</td>
+<td>计算中</td>
+<td>是</td>
+<td>取消任务、任务详情</td>
+<td>否</td>
+</tr>
+<tr>
+<td>publishing</td>
+<td>汇总校验</td>
+<td>是</td>
+<td>取消任务、任务详情</td>
+<td>否</td>
+</tr>
+<tr>
+<td>succeeded</td>
+<td>已完成</td>
+<td>否</td>
+<td>查看结果 / 定位结果、任务详情</td>
+<td>完整、只读</td>
+</tr>
+<tr>
+<td>failed</td>
+<td>生成失败</td>
+<td>否</td>
+<td>重试任务、任务详情</td>
+<td>否</td>
+</tr>
+<tr>
+<td>cancelled</td>
+<td>已取消</td>
+<td>否</td>
+<td>重新提交、任务详情</td>
+<td>否</td>
+</tr>
+</tbody>
+</table></div>
+<div class="mermaid"><svg id="my-svg" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="flowchart" style="max-width: 844.898px; background-color: transparent;" viewBox="0 0 844.8984375 1921.59375" role="graphics-document document" aria-roledescription="flowchart-v2"><style>#my-svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;fill:#333;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#my-svg .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#my-svg .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#my-svg .error-icon{fill:#552222;}#my-svg .error-text{fill:#552222;stroke:#552222;}#my-svg .edge-thickness-normal{stroke-width:1px;}#my-svg .edge-thickness-thick{stroke-width:3.5px;}#my-svg .edge-pattern-solid{stroke-dasharray:0;}#my-svg .edge-thickness-invisible{stroke-width:0;fill:none;}#my-svg .edge-pattern-dashed{stroke-dasharray:3;}#my-svg .edge-pattern-dotted{stroke-dasharray:2;}#my-svg .marker{fill:#333333;stroke:#333333;}#my-svg .marker.cross{stroke:#333333;}#my-svg svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;}#my-svg p{margin:0;}#my-svg .label{font-family:"trebuchet ms",verdana,arial,sans-serif;color:#333;}#my-svg .cluster-label text{fill:#333;}#my-svg .cluster-label span{color:#333;}#my-svg .cluster-label span p{background-color:transparent;}#my-svg .label text,#my-svg span{fill:#333;color:#333;}#my-svg .node rect,#my-svg .node circle,#my-svg .node ellipse,#my-svg .node polygon,#my-svg .node path{fill:#ECECFF;stroke:#9370DB;stroke-width:1px;}#my-svg .rough-node .label text,#my-svg .node .label text,#my-svg .image-shape .label,#my-svg .icon-shape .label{text-anchor:middle;}#my-svg .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#my-svg .rough-node .label,#my-svg .node .label,#my-svg .image-shape .label,#my-svg .icon-shape .label{text-align:center;}#my-svg .node.clickable{cursor:pointer;}#my-svg .root .anchor path{fill:#333333!important;stroke-width:0;stroke:#333333;}#my-svg .arrowheadPath{fill:#333333;}#my-svg .edgePath .path{stroke:#333333;stroke-width:1px;}#my-svg .flowchart-link{stroke:#333333;fill:none;}#my-svg .edgeLabel{background-color:rgba(232,232,232, 0.8);text-align:center;}#my-svg .edgeLabel p{background-color:rgba(232,232,232, 0.8);}#my-svg .edgeLabel rect{opacity:0.5;background-color:rgba(232,232,232, 0.8);fill:rgba(232,232,232, 0.8);}#my-svg .labelBkg{background-color:rgba(232, 232, 232, 0.5);}#my-svg .cluster rect{fill:#ffffde;stroke:#aaaa33;stroke-width:1px;}#my-svg .cluster text{fill:#333;}#my-svg .cluster span{color:#333;}#my-svg div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:12px;background:hsl(80, 100%, 96.2745098039%);border:1px solid #aaaa33;border-radius:2px;pointer-events:none;z-index:100;}#my-svg .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#333;}#my-svg rect.text{fill:none;stroke-width:0;}#my-svg .icon-shape,#my-svg .image-shape{background-color:rgba(232,232,232, 0.8);text-align:center;}#my-svg .icon-shape p,#my-svg .image-shape p{background-color:rgba(232,232,232, 0.8);padding:2px;}#my-svg .icon-shape .label rect,#my-svg .image-shape .label rect{opacity:0.5;background-color:rgba(232,232,232, 0.8);fill:rgba(232,232,232, 0.8);}#my-svg .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#my-svg .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#my-svg .node .neo-node{stroke:#9370DB;}#my-svg [data-look="neo"].node rect,#my-svg [data-look="neo"].cluster rect,#my-svg [data-look="neo"].node polygon{stroke:#9370DB;filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg [data-look="neo"].swimlane.cluster rect{filter:none;}#my-svg [data-look="neo"].node path{stroke:#9370DB;stroke-width:1px;}#my-svg [data-look="neo"].node .outer-path{filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg [data-look="neo"].node .neo-line path{stroke:#9370DB;filter:none;}#my-svg [data-look="neo"].node circle{stroke:#9370DB;filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg [data-look="neo"].node circle .state-start{fill:#000000;}#my-svg [data-look="neo"].icon-shape .icon{fill:#9370DB;filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg [data-look="neo"].icon-shape .icon-neo path{stroke:#9370DB;filter:drop-shadow(1px 2px 2px rgba(185, 185, 185, 1));}#my-svg :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}</style><g><marker id="my-svg_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"/></marker><marker id="my-svg_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"/></marker><g class="root"><g class="clusters"/><g class="edgePaths"><path d="M342.5,62L342.5,66.167C342.5,70.333,342.5,78.667,342.5,86.333C342.5,94,342.5,101,342.5,104.5L342.5,108" id="my-svg-L_Z_A_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_Z_A_0" data-points="W3sieCI6MzQyLjUsInkiOjYyfSx7IngiOjM0Mi41LCJ5Ijo4N30seyJ4IjozNDIuNSwieSI6MTEyfV0=" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M297.327,166L290.356,170.167C283.385,174.333,269.442,182.667,262.471,190.333C255.5,198,255.5,205,255.5,208.5L255.5,212" id="my-svg-L_A_K_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_A_K_0" data-points="W3sieCI6Mjk3LjMyNjkyMzA3NjkyMzEsInkiOjE2Nn0seyJ4IjoyNTUuNSwieSI6MTkxfSx7IngiOjI1NS41LCJ5IjoyMTZ9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M255.5,270L255.5,274.167C255.5,278.333,255.5,286.667,255.5,294.333C255.5,302,255.5,309,255.5,312.5L255.5,316" id="my-svg-L_K_B_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_K_B_0" data-points="W3sieCI6MjU1LjUsInkiOjI3MH0seyJ4IjoyNTUuNSwieSI6Mjk1fSx7IngiOjI1NS41LCJ5IjozMjB9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M219.953,402.453L201.628,414.545C183.302,426.636,146.651,450.818,128.326,487.076C110,523.333,110,571.667,110,595.833L110,620" id="my-svg-L_B_C_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_B_C_0" data-points="W3sieCI6MjE5Ljk1MzQxNjE0OTA2ODMyLCJ5Ijo0MDIuNDUzNDE2MTQ5MDY4MzV9LHsieCI6MTEwLCJ5Ijo0NzV9LHsieCI6MTEwLCJ5Ijo2MjR9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M291.047,402.453L309.372,414.545C327.698,426.636,364.349,450.818,382.674,468.409C401,486,401,497,401,502.5L401,508" id="my-svg-L_B_R_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_B_R_0" data-points="W3sieCI6MjkxLjA0NjU4Mzg1MDkzMTY1LCJ5Ijo0MDIuNDUzNDE2MTQ5MDY4MzV9LHsieCI6NDAxLCJ5Ijo0NzV9LHsieCI6NDAxLCJ5Ijo1MTJ9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M342.342,731.342L330.701,747.285C319.061,763.228,295.781,795.114,284.14,838.023C272.5,880.932,272.5,934.865,272.5,988.797C272.5,1042.729,272.5,1096.661,272.5,1134.294C272.5,1171.927,272.5,1193.26,272.5,1212.594C272.5,1231.927,272.5,1249.26,272.5,1266.594C272.5,1283.927,272.5,1301.26,272.5,1318.594C272.5,1335.927,272.5,1353.26,272.5,1370.594C272.5,1387.927,272.5,1405.26,272.5,1422.594C272.5,1439.927,272.5,1457.26,272.5,1474.594C272.5,1491.927,272.5,1509.26,272.5,1526.594C272.5,1543.927,272.5,1561.26,289.12,1573.937C305.739,1586.614,338.978,1594.635,355.598,1598.645L372.217,1602.655" id="my-svg-L_R_H_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_R_H_0" data-points="W3sieCI6MzQyLjM0MTU0MzUxMzk1NzMzLCJ5Ijo3MzEuMzQxNTQzNTEzOTU3M30seyJ4IjoyNzIuNSwieSI6ODI3fSx7IngiOjI3Mi41LCJ5Ijo5ODguNzk2ODc1fSx7IngiOjI3Mi41LCJ5IjoxMTUwLjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxMjE0LjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxMjY2LjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxMzE4LjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxMzcwLjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxNDIyLjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxNDc0LjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxNTI2LjU5Mzc1fSx7IngiOjI3Mi41LCJ5IjoxNTc4LjU5Mzc1fSx7IngiOjM3Ni4xMDU3NjkyMzA3NjkyLCJ5IjoxNjAzLjU5Mzc1fV0=" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M444.4,746.6L450.483,760C456.566,773.4,468.732,800.2,474.815,819.1C480.898,838,480.898,849,480.898,854.5L480.898,860" id="my-svg-L_R_L_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_R_L_0" data-points="W3sieCI6NDQ0LjM5OTU3MjU4NDMzODMsInkiOjc0Ni42MDA0Mjc0MTU2NjE4fSx7IngiOjQ4MC44OTg0Mzc1LCJ5Ijo4Mjd9LHsieCI6NDgwLjg5ODQzNzUsInkiOjg2NH1d" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M448.811,1081.506L444.825,1093.021C440.84,1104.535,432.869,1127.564,428.884,1144.579C424.898,1161.594,424.898,1172.594,424.898,1178.094L424.898,1183.594" id="my-svg-L_L_C2_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_L_C2_0" data-points="W3sieCI6NDQ4LjgxMDYyNjMyMjcyNzYsInkiOjEwODEuNTA1OTM4ODIyNzI3Nn0seyJ4Ijo0MjQuODk4NDM3NSwieSI6MTE1MC41OTM3NX0seyJ4Ijo0MjQuODk4NDM3NSwieSI6MTE4Ny41OTM3NX1d" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M539.449,1055.043L553.524,1070.968C567.599,1086.894,595.749,1118.744,617.669,1140.44C639.59,1162.137,655.282,1173.68,663.127,1179.452L670.973,1185.223" id="my-svg-L_L_D_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_L_D_0" data-points="W3sieCI6NTM5LjQ0ODc1Mjc3MTQ0MSwieSI6MTA1NS4wNDM0MzQ3Mjg1NTl9LHsieCI6NjIzLjg5ODQzNzUsInkiOjExNTAuNTkzNzV9LHsieCI6Njc0LjE5NTMxMjUsInkiOjExODcuNTkzNzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M710.898,1241.594L710.898,1245.76C710.898,1249.927,710.898,1258.26,710.898,1265.927C710.898,1273.594,710.898,1280.594,710.898,1284.094L710.898,1287.594" id="my-svg-L_D_E_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_D_E_0" data-points="W3sieCI6NzEwLjg5ODQzNzUsInkiOjEyNDEuNTkzNzV9LHsieCI6NzEwLjg5ODQzNzUsInkiOjEyNjYuNTkzNzV9LHsieCI6NzEwLjg5ODQzNzUsInkiOjEyOTEuNTkzNzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M710.898,1345.594L710.898,1349.76C710.898,1353.927,710.898,1362.26,710.898,1369.927C710.898,1377.594,710.898,1384.594,710.898,1388.094L710.898,1391.594" id="my-svg-L_E_F_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_E_F_0" data-points="W3sieCI6NzEwLjg5ODQzNzUsInkiOjEzNDUuNTkzNzV9LHsieCI6NzEwLjg5ODQzNzUsInkiOjEzNzAuNTkzNzV9LHsieCI6NzEwLjg5ODQzNzUsInkiOjEzOTUuNTkzNzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M710.898,1449.594L710.898,1453.76C710.898,1457.927,710.898,1466.26,710.898,1473.927C710.898,1481.594,710.898,1488.594,710.898,1492.094L710.898,1495.594" id="my-svg-L_F_G_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_F_G_0" data-points="W3sieCI6NzEwLjg5ODQzNzUsInkiOjE0NDkuNTkzNzV9LHsieCI6NzEwLjg5ODQzNzUsInkiOjE0NzQuNTkzNzV9LHsieCI6NzEwLjg5ODQzNzUsInkiOjE0OTkuNTkzNzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M710.898,1553.594L710.898,1557.76C710.898,1561.927,710.898,1570.26,693.687,1578.442C676.476,1586.624,642.054,1594.655,624.842,1598.67L607.631,1602.685" id="my-svg-L_G_H_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_G_H_0" data-points="W3sieCI6NzEwLjg5ODQzNzUsInkiOjE1NTMuNTkzNzV9LHsieCI6NzEwLjg5ODQzNzUsInkiOjE1NzguNTkzNzV9LHsieCI6NjAzLjczNTcyNzE2MzQ2MTUsInkiOjE2MDMuNTkzNzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M488,1657.594L488,1661.76C488,1665.927,488,1674.26,488,1681.927C488,1689.594,488,1696.594,488,1700.094L488,1703.594" id="my-svg-L_H_I_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_H_I_0" data-points="W3sieCI6NDg4LCJ5IjoxNjU3LjU5Mzc1fSx7IngiOjQ4OCwieSI6MTY4Mi41OTM3NX0seyJ4Ijo0ODgsInkiOjE3MDcuNTkzNzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M488,1785.594L488,1789.76C488,1793.927,488,1802.26,488,1809.927C488,1817.594,488,1824.594,488,1828.094L488,1831.594" id="my-svg-L_I_J_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_I_J_0" data-points="W3sieCI6NDg4LCJ5IjoxNzg1LjU5Mzc1fSx7IngiOjQ4OCwieSI6MTgxMC41OTM3NX0seyJ4Ijo0ODgsInkiOjE4MzUuNTkzNzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M716.805,1187.594L718.154,1181.427C719.503,1175.26,722.201,1162.927,723.549,1129.794C724.898,1096.661,724.898,1042.729,724.898,988.797C724.898,934.865,724.898,880.932,724.898,824.633C724.898,768.333,724.898,709.667,724.898,651C724.898,592.333,724.898,533.667,724.898,488.333C724.898,443,724.898,411,724.898,381C724.898,351,724.898,323,724.898,300.333C724.898,277.667,724.898,260.333,724.898,243C724.898,225.667,724.898,208.333,674.826,192.858C624.753,177.382,524.608,163.764,474.536,156.955L424.464,150.146" id="my-svg-L_D_A_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_D_A_0" data-points="W3sieCI6NzE2LjgwNDY4NzUsInkiOjExODcuNTkzNzV9LHsieCI6NzI0Ljg5ODQzNzUsInkiOjExNTAuNTkzNzV9LHsieCI6NzI0Ljg5ODQzNzUsInkiOjk4OC43OTY4NzV9LHsieCI6NzI0Ljg5ODQzNzUsInkiOjgyN30seyJ4Ijo3MjQuODk4NDM3NSwieSI6NjUxfSx7IngiOjcyNC44OTg0Mzc1LCJ5Ijo0NzV9LHsieCI6NzI0Ljg5ODQzNzUsInkiOjM3OX0seyJ4Ijo3MjQuODk4NDM3NSwieSI6Mjk1fSx7IngiOjcyNC44OTg0Mzc1LCJ5IjoyNDN9LHsieCI6NzI0Ljg5ODQzNzUsInkiOjE5MX0seyJ4Ijo0MjAuNSwieSI6MTQ5LjYwNjczNzkwMDE3NzczfV0=" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="L_Z_A_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_A_K_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_K_B_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(110, 475)"><g class="label" data-id="L_B_C_0" transform="translate(-8, -12)"><foreignObject width="16" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>否</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(401, 475)"><g class="label" data-id="L_B_R_0" transform="translate(-8, -12)"><foreignObject width="16" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>是</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(272.5, 1318.59375)"><g class="label" data-id="L_R_H_0" transform="translate(-8, -12)"><foreignObject width="16" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>是</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(480.8984375, 827)"><g class="label" data-id="L_R_L_0" transform="translate(-8, -12)"><foreignObject width="16" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>否</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(424.8984375, 1150.59375)"><g class="label" data-id="L_L_C2_0" transform="translate(-8, -12)"><foreignObject width="16" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>否</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(602.34883, 1126.21151)"><g class="label" data-id="L_L_D_0" transform="translate(-8, -12)"><foreignObject width="16" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>是</p></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_D_E_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_E_F_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_F_G_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_G_H_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_H_I_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_I_J_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_D_A_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g></g><g class="nodes"><g class="node default" id="my-svg-flowchart-Z-0" data-look="classic" transform="translate(342.5, 35)"><rect class="basic label-container" style="" x="-112.2265625" y="-27" width="224.453125" height="54"/><g class="label" style="" transform="translate(-82.2265625, -12)"><rect/><foreignObject width="164.453125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>进入页面 仅初始化筛选</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-A-1" data-look="classic" transform="translate(342.5, 139)"><rect class="basic label-container" style="" x="-78" y="-27" width="156" height="54"/><g class="label" style="" transform="translate(-48, -12)"><rect/><foreignObject width="96" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>编辑筛选条件</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-K-3" data-look="classic" transform="translate(255.5, 243)"><rect class="basic label-container" style="" x="-94" y="-27" width="188" height="54"/><g class="label" style="" transform="translate(-64, -12)"><rect/><foreignObject width="128" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>用户点击生成分析</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-B-5" data-look="classic" transform="translate(255.5, 379)"><polygon points="59,0 118,-59 59,-118 0,-59" class="label-container" transform="translate(-58.5, 59)"/><g class="label" style="" transform="translate(-32, -12)"><rect/><foreignObject width="64" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>校验通过</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-C-7" data-look="classic" transform="translate(110, 651)"><rect class="basic label-container" style="" x="-102" y="-27" width="204" height="54"/><g class="label" style="" transform="translate(-72, -12)"><rect/><foreignObject width="144" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>保留编辑并提示原因</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-R-9" data-look="classic" transform="translate(401, 651)"><polygon points="139,0 278,-139 139,-278 0,-139" class="label-container" transform="translate(-138.5, 139)"/><g class="label" style="" transform="translate(-100, -24)"><rect/><foreignObject width="200" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>3 天内有相同条件的成功结果</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-H-11" data-look="classic" transform="translate(488, 1630.59375)"><rect class="basic label-container" style="" x="-126" y="-27" width="252" height="54"/><g class="label" style="" transform="translate(-96, -12)"><rect/><foreignObject width="192" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>用户点击对应任务查看结果</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-L-13" data-look="classic" transform="translate(480.8984375, 988.796875)"><polygon points="124.796875,0 249.59375,-124.796875 124.796875,-249.59375 0,-124.796875" class="label-container" transform="translate(-124.296875, 124.796875)"/><g class="label" style="" transform="translate(-97.796875, -12)"><rect/><foreignObject width="195.59375" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>未超 500 万笔且有当日配额</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-C2-15" data-look="classic" transform="translate(424.8984375, 1214.59375)"><rect class="basic label-container" style="" x="-110" y="-27" width="220" height="54"/><g class="label" style="" transform="translate(-80, -12)"><rect/><foreignObject width="160" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>提示原因，不创建任务</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-D-17" data-look="classic" transform="translate(710.8984375, 1214.59375)"><rect class="basic label-container" style="" x="-126" y="-27" width="252" height="54"/><g class="label" style="" transform="translate(-96, -12)"><rect/><foreignObject width="192" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>生成独立任务并显示任务区</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-E-19" data-look="classic" transform="translate(710.8984375, 1318.59375)"><rect class="basic label-container" style="" x="-104.2265625" y="-27" width="208.453125" height="54"/><g class="label" style="" transform="translate(-74.2265625, -12)"><rect/><foreignObject width="148.453125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>排队 读取注单与快照</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-F-21" data-look="classic" transform="translate(710.8984375, 1422.59375)"><rect class="basic label-container" style="" x="-112.2265625" y="-27" width="224.453125" height="54"/><g class="label" style="" transform="translate(-82.2265625, -12)"><rect/><foreignObject width="164.453125" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>逐源匹配报价 分片重算</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-G-23" data-look="classic" transform="translate(710.8984375, 1526.59375)"><rect class="basic label-container" style="" x="-102" y="-27" width="204" height="54"/><g class="label" style="" transform="translate(-72, -12)"><rect/><foreignObject width="144" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>守恒校验并发布结果</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-I-27" data-look="classic" transform="translate(488, 1746.59375)"><rect class="basic label-container" style="" x="-130" y="-39" width="260" height="78"/><g class="label" style="" transform="translate(-100, -24)"><rect/><foreignObject width="200" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>整体应用 基础统计 匹配规则 对比表 拆分表</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-J-29" data-look="classic" transform="translate(488, 1874.59375)"><rect class="basic label-container" style="" x="-130" y="-39" width="260" height="78"/><g class="label" style="" transform="translate(-100, -24)"><rect/><foreignObject width="200" height="48"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table; white-space: break-spaces; line-height: 1.5; max-width: 200px; text-align: center; width: 200px;"><span class="nodeLabel"><p>切换维度 查看明细与匹配情况</p></span></div></foreignObject></g></g></g></g></g><defs><filter id="my-svg-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"/></filter></defs><defs><filter id="my-svg-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"/></filter></defs></svg></div>
+
+<p>重试生成新 taskId，不把原记录改回 queued。生产取消需有 cancelling 中间状态并等待服务端确认；取消与完成竞争时以服务端单一终态为准。</p>
+<h3 id="s25">5.5 进度与阶段说明</h3>
+<p>任务详情呈现四步：排队等待 → 读取注单与快照 → 匹配报价并重算 → 校验并生成结果。</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>原型进度区间</th>
+<th>页面说明示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>准备数据</td>
+<td>6%～16%</td>
+<td>已读取 88,503 笔注单，正在读取 4 个赔率源的报价快照…</td>
+</tr>
+<tr>
+<td>逐源匹配</td>
+<td>16%～46%</td>
+<td>已匹配 2 / 4 个赔率源 · N02</td>
+</tr>
+<tr>
+<td>分片重算</td>
+<td>46%～90%</td>
+<td>已重算 64,000 / 88,503 笔 · 各源覆盖样本 · 原始赔率</td>
+</tr>
+<tr>
+<td>汇总校验</td>
+<td>94%</td>
+<td>正在校验样本、覆盖原因与拆分守恒…</td>
+</tr>
+<tr>
+<td>完成</td>
+<td>100%</td>
+<td>88,503 笔注单 · 4 个赔率源结果已生成；或提示某源覆盖率过低、快照缺失</td>
+</tr>
+</tbody>
+</table></div>
+<p>耗时包含排队时间，到终态停止。失败或取消保留最后进度；100% 仅表示结果已完整发布。原型的百分比与等待时长只用于演示；生产按真实阶段与处理计数更新，不用前端定时器伪造完成。</p>
+<h3 id="s26">5.6 任务列表及详情</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>列表项</th>
+<th>规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>分析任务</td>
+<td>摘要标题和 taskId；重试显示来源 ID；当前查看任务高亮并带标签</td>
+</tr>
+<tr>
+<td>提交条件</td>
+<td>固定提交范围和投注时间，不随筛选草稿改变</td>
+</tr>
+<tr>
+<td>状态 / 进度</td>
+<td>状态文字、百分比、进度条、阶段说明或错误原因</td>
+</tr>
+<tr>
+<td>提交时间 / 耗时</td>
+<td>UTC+8，精确到秒；终态耗时停止</td>
+</tr>
+<tr>
+<td>操作</td>
+<td>按 5.4 开放，明确作用于该行 taskId</td>
+</tr>
+</tbody>
+</table></div>
+<p>列表每页 5 项，可按全部 / 进行中 / 已完成 / 失败或取消筛选。顶部计数针对全部任务，分页总数针对当前筛选。</p>
+<p>任务详情包括完整条件、玩法名称、对比源名单、快照版本、匹配规则版本、读取时点、阶段与错误。尚未读取快照时显示“尚未完成注单与快照读取”，不伪造版本。关闭弹窗不终止任务。</p>
+<h3 id="s27">5.7 查看结果、重试与重新生成</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>行为</th>
+<th>使用的条件</th>
+<th>数据及快照</th>
+<th>对现有结果的影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>生成分析</td>
+<td>筛选区当前草稿</td>
+<td>新读取</td>
+<td>创建任务，不替换报表</td>
+</tr>
+<tr>
+<td>查看结果</td>
+<td>被点击的成功任务</td>
+<td>该任务已有快照</td>
+<td>原子切换整份报表，维度恢复默认</td>
+</tr>
+<tr>
+<td>切换维度页签</td>
+<td>当前查看任务</td>
+<td>已生成的结果</td>
+<td>只改变展示，不重算</td>
+</tr>
+<tr>
+<td>重试 / 重新提交</td>
+<td>原失败 / 取消任务条件</td>
+<td>新读取</td>
+<td>新建记录，保留来源，不自动切换</td>
+</tr>
+<tr>
+<td>对比表右上角「重新生成」</td>
+<td>当前查看结果的条件</td>
+<td>新读取注单与快照</td>
+<td>生成新任务；不使用筛选区未提交的修改</td>
+</tr>
+</tbody>
+</table></div>
+<p>查看 A → B → A 时，A 的全部数值一致。切换任务时关闭旧任务的明细、匹配规则和任务详情弹窗。</p>
+<h3 id="s28">5.8 提交限制与结果复用</h3>
+<p>为控制计算量和 Doris 明细存储量（14.8），提交时执行三条限制。点击「生成分析」、重试和重新生成都按以下顺序检查：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>检查</th>
+<th>命中时的处理</th>
+<th>是否占用配额</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>条件校验（4.4）</td>
+<td>提示原因，不创建任务</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td>相同条件的任务正在运行（5.2）</td>
+<td>定位到该任务</td>
+<td>否</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>3 天内相同条件复用</strong></td>
+<td>直接打开已有结果，提示“3 天内已有相同条件的结果，已直接打开，不占用今日配额”；如果正在查看的就是该结果，提示“当前结果即为最新”</td>
+<td>否</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>单任务注单上限 500 万笔</strong></td>
+<td>提示“当前条件共 N 笔注单，超过单任务上限 500 万笔，请缩小投注时间、联赛或玩法范围”，不创建任务</td>
+<td>否</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>每日任务配额</strong></td>
+<td>提示“今日任务配额已用完（x / 10），次日 00:00（UTC+8）恢复；3 天内相同条件的已有结果可直接打开，不占配额”，不创建任务</td>
+<td>否</td>
+</tr>
+<tr>
+<td>6</td>
+<td>全部通过</td>
+<td>创建任务并排队</td>
+<td>是</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>规则一：单任务注单上限 500 万笔</strong></p>
+<ul>
+<li>计数对象为验证样本：筛选范围内足球主玩法的单关正常单（含不可模拟）。</li>
+<li>提交时先做计数预检（只计数，不读取明细），超过 500 万笔直接拒绝。</li>
+<li>准备阶段读取注单时再核对一次；如因数据增长超过上限，任务失败并返还配额。</li>
+<li>500 万笔对应单任务明细约 2,500 万行、单副本约 750 MB（14.8.3）。</li>
+</ul>
+<p><strong>规则二：每日任务配额</strong></p>
+<ul>
+<li>按账号计算，默认每个账号每天 10 个任务，可配置（D-08）。</li>
+<li>按 UTC+8 自然日统计，次日 00:00 重置。</li>
+<li>计入配额：排队中、计算中和已完成的任务。</li>
+<li>返还配额：失败、取消的任务；复用已有结果不计入。</li>
+<li>筛选区「生成分析」左侧显示“今日任务 x / 10 · 单任务上限 500 万笔”；配额用完后按钮仍可点击，以便复用已有结果，新建任务会被拒绝。</li>
+</ul>
+<p><strong>规则三：3 天内相同条件直接复用已有结果</strong></p>
+<ul>
+<li>复用对象：同一账号在明细保留期内（明细未清理）的<strong>成功</strong>任务。</li>
+<li>相同条件：全部筛选条件一致，玩法、对比源与商户按集合比较、不看勾选顺序；同时数据版本一致，包括注单与结算数据的截止时点、赔率快照版本、匹配规则版本和计算规则版本。数据版本变化（例如所选时间段内出现新注单或重结算）时不复用。</li>
+<li>命中后不新建任务、不写明细、不占配额，直接切换到已有结果；任务列表在该任务下显示“已复用 n 次”。</li>
+<li>失败、已取消或明细已清理的任务不参与复用；对已清理的任务点击「重新生成」会新建任务。</li>
+<li>跨账号复用（同租户、数据权限一致的其他账号）暂不开放，见 D-08。</li>
+</ul>
+<p>原型说明：演示数据不随时间变化，原型用“演示快照状态”代替数据版本；“明细已清理”的演示任务不参与复用。配额与上限可在原型演示设置中调低，以体验拒绝提示。</p>
+<h2 id="s29">6. F-03：基础实际统计与覆盖</h2>
+<h3 id="s30">6.1 基础卡片</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>卡片</th>
+<th>主值</th>
+<th>辅助信息 / 公式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>验证注单数</td>
+<td>样本笔数 N</td>
+<td>投注金额 V；不可模拟笔数</td>
+</tr>
+<tr>
+<td>实际平台盈亏</td>
+<td>已结算单的实际平台盈亏之和 P_act</td>
+<td>已结算金额；未结算正常单笔数；有未结算时标“已结算部分”</td>
+</tr>
+<tr>
+<td>实际平台盈利率</td>
+<td>P_act ÷ 已结算金额 × 100%</td>
+<td>赛前、滚球各自的实际盈利率</td>
+</tr>
+<tr>
+<td>可模拟注单</td>
+<td>可模拟笔数</td>
+<td>可模拟金额；占验证注单比例</td>
+</tr>
+</tbody>
+</table></div>
+<p>本功能需要回答各源的盈利额，因此保留实际平台盈亏的绝对值；这与接拒模拟删除绝对净盈亏卡片不同。当前查询结果以次要样式展示，视觉重点在赔率源对比表。</p>
+<p>"实际平台盈利率"按已结算金额计算，与对比表"实际赔率"行的盈利率（按可模拟金额）分母不同，两处数值可能不一致，处理方式见 D-15。</p>
+<h3 id="s31">6.2 覆盖统计行</h3>
+<ul>
+<li>可模拟笔数 / 金额。</li>
+<li>不可模拟笔数 / 金额，以及按原因的笔数（正常注单尚未结算、结算明细不完整、投注项 / 盘口映射缺失）。</li>
+<li>实际赔率源金额占比，各源占比之和为 100%。</li>
+</ul>
+<p>每笔注单只计入一个资格类别，数量与金额分别守恒：N = 可模拟 + 不可模拟，V 同理。各源“无法模拟”的注单属于可模拟注单的一部分，在对比表中逐源展示（8.3、10.1）。</p>
+<p>基础区提供「全部注单明细」「不可模拟明细」两个入口，均绑定当前查看任务。</p>
+<h2 id="s32">7. F-04：报价匹配与可模拟资格</h2>
+<h3 id="s33">7.1 匹配规则</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>规则项</th>
+<th>当前规则（原型）</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>玩法范围</td>
+<td>主玩法 6 个玩法</td>
+<td>其他玩法不在验证样本内</td>
+</tr>
+<tr>
+<td>赛事</td>
+<td>经赛事映射后为同一场比赛</td>
+<td>源未映射该赛事时记“赛事未映射”</td>
+</tr>
+<tr>
+<td>玩法 / 投注项 / 盘口线</td>
+<td>玩法、投注项须与原注单一致；让分、大小的盘口线也须一致</td>
+<td>独赢无盘口线；不同盘口线不插值、不换算</td>
+</tr>
+<tr>
+<td>投注项报价</td>
+<td>源须有该注单投注项的报价</td>
+<td>没有时记“缺少该投注项报价”；同盘口其他投注项是否有报价不影响</td>
+</tr>
+<tr>
+<td>报价时点</td>
+<td>投注时间之前最后一次有效报价</td>
+<td>以本平台入库时间（third_market_odds_all.createTime）为准，不使用源下发时间（dataSourceTime）</td>
+</tr>
+<tr>
+<td>时延容差</td>
+<td>赛前 ≤ 300 秒，滚球 ≤ 10 秒</td>
+<td>时差 = 投注时间 − 报价入库时间</td>
+</tr>
+<tr>
+<td>封盘</td>
+<td>投注时点源处于封盘 / 暂停状态视为无报价</td>
+<td>不回溯封盘前的报价</td>
+</tr>
+<tr>
+<td>赔率格式</td>
+<td>统一为十进制赔率</td>
+<td>third_market_odds_all.oddsValue 已为欧赔 × 100000；其他格式：香港盘 +1，马来盘、印尼盘正值 +1、负值 1 + 1/|值|</td>
+</tr>
+<tr>
+<td>不可替代</td>
+<td>未匹配时不借用其他源或实际赔率</td>
+<td>该注单对这个源无法模拟，计入“无法模拟”，不填 0</td>
+</tr>
+</tbody>
+</table></div>
+<p>规则版本（原型 MATCH-RULE-v1.0）与快照版本（原型 DEMO-ODDS-SNAP-20261024）随任务固定，在匹配情况弹窗与任务详情展示。容差、时间基准与封盘判定待 D-01 确认。</p>
+<h3 id="s34">7.2 未匹配原因</h3>
+<p>对每笔可模拟注单 × 每个所选源，按以下优先顺序给出一个主原因：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>顺序</th>
+<th>原因</th>
+<th>判定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>快照缺失</td>
+<td>该源在本任务的快照读取中整体无数据</td>
+</tr>
+<tr>
+<td>2</td>
+<td>赛事未映射</td>
+<td>该源没有与本赛事对应的赛事</td>
+</tr>
+<tr>
+<td>3</td>
+<td>源未提供该玩法</td>
+<td>该源在本赛事没有开出该玩法</td>
+</tr>
+<tr>
+<td>4</td>
+<td>盘口线不一致</td>
+<td>该源该玩法没有与注单相同的盘口线（只适用于让分、大小）</td>
+</tr>
+<tr>
+<td>5</td>
+<td>缺少该投注项报价</td>
+<td>该源在该盘口没有该注单投注项的报价，例如注单买和局而源未报和局</td>
+</tr>
+<tr>
+<td>6</td>
+<td>投注时点封盘</td>
+<td>投注时点该盘口处于封盘</td>
+</tr>
+<tr>
+<td>7</td>
+<td>超出时延容差</td>
+<td>最后一次有效报价与投注时间相差超过容差</td>
+</tr>
+</tbody>
+</table></div>
+<p>实际赔率源在自身注单上视为已匹配（重算用源报价还是实际赔率见 D-12）。每源的「已匹配 + 各未匹配原因」之和等于可模拟笔数。</p>
+<h3 id="s35">7.3 可模拟资格</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>情况</th>
+<th>资格</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单关正常单，已结算，结算明细与映射完整</td>
+<td>可模拟</td>
+<td>进入各源匹配与重算</td>
+</tr>
+<tr>
+<td>正常单尚未结算</td>
+<td>不可模拟</td>
+<td>计入笔数与金额；实际盈亏为空，不计入盈利率分母</td>
+</tr>
+<tr>
+<td>结算明细不完整（无法逐笔重算）</td>
+<td>不可模拟</td>
+<td>计入基础实际盈亏；不参与重算</td>
+</tr>
+<tr>
+<td>投注项 / 盘口映射缺失</td>
+<td>不可模拟</td>
+<td>计入基础实际盈亏；不参与重算</td>
+</tr>
+<tr>
+<td>拒单；注单状态为取消 / 待确认 / 撤单</td>
+<td>不在样本内</td>
+<td>取数时排除，不计入不可模拟</td>
+</tr>
+<tr>
+<td>串关</td>
+<td>不在样本内</td>
+<td>取数时排除；本期不回放串关</td>
+</tr>
+<tr>
+<td>提前结算注单（含部分提前结算）</td>
+<td>不在样本内</td>
+<td>取数时排除：盈亏取决于提前结算时的即时赔率与抽成，无法按换源回放</td>
+</tr>
+<tr>
+<td>测试商户注单</td>
+<td>不在样本内</td>
+<td>取数时排除</td>
+</tr>
+<tr>
+<td>重结算过的注单</td>
+<td>按最终结算判断</td>
+<td>取最终结算结果，不单独标注，不作为不可模拟</td>
+</tr>
+</tbody>
+</table></div>
+<p>不可模拟注单在明细中显示原因；多个原因只计一次主原因。结算结果为取消（如比赛腰斩）、走水的注单按盈亏 0 保留在样本中，是否改为按全系统有效注单口径处理见 D-17。"结算明细不完整""投注项 / 盘口映射缺失"两类在真实数据中是否存在及判定字段见 D-10；巡查商户是否排除见 D-09。</p>
+<h2 id="s36">8. F-05：统计口径与赔率口径</h2>
+<p>本期口径固定，页面不提供切换：<strong>统计口径为各源覆盖样本，赔率口径为原始赔率</strong>。</p>
+<h3 id="s37">8.1 统计口径：各源覆盖样本</h3>
+<p>投注时，并不是每个源都对这笔注单有报价。缺少报价的注单对该源无法模拟，因此每个源实际能模拟的注单各不相同：</p>
+<ul>
+<li><strong>每个源只在自己已匹配的注单上重算</strong>，称为该源的“已模拟注单”。</li>
+<li>该源的实际平台盈亏、模拟平台盈亏、盈亏差和盈利率差，都在这批已模拟注单上计算，是同一批注单的模拟减实际（配对比较）。</li>
+<li>对比表中的「实际赔率」行是全部可模拟注单的实际结果，作为整体参照；各源行的“实际平台盈亏”只含该源已模拟的注单，所以各行之间不同。</li>
+<li><strong>各源已模拟的注单不同，横向比较时看盈利率差，不直接比较盈利率高低。</strong> 例如某源只覆盖赛前注单，它的盈利率天然接近赛前的实际盈利率，与覆盖滚球的源不可直接比较。</li>
+</ul>
+<h3 id="s38">8.2 赔率口径：原始赔率</h3>
+<ul>
+<li>直接使用源对该注单投注项的报价重算：D = oddsValue ÷ 100000（数据字典注明已为欧赔）；其他格式按 7.1 换算。</li>
+<li>不做去水或加水，不需要同盘口其他投注项的报价，也不需要平台的实际盘口水位。</li>
+<li><strong>源自身的水位高低会直接体现在结果中。</strong> 水位高的源，赔率普遍偏低，模拟盈利率通常也偏高。可结合“平均赔率偏差”判断差异主要来自整体水位，还是来自个别注单的定价差异。</li>
+<li>原型默认任务中，实际赔率主要取自 N01，N01 的盈利率差为 +0.02 个百分点；L01 自身水位最高，盈利率差 +2.19、平均赔率偏差 −0.046，这部分差异主要来自水位，而不只是定价更准。</li>
+<li>如以后需要单独比较定价准确度，可再提供统一水位口径（见 MRD 后续规划），本期不做。</li>
+</ul>
+<p>演示数据假设：平台直接采用实际赔率源的报价，约 20% 注单在此基础上有一档（0.01）操盘调整。真实情况以注单的 odds_value 与 odds_data_sourse 为准。</p>
+<h3 id="s39">8.3 不可模拟与无法模拟</h3>
+<p>两者都不参与重算，但含义和展示位置不同：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>类别</th>
+<th>含义</th>
+<th>影响范围</th>
+<th>展示位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>不可模拟</td>
+<td>注单本身不满足重算条件：未结算、结算明细不完整、投注项 / 盘口映射缺失</td>
+<td>对所有源都不重算</td>
+<td>基础统计、覆盖统计行、「不可模拟明细」</td>
+</tr>
+<tr>
+<td>无法模拟（按源）</td>
+<td>注单可模拟，但投注时缺少某个源的报价（7.2 的 7 类原因）</td>
+<td>只影响该源；其他源有报价时照常重算</td>
+<td>对比表「覆盖率」「无法模拟注单 · 金额」列及其明细、拆分表的覆盖率、匹配情况与未匹配集中度</td>
+</tr>
+</tbody>
+</table></div>
+<p>每个源都满足：<strong>可模拟 = 已模拟 + 无法模拟</strong>，笔数与金额分别守恒。</p>
+<h3 id="s40">8.4 无法模拟注单的展示</h3>
+<ul>
+<li><strong>对比表</strong>：每个源一行，分列显示覆盖率（已模拟 ÷ 可模拟）、已模拟笔数、已模拟金额、无法模拟笔数、无法模拟金额；每行最后一列「无法模拟明细」提供「查询」，打开该源无法模拟的注单。覆盖率低于 50% 以黄色标示。</li>
+<li><strong>维度拆分</strong>：每个源单列显示该行的覆盖率，低于 50% 以黄色标示；已模拟不足 300 笔时盈利率差列显示“样本不足”。</li>
+<li><strong>匹配情况</strong>：按原因统计各源未匹配笔数；未匹配集中度按赛事、玩法定位缺口（12.6）。</li>
+<li><strong>完成提示</strong>：某源覆盖率低于 30% 时，任务完成提示该源大部分注单无法模拟。</li>
+</ul>
+<h2 id="s41">9. F-06：计算口径</h2>
+<h3 id="s42">9.1 逐笔重算</h3>
+<p>对可模拟注单 i 与已匹配源 s，投注额 vᵢ、赛果不变，只把赔率替换为该源的原始赔率 Dᵢˢ。平台盈利为正：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>玩家结果</th>
+<th style="text-align: right;">平台盈亏</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>玩家输</td>
+<td style="text-align: right;">+v</td>
+</tr>
+<tr>
+<td>玩家赢</td>
+<td style="text-align: right;">−v × (D − 1)</td>
+</tr>
+<tr>
+<td>半输</td>
+<td style="text-align: right;">+v / 2</td>
+</tr>
+<tr>
+<td>半赢</td>
+<td style="text-align: right;">−v × (D − 1) / 2</td>
+</tr>
+<tr>
+<td>走水 / 取消</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>未结算 / 未知</td>
+<td style="text-align: right;">null，不作为 0</td>
+</tr>
+</tbody>
+</table></div>
+<p>按玩法：独赢只有玩家赢 / 玩家输（及取消）；让分、大小在四分之一盘出现半赢 / 半输，整数盘可能走水。全场玩法按 90 分钟（含补时）赛果结算，加时与点球不计；半场玩法按上半场赛果结算。</p>
+<p>原型金额以分存储，赢 / 半赢损益四舍五入到分；走水 / 取消的已知零盈亏进入样本金额分母。生产使用正式结算引擎的规则（D-04）。</p>
+<h3 id="s43">9.2 汇总</h3>
+<p>对源 s 的已模拟注单集合 Uₛ（实际行为全部可模拟注单）：</p>
+<pre><code class="language-text">n      = |Uₛ|
+V      = Σ vᵢ
+P_act  = Σ pᵢ(实际)            实际平台盈亏
+P_sim  = Σ pᵢ(源 s)            模拟平台盈亏
+R_act  = P_act ÷ V × 100%
+R_sim  = P_sim ÷ V × 100%
+ΔP     = P_sim − P_act          盈亏差
+ΔR     = ΔP ÷ V × 100           盈利率差（百分点）
+覆盖率  = n ÷ 可模拟笔数
+无法模拟 = 可模拟笔数 − n；无法模拟金额 = 可模拟金额 − V
+赔率偏差 = mean(Dᵢˢ − Dᵢ实际)
+高于实际赔率占比 = count(Dᵢˢ &gt; Dᵢ实际) ÷ n
+</code></pre>
+<p>ΔR 等于 R_sim − R_act，因为两者分母相同。分母为 0 时显示 —。</p>
+<h3 id="s44">9.3 结论判断</h3>
+<p>页面只展示结论，不展示区间。使用人员是运营与风控，面向用户的文案（对比表、维度拆分、计算规则弹窗、表格说明、提示）不使用“显著”“区间”“置信”“方差”等统计用语，统一用下表“页面说明”中的说法。计算规则弹窗的固定文案为：</p>
+<blockquote>
+<p>赛果有偶然性，注单少时盈亏差可能只是运气。结论会把差值大小和已模拟笔数放在一起看：差距大到基本不可能是运气造成时，标记“盈利高于实际”或“盈利低于实际”；否则标记“与实际差别不明显”。已模拟少于 300 笔时标记“样本不足”，不下结论。</p>
+</blockquote>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>结论（页面标签）</th>
+<th>后台条件</th>
+<th>页面说明</th>
+<th>标签颜色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>样本不足</td>
+<td>n &lt; 300</td>
+<td>已模拟少于 300 笔，不下结论</td>
+<td>橙色</td>
+</tr>
+<tr>
+<td>盈利高于实际</td>
+<td>ΔR − 区间半宽 &gt; 0</td>
+<td>换用该源后平台盈利更高，差距基本不可能是运气造成</td>
+<td>绿色</td>
+</tr>
+<tr>
+<td>盈利低于实际</td>
+<td>ΔR + 区间半宽 &lt; 0</td>
+<td>换用该源后平台盈利更低，差距基本不可能是运气造成</td>
+<td>红色</td>
+</tr>
+<tr>
+<td>与实际差别不明显</td>
+<td>其他</td>
+<td>差距可能只是赛果的偶然波动</td>
+<td>灰色</td>
+</tr>
+<tr>
+<td>无样本</td>
+<td>n = 0</td>
+<td>该源没有已模拟注单</td>
+<td>灰色</td>
+</tr>
+</tbody>
+</table></div>
+<p>以下为后台判断方法，仅供研发、数据与测试使用。单独看某源的盈利率，噪声主要来自赛果，区间很宽；配对比较时同一注单赛果相同，差值只来自赔率差，区间窄得多。原型默认任务中，各源盈利率区间约 ±1.15～±1.51 个百分点，而盈利率差的区间只有 ±0.03～±0.22 个百分点。以 L01 为例：模拟盈利率 4.10% ±1.27，盈利率差 +2.19 ±0.14。</p>
+<pre><code class="language-text">盈利率区间  = 1.96 × √( n/(n−1) × Σ(pᵢ − R_sim·vᵢ)² ) ÷ V × 100
+盈利率差区间 = 1.96 × √( n/(n−1) × Σ(dᵢ − d̄)² ) ÷ V × 100，dᵢ = pᵢ(源) − pᵢ(实际)
+</code></pre>
+<p>“高于 / 低于”指平台盈利更高 / 更低。最小样本 300 笔与 95% 置信水平为原型取值（D-08）。区间只覆盖赛果与逐笔波动，不覆盖 9.4 所述的选择偏差，也不区分水位与定价（8.2）。</p>
+<h3 id="s45">9.4 选择偏差</h3>
+<p>历史注单是玩家看到实际赔率后才下的。部分玩家专门挑选实际赔率偏高的投注项；这些注单换成其他源的赔率，平台通常会显得更赚钱。因此：</p>
+<ul>
+<li>回放结果对非实际源通常偏乐观；对实际源自身接近持平。</li>
+<li>页面在「按实际赔率源」拆分中可直接观察。原型默认任务中，各源在自己承接的注单上盈利率差都在 ±0.01 个百分点以内（N01 0.00、N02 −0.01、L01 −0.01、L02 −0.01），因为实际赔率就取自该源报价。换成其他源时，差值同时包含水位差与选择偏差：例如在 N01 承接的注单上 L01 为 +2.26，在 L01 承接的注单上 N01 为 −1.09。</li>
+<li>「数据口径 / 计算规则」弹窗固定提示：回放未计入玩家对不同赔率的反应，结论需结合线上分流验证。</li>
+</ul>
+<p>回放适合筛选候选源与发现明显劣势。例如原型中 L02 滚球平均报价时延 6.18 秒，滚球盈利率差 +0.69，明显低于其赛前的 +1.14：报价慢的源在滚球更容易被玩家抓到过期赔率。是否切换或调整分配比例，需以线上分流结果为准。</p>
+<h3 id="s46">9.5 数据守恒与发布校验</h3>
+<ul>
+<li>验证样本：N = 可模拟 + 不可模拟；金额同理。</li>
+<li>实际行：总表实际行笔数与金额 = 可模拟笔数与金额。</li>
+<li>每个源：已模拟 + 无法模拟 = 可模拟（笔数与金额）；已模拟笔数 = 该源已匹配笔数。</li>
+<li>覆盖原因：每源各原因笔数之和 = 可模拟笔数。</li>
+<li>未匹配集中度：每源按赛事、按玩法的未匹配笔数合计都等于该源无法模拟笔数。</li>
+<li>维度拆分：任一维度各行实际笔数之和 = 可模拟笔数；各行实际盈亏之和 = 总表实际盈亏；每源各行模拟盈亏之和 = 总表对应值。</li>
+</ul>
+<p>金额使用整数最小货币单位累加；区间所需的平方和使用双精度浮点。校验失败不发布结果，任务记为失败并给出原因。</p>
+<h2 id="s47">10. F-07：赔率源对比表</h2>
+<h3 id="s48">10.1 行与列</h3>
+<p>第一行为「实际赔率」，即全部可模拟注单的实际结果；其后按源固定顺序每源一行。口径固定，页面不单独展示口径标签，口径说明放在「计算规则」中。<strong>每列只放一个数据</strong>，单元格不带小字辅助信息。</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>序号</th>
+<th>表头</th>
+<th>源行</th>
+<th>实际行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>赔率源</td>
+<td>源代码</td>
+<td>实际赔率</td>
+</tr>
+<tr>
+<td>2</td>
+<td>覆盖率</td>
+<td>已模拟 ÷ 可模拟；低于 50% 以黄色标示</td>
+<td>—</td>
+</tr>
+<tr>
+<td>3</td>
+<td>已模拟笔数</td>
+<td>n</td>
+<td>可模拟笔数</td>
+</tr>
+<tr>
+<td>4</td>
+<td>已模拟金额</td>
+<td>V</td>
+<td>可模拟金额</td>
+</tr>
+<tr>
+<td>5</td>
+<td>无法模拟笔数</td>
+<td>可模拟笔数 − n</td>
+<td>—</td>
+</tr>
+<tr>
+<td>6</td>
+<td>无法模拟金额</td>
+<td>可模拟金额 − V</td>
+<td>—</td>
+</tr>
+<tr>
+<td>7</td>
+<td>实际平台盈亏</td>
+<td>该源已模拟注单上的 P_act</td>
+<td>全部可模拟注单的 P_act</td>
+</tr>
+<tr>
+<td>8</td>
+<td>模拟平台盈亏</td>
+<td>P_sim</td>
+<td>—</td>
+</tr>
+<tr>
+<td>9</td>
+<td>盈利率</td>
+<td>R_sim</td>
+<td>R_act</td>
+</tr>
+<tr>
+<td>10</td>
+<td>盈亏差</td>
+<td>ΔP</td>
+<td>基准</td>
+</tr>
+<tr>
+<td>11</td>
+<td>盈利率差（百分点）</td>
+<td>ΔR</td>
+<td>基准</td>
+</tr>
+<tr>
+<td>12</td>
+<td>平均赔率偏差</td>
+<td>十进制赔率差，三位小数</td>
+<td>—</td>
+</tr>
+<tr>
+<td>13</td>
+<td>高于实际赔率</td>
+<td>源赔率高于实际赔率的笔数占比</td>
+<td>—</td>
+</tr>
+<tr>
+<td>14</td>
+<td>滚球平均时延（秒）</td>
+<td>已匹配滚球报价的平均时延；快照缺失时显示“快照缺失”</td>
+<td>—</td>
+</tr>
+<tr>
+<td>15</td>
+<td>结论</td>
+<td>9.3 的页面标签：盈利高于实际 / 盈利低于实际 / 与实际差别不明显 / 样本不足</td>
+<td>比较基准</td>
+</tr>
+<tr>
+<td>16</td>
+<td>已模拟明细</td>
+<td>「查看」：该源已模拟注单的明细</td>
+<td>「查看」：全部可模拟注单的明细</td>
+</tr>
+<tr>
+<td>17</td>
+<td>无法模拟明细</td>
+<td>「查询」：该源无法模拟的注单及原因；无法模拟为 0 时显示 —</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p>金额两位小数、千分位；盈亏、盈利率、差值为正绿色、为负红色；差值舍入为零显示 0.00。表格可横向滚动，首列固定；底部只标注金额单位。以下解读说明放在「数据口径 / 计算规则」弹窗，不在表格下方展示：实际赔率行为全部可模拟注单；每个源只在已模拟注单上计算，无法模拟注单不计入该源结果、可在每行最后一列查询；平均赔率偏差的含义，以及原始赔率包含各源自身水位；已模拟少于 300 笔时不下结论；回放未计入玩家对不同赔率的反应。对比表不展示区间。</p>
+<h3 id="s49">10.2 区域操作与提示</h3>
+<ul>
+<li>对比表右上角提供三个操作：「匹配情况」打开匹配规则与覆盖弹窗（12.6），弹窗标题下显示报价容差、规则版本、快照版本与读取时间；「计算规则」打开数据口径说明；「重新生成」按 5.7 规则新建任务。</li>
+<li>页面不展示报价匹配容差卡片、各源覆盖率标签、口径标签行和结论摘要：覆盖率已在表格中逐源列出，其余信息放在弹窗中。</li>
+<li>某源快照缺失时，在表格上方显示黄色提示（E-05）。</li>
+</ul>
+<h2 id="s50">11. F-08：维度拆分表</h2>
+<h3 id="s51">11.1 维度与排序</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>页签</th>
+<th>行</th>
+<th>排序</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>按联赛</td>
+<td>每个联赛（名称）</td>
+<td>可模拟金额降序</td>
+</tr>
+<tr>
+<td>按联赛等级</td>
+<td>每个等级</td>
+<td>等级升序</td>
+</tr>
+<tr>
+<td>按玩法</td>
+<td>主玩法 6 个玩法</td>
+<td>固定顺序：全场独赢、全场让分、全场大小、半场独赢、半场让分、半场大小</td>
+</tr>
+<tr>
+<td>按比赛阶段</td>
+<td>赛前、滚球</td>
+<td>赛前在前</td>
+</tr>
+<tr>
+<td>按实际赔率源</td>
+<td>每个实际源</td>
+<td>源固定顺序</td>
+</tr>
+</tbody>
+</table></div>
+<p>页签显示该维度的行数。每页 10 行，切换维度回第 1 页。</p>
+<h3 id="s52">11.2 列与单元格</h3>
+<p>每列只放一个数据。表头分两行：每个源占两列，上方为源代码，下方为“盈利率差”“覆盖率”。</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>列</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>维度值</td>
+<td>名称</td>
+</tr>
+<tr>
+<td>可模拟注单</td>
+<td>该行全部可模拟注单笔数</td>
+</tr>
+<tr>
+<td>可模拟金额</td>
+<td>该行全部可模拟注单金额</td>
+</tr>
+<tr>
+<td>实际盈利率</td>
+<td>该行全部可模拟注单的实际盈利率</td>
+</tr>
+<tr>
+<td>源 · 盈利率差</td>
+<td>该源在该行已模拟注单上的模拟减实际（百分点）；该源在该行的结论为盈利高于或低于实际时加粗；已模拟不足 300 笔显示“样本不足”；无已模拟注单显示 —</td>
+</tr>
+<tr>
+<td>源 · 覆盖率</td>
+<td>该源已模拟笔数 ÷ 该行可模拟笔数；低于 50% 以黄色标示</td>
+</tr>
+<tr>
+<td>最佳表现源</td>
+<td>已模拟不少于 300 笔的源中盈利率差最高者的代码；无充足样本显示 —</td>
+</tr>
+<tr>
+<td>明细</td>
+<td>打开该维度值的全部注单明细</td>
+</tr>
+</tbody>
+</table></div>
+<p>最佳表现源的盈利率差单元格浅绿底高亮。「数据口径 / 计算规则」弹窗写明：盈利率差为该源已模拟注单上的模拟减实际；最佳表现源仅作分析参考，不自动调整分配。分页处只显示行数。</p>
+<h2 id="s53">12. F-09：注单明细与匹配情况</h2>
+<h3 id="s54">12.1 定位：定位与抽查，不做全量浏览</h3>
+<p>生产注单量在几十万到百万以上，没有人会逐行翻阅，因此明细不承担全量浏览，只服务以下三类工作：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>用途</th>
+<th>典型操作</th>
+<th>页面支持</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>验证匹配与计算</td>
+<td>联调或规则变更后，抽查报价时点、时延、源赔率与重算盈亏</td>
+<td>逐笔显示赔率入库 / 下发时间、时延、源赔率与匹配原因</td>
+</tr>
+<tr>
+<td>解释结论</td>
+<td>找出对盈亏差影响最大的注单，判断差异是普遍现象还是少数大额注单造成</td>
+<td>默认按盈亏差绝对值从大到小排序</td>
+</tr>
+<tr>
+<td>核对与争议</td>
+<td>查具体注单、订单、用户或赛事的记录</td>
+<td>按编号精确查找</td>
+</tr>
+</tbody>
+</table></div>
+<p>覆盖问题的治理（补映射、补报价）使用 12.6 的未匹配集中度汇总，不需要翻查逐笔注单。明细不提供导出。</p>
+<h3 id="s55">12.2 入口及初始范围</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>入口</th>
+<th>初始数据集</th>
+<th>预选源</th>
+<th>默认排序</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全部注单明细</td>
+<td>当前任务全部样本</td>
+<td>第一个对比源</td>
+<td>盈亏差绝对值</td>
+</tr>
+<tr>
+<td>不可模拟明细</td>
+<td>不可模拟注单，匹配状态锁定</td>
+<td>第一个对比源</td>
+<td>注单金额</td>
+</tr>
+<tr>
+<td>对比表实际行「查看」</td>
+<td>全部可模拟注单</td>
+<td>第一个对比源</td>
+<td>盈亏差绝对值</td>
+</tr>
+<tr>
+<td>对比表源行「查看」</td>
+<td>该源已模拟注单</td>
+<td>该源</td>
+<td>盈亏差绝对值</td>
+</tr>
+<tr>
+<td>对比表每行最后一列「无法模拟明细 · 查询」</td>
+<td>该源无法模拟的注单；匹配状态锁定为未匹配，对比源锁定为该源</td>
+<td>该源</td>
+<td>注单金额</td>
+</tr>
+<tr>
+<td>拆分表行「明细」</td>
+<td>该维度值的全部注单（含不可模拟）</td>
+<td>第一个对比源</td>
+<td>盈亏差绝对值</td>
+</tr>
+</tbody>
+</table></div>
+<p>标题下方标明 taskId、筛选范围、口径（各源覆盖样本 · 原始赔率），以及“用于定位与抽查，不提供导出”。任一任务在后台完成，不替换已打开的明细。</p>
+<h3 id="s56">12.3 显示字段（36 列，每列一个数据，按数据来源分组）</h3>
+<p>字段依据注单数据字典（基础变量）设计，列名尽量沿用字典的中文名。<strong>每列只放一个数据</strong>，单元格不带小字辅助字段。表头分两行：上方为四个分组（注单信息、结算、对比源报价、模拟结果）并标注来源表，下方为列名；字典中没有、需要计算的列，列名以蓝色标示。</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>序号</th>
+<th>列</th>
+<th>分组</th>
+<th>来源字段</th>
+<th>说明 / 加工</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>注单编号</td>
+<td>注单信息</td>
+<td>t_order_detail.bet_no</td>
+<td>明细唯一键</td>
+</tr>
+<tr>
+<td>2</td>
+<td>订单编号</td>
+<td>注单信息</td>
+<td>t_order_detail.order_no</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>用户ID</td>
+<td>注单信息</td>
+<td>t_order_detail.uid</td>
+<td>可见范围见 D-07</td>
+</tr>
+<tr>
+<td>4</td>
+<td>用户级别</td>
+<td>注单信息</td>
+<td>t_order.user_level</td>
+<td>下单时的级别；名称可关联 t_user_level.level_name</td>
+</tr>
+<tr>
+<td>5</td>
+<td>商户</td>
+<td>注单信息</td>
+<td>ty_merchant.merchant_name</td>
+<td>经 t_order.merchant_id 关联</td>
+</tr>
+<tr>
+<td>6</td>
+<td>联赛</td>
+<td>注单信息</td>
+<td>s_tournament.zs</td>
+<td>经 tournament_id 关联</td>
+</tr>
+<tr>
+<td>7</td>
+<td>联赛级别</td>
+<td>注单信息</td>
+<td>t_order_detail.tournament_level</td>
+<td>字典中为 1–16，见 D-05</td>
+</tr>
+<tr>
+<td>8</td>
+<td>赛事编号</td>
+<td>注单信息</td>
+<td>t_order_detail.match_id</td>
+<td></td>
+</tr>
+<tr>
+<td>9</td>
+<td>对阵信息</td>
+<td>注单信息</td>
+<td>t_order_detail.match_info</td>
+<td></td>
+</tr>
+<tr>
+<td>10</td>
+<td>开赛时间</td>
+<td>注单信息</td>
+<td>s_match_info.begin_time</td>
+<td>UTC+8</td>
+</tr>
+<tr>
+<td>11</td>
+<td>赛事类型</td>
+<td>注单信息</td>
+<td>t_order_detail.match_type</td>
+<td>1 早盘、2 滚球</td>
+</tr>
+<tr>
+<td>12</td>
+<td>基准比分</td>
+<td>注单信息</td>
+<td>t_order_detail.score_benchmark</td>
+<td>仅滚球；赛前为 —</td>
+</tr>
+<tr>
+<td>13</td>
+<td>玩法</td>
+<td>注单信息</td>
+<td>t_order_detail.play_name</td>
+<td>主玩法 6 项</td>
+</tr>
+<tr>
+<td>14</td>
+<td>投注项</td>
+<td>注单信息</td>
+<td>t_order_detail.play_option_name</td>
+<td></td>
+</tr>
+<tr>
+<td>15</td>
+<td>盘口值</td>
+<td>注单信息</td>
+<td>t_order_detail.market_value</td>
+<td>独赢为 —</td>
+</tr>
+<tr>
+<td>16</td>
+<td>主 / 副盘</td>
+<td>注单信息</td>
+<td>t_order_detail.market_main</td>
+<td></td>
+</tr>
+<tr>
+<td>17</td>
+<td>下注时间 UTC+8</td>
+<td>注单信息</td>
+<td>t_order_detail.bet_time</td>
+<td>毫秒时间戳转换，保留毫秒</td>
+</tr>
+<tr>
+<td>18</td>
+<td>注单金额 USD</td>
+<td>注单信息</td>
+<td>t_order_detail.bet_amount</td>
+<td>报表币种换算见 D-06</td>
+</tr>
+<tr>
+<td>19</td>
+<td>原币金额</td>
+<td>注单信息</td>
+<td>t_order_detail.original_bet_amount</td>
+<td></td>
+</tr>
+<tr>
+<td>20</td>
+<td>币种</td>
+<td>注单信息</td>
+<td>t_order.currency_code</td>
+<td></td>
+</tr>
+<tr>
+<td>21</td>
+<td>盘口类型</td>
+<td>注单信息</td>
+<td>t_order_detail.market_type</td>
+<td>欧洲盘 / 香港盘 / 马来盘 / 印尼盘等</td>
+</tr>
+<tr>
+<td>22</td>
+<td>原始赔率</td>
+<td>注单信息</td>
+<td>t_order_detail.origin_odds</td>
+<td>按盘口类型展示</td>
+</tr>
+<tr>
+<td>23</td>
+<td>注单赔率</td>
+<td>注单信息</td>
+<td>t_order_detail.odds_value</td>
+<td>欧赔，参与计算</td>
+</tr>
+<tr>
+<td>24</td>
+<td>赔率数据源</td>
+<td>注单信息</td>
+<td>t_order_detail.odds_data_sourse</td>
+<td>即实际赔率源，按代码展示</td>
+</tr>
+<tr>
+<td>25</td>
+<td>结算结果</td>
+<td>结算</td>
+<td>t_settle.out_come</td>
+<td>取 last_settle = 1 的最终结算</td>
+</tr>
+<tr>
+<td>26</td>
+<td>实际平台盈亏</td>
+<td>结算</td>
+<td>−t_settle.profit_amount</td>
+<td>平台盈利为正；未结算显示“未结算”</td>
+</tr>
+<tr>
+<td>27</td>
+<td>数据源编码</td>
+<td>对比源报价</td>
+<td>third_market_odds_all.dataSourceCode</td>
+<td>当前选择的对比源</td>
+</tr>
+<tr>
+<td>28</td>
+<td>赔率入库时间</td>
+<td>对比源报价</td>
+<td>third_market_odds_all.createTime</td>
+<td>匹配依据；超出容差时显示那条过期报价的时间</td>
+</tr>
+<tr>
+<td>29</td>
+<td>赔率下发时间</td>
+<td>对比源报价</td>
+<td>third_market_odds_all.dataSourceTime</td>
+<td></td>
+</tr>
+<tr>
+<td>30</td>
+<td>报价时延（秒）</td>
+<td>对比源报价（计算）</td>
+<td>bet_time − createTime</td>
+<td>三位小数</td>
+</tr>
+<tr>
+<td>31</td>
+<td>源赔率</td>
+<td>对比源报价</td>
+<td>third_market_odds_all.oddsValue ÷ 100000</td>
+<td>字典注明为欧赔 × 100000</td>
+</tr>
+<tr>
+<td>32</td>
+<td>模拟平台盈亏</td>
+<td>模拟结果（计算）</td>
+<td>见 9.1</td>
+<td>按原始赔率</td>
+</tr>
+<tr>
+<td>33</td>
+<td>盈亏差</td>
+<td>模拟结果（计算）</td>
+<td>模拟 − 实际</td>
+<td>默认排序依据</td>
+</tr>
+<tr>
+<td>34</td>
+<td>赔率偏差</td>
+<td>模拟结果（计算）</td>
+<td>源赔率 − 注单赔率</td>
+<td></td>
+</tr>
+<tr>
+<td>35</td>
+<td>匹配状态</td>
+<td>模拟结果（计算）</td>
+<td>见 7.2、7.3</td>
+<td>已匹配 / 未匹配 / 不可模拟</td>
+</tr>
+<tr>
+<td>36</td>
+<td>原因</td>
+<td>模拟结果（计算）</td>
+<td>见 7.2、7.3</td>
+<td>未匹配原因或不可模拟原因；已匹配为 —</td>
+</tr>
+</tbody>
+</table></div>
+<p>字典中还有一些字段本期不显示，需要时可以加列：设备类型 t_order.device_type、IP 区域 ip_area、VIP 等级 vip_level、结算比分 settle_score、结算次数 settle_times、VAR 二次结算 settle_var、源盘口状态 thirdMarketSourceStatus。</p>
+<h3 id="s57">12.4 查找、筛选、排序与上限</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>控件</th>
+<th>规则</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>精确查找</td>
+<td>输入注单编号、订单编号、用户ID 或赛事编号，完全匹配。不支持名称模糊搜索：百万级数据上代价高，且按商户、联赛、赛事的定位已由入口和拆分覆盖</td>
+</tr>
+<tr>
+<td>排序</td>
+<td>盈亏差绝对值（大→小，默认）、注单金额（大→小）、下注时间（新→旧）。按盈亏差排序时，未匹配与不可模拟注单没有盈亏差，排在已匹配注单之后并按金额排列；不可模拟、无法模拟入口默认按金额</td>
+</tr>
+<tr>
+<td>对比赔率源</td>
+<td>当前任务所选源；切换后第 27～36 列随之变化；「无法模拟明细」入口锁定为该源</td>
+</tr>
+<tr>
+<td>匹配状态</td>
+<td>全部、已匹配、未匹配、不可模拟</td>
+</tr>
+<tr>
+<td>赔率比较</td>
+<td>全部、高于实际（玩家更优）、等于实际、低于实际；非“全部”时只含已匹配</td>
+</tr>
+<tr>
+<td>结算结果</td>
+<td>全部、玩家赢 / 半赢、玩家输 / 半输、走水 / 取消、未结算</td>
+</tr>
+<tr>
+<td>列表上限</td>
+<td>排序后最多显示前 10,000 笔，每页 50 / 100 / 200 条；超出时提示缩小筛选范围或使用精确查找</td>
+</tr>
+</tbody>
+</table></div>
+<p>各筛选在入口数据集内求交集，任一变化回第 1 页。顶部第一行是合计，按<strong>全部</strong>符合条件的注单计算，不受 10,000 笔上限影响：笔数、金额、所选源已匹配笔数，以及已匹配部分的实际盈亏、模拟盈亏和盈亏差。第二行说明当前排序方式，以及是否触发上限。没有符合条件的注单时提示调整筛选或查找条件。</p>
+<p>10,000 笔为原型取值（D-08）。原型默认任务的「全部注单明细」符合条件 88,503 笔，列表显示前 10,000 笔（每页 50 条，共 200 页）。</p>
+<h3 id="s58">12.5 生产实现要求</h3>
+<ul>
+<li><strong>明细写入 Doris，最多保留 3 天。</strong> 任务计算时把注单行与“注单 × 源”行写入两张明细表，按日分区只保留最近 3 个分区；汇总结果随任务记录保存。表设计、数据量与限额见 14.8。</li>
+<li><strong>排序与上限在服务端执行。</strong> 先按排序键取前 10,000 笔，再分页返回；合计用聚合查询，不向前端传输全量明细。</li>
+<li><strong>精确查找走索引。</strong> 在本任务内按 bet_no、order_no、uid、match_id 等值查询，不做模糊匹配。</li>
+<li><strong>明细过期。</strong> 页面与任务详情显示“明细保留至”；过期后明细入口提示已清理，汇总结果仍可查看，需要时重新生成。</li>
+<li><strong>不提供导出。</strong> 如确需离线分析，走数据平台的受控取数流程，不在本页面提供。</li>
+<li><strong>字段权限。</strong> 用户ID、源原始报价等字段的可见范围按 D-07 控制。</li>
+</ul>
+<h3 id="s59">12.6 匹配规则与覆盖弹窗</h3>
+<p>上半部分为规则表，共 10 行：玩法范围、赛事、玩法 / 投注项 / 盘口线、投注项报价、报价时点、时延容差（含封盘说明）、赔率格式、赔率口径、统计口径、不可替代，内容与第 7、8 章一致。</p>
+<p>中间为各源匹配情况，分母为可模拟笔数：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>列</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>赔率源</td>
+<td>源代码</td>
+</tr>
+<tr>
+<td>已匹配 / 覆盖率</td>
+<td>笔数与占比</td>
+</tr>
+<tr>
+<td>赛事未映射、源未提供该玩法、盘口线不一致、缺少该投注项报价、投注时点封盘、超出时延容差、快照缺失</td>
+<td>各原因笔数，0 以浅色显示</td>
+</tr>
+<tr>
+<td>赛前平均时延 / 滚球平均时延</td>
+<td>已匹配报价的平均时延</td>
+</tr>
+</tbody>
+</table></div>
+<p>下半部分为<strong>未匹配集中度</strong>，用于定位需要补映射或补报价的赛事与玩法。先选择一个对比源（默认覆盖率最低的源），再看两张表：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>表</th>
+<th>行</th>
+<th>列</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>按赛事</td>
+<td>未匹配笔数最多的前 10 场赛事</td>
+<td>赛事编号、对阵信息、开赛时间、联赛、未匹配笔数、占该源未匹配、主要原因、主要原因笔数（每列一个数据）</td>
+</tr>
+<tr>
+<td>按玩法</td>
+<td>主玩法 6 项，固定顺序</td>
+<td>玩法、可模拟、已匹配、覆盖率、未匹配、主要原因、主要原因笔数</td>
+</tr>
+</tbody>
+</table></div>
+<p>按赛事、按玩法的全部未匹配笔数，各自合计都等于该源未匹配总数，这一点纳入发布校验。原型默认任务中，L02 未匹配最多的赛事是“纽卡斯尔 vs 曼城”（2,095 笔，全部为赛事未映射）；按玩法看，L02 半场三个玩法的覆盖率只有 42.12%～48.10%，全场三个玩法约 60%。</p>
+<h2 id="s60">13. F-10：异常、空态及反馈</h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>触发情况</th>
+<th>页面 / 任务处理</th>
+<th>旧结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E-01</td>
+<td>日期、玩法、对比源不合法，或联赛 / 赛事 / 商户 ID 无效</td>
+<td>提交前提示，不创建任务</td>
+<td>保持</td>
+</tr>
+<tr>
+<td>E-01a</td>
+<td>联赛等级、联赛、赛事组合后无匹配注单</td>
+<td>正常提交；任务成功并提示无样本，不提示级联关系错误</td>
+<td>只有用户查看才替换</td>
+</tr>
+<tr>
+<td>E-02</td>
+<td>相同条件活动任务已存在</td>
+<td>定位并提示原 taskId</td>
+<td>保持</td>
+</tr>
+<tr>
+<td>E-03</td>
+<td>名额已满</td>
+<td>新任务排队，可取消</td>
+<td>保持</td>
+</tr>
+<tr>
+<td>E-04</td>
+<td>当前范围无注单</td>
+<td>任务成功并提示无样本，查看后显示零值卡片与空表</td>
+<td>只有用户查看才替换</td>
+</tr>
+<tr>
+<td>E-05</td>
+<td>某源快照整体缺失</td>
+<td>任务成功；该源全部可模拟注单计入无法模拟（快照缺失）；对比表上方黄色提示；其他源不受影响</td>
+<td>只有用户查看才替换</td>
+</tr>
+<tr>
+<td>E-06</td>
+<td>快照服务读取失败</td>
+<td>任务失败，提供原因与重试，不发布部分结果</td>
+<td>保持</td>
+</tr>
+<tr>
+<td>E-07</td>
+<td>某源覆盖率低于 30%</td>
+<td>任务成功，完成提示该源大部分注单无法模拟；对比表覆盖率以黄色标示</td>
+<td>只有用户查看才替换</td>
+</tr>
+<tr>
+<td>E-08</td>
+<td>某源样本 &lt; 300 笔</td>
+<td>结论为样本不足，不参与最佳判断</td>
+<td>属于新任务完整结果</td>
+</tr>
+<tr>
+<td>E-09</td>
+<td>匹配 / 计算 / 守恒校验异常</td>
+<td>任务失败，提供原因与重试</td>
+<td>保持</td>
+</tr>
+<tr>
+<td>E-10</td>
+<td>用户取消任务</td>
+<td>仅该任务进入取消终态，释放名额</td>
+<td>保持</td>
+</tr>
+<tr>
+<td>E-11</td>
+<td>明细、拆分或任务筛选无匹配</td>
+<td>区域空态，保留筛选</td>
+<td>不改变所选结果</td>
+</tr>
+<tr>
+<td>E-12</td>
+<td>生产状态查询暂时断网</td>
+<td>显示连接异常并尝试恢复，不据此判失败</td>
+<td>保持并标识未刷新</td>
+</tr>
+<tr>
+<td>E-13</td>
+<td>生产结果无权限，或任务记录已过保留期</td>
+<td>明确不可读取，不展示残留数据</td>
+<td>不误标为最新结果</td>
+</tr>
+<tr>
+<td>E-14</td>
+<td>模拟明细已超过保留期（Doris 分区已删除）</td>
+<td>明细入口提示已清理；对比表、拆分、匹配情况仍可查看；提供「重新生成」</td>
+<td>汇总结果不变</td>
+</tr>
+<tr>
+<td>E-15</td>
+<td>明细符合条件超过 10,000 笔</td>
+<td>列表显示排序后的前 10,000 笔，合计不受影响，提示缩小范围或精确查找</td>
+<td>不改变所选结果</td>
+</tr>
+<tr>
+<td>E-16</td>
+<td>精确查找无结果</td>
+<td>提示没有符合条件的注单，保留其他筛选</td>
+<td>不改变所选结果</td>
+</tr>
+<tr>
+<td>E-17</td>
+<td>3 天内已有相同条件的成功结果</td>
+<td>不新建任务，直接打开已有结果并提示；正在查看该结果时提示当前结果即为最新</td>
+<td>切换到被复用的结果</td>
+</tr>
+<tr>
+<td>E-18</td>
+<td>验证注单超过 500 万笔</td>
+<td>提示实际笔数与上限，不创建任务，不占配额</td>
+<td>保持</td>
+</tr>
+<tr>
+<td>E-19</td>
+<td>今日任务配额已用完</td>
+<td>提示已用 / 配额与恢复时间，不创建任务；复用仍可用</td>
+<td>保持</td>
+</tr>
+</tbody>
+</table></div>
+<p>E-12～E-14 为生产场景；E-14 可在原型演示设置中模拟。离线页面未连接对应服务。</p>
+<h2 id="s61">14. 数据模型与接口逻辑契约</h2>
+<h3 id="s62">14.1 任务及结果模型</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>对象</th>
+<th>必需属性 / 要求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FilterSnapshot</td>
+<td>startAt、endExclusive、timezone、sportId（本期固定足球）、stage、leagueLevel、leagueId、eventId（三者相互独立，按交集生效）、playSetId（本期固定主玩法）、marketIds（主玩法 6 项的子集）、merchantIds（所选商户集合，空为全部；查询范围含各商户全部下级）、compareSourceIds；样本固定为单关正常单，并按 14.7 排除提前结算、测试商户注单</td>
+</tr>
+<tr>
+<td>Task</td>
+<td>taskId、owner / tenant、requestKey、filterSnapshot、dataVersion（注单与结算截止时点、快照版本、规则版本）、reuseKey、reuseCount、betCount、state、stage、progress、createdAt、startedAt、finishedAt、error、retryOf、resultId、detailUntil</td>
+</tr>
+<tr>
+<td>SnapshotReferences</td>
+<td>betSnapshotId、settlementSnapshotId、oddsSnapshotVersion（按源）、eventMappingVersion、marketMappingVersion、matchRuleVersion、calculationRuleVersion、readAt</td>
+</tr>
+<tr>
+<td>Result</td>
+<td>resultId、taskId、完整条件、版本引用、基础实际、覆盖原因、各源无法模拟笔数与金额、未匹配集中度（源 × 赛事 / 玩法 × 原因）、overview、breakdown、warnings</td>
+</tr>
+<tr>
+<td>Accumulator</td>
+<td>n、V、P_act、P_sim、Σd、Σd²、Σp²、Σp·v、Σv²、Σ赔率偏差、高于 / 等于实际笔数</td>
+</tr>
+<tr>
+<td>OverviewBlock</td>
+<td>行（实际、各源）的 Accumulator；口径固定为各源覆盖样本 + 原始赔率</td>
+</tr>
+<tr>
+<td>BreakdownBlock</td>
+<td>维度 × 维度值 × OverviewBlock</td>
+</tr>
+<tr>
+<td>BetQuoteMatch</td>
+<td>betId、sourceId、matchCode、quoteCreateTime（入库时间）、quoteSourceTime（下发时间）、lagMs、rawOdds（所选投注项的原始赔率）、matchRuleVersion</td>
+</tr>
+<tr>
+<td>BetDetail</td>
+<td>第 12.3 节字段；存于 Doris 明细表 odds_sim_bet / odds_sim_bet_source，最多保留 3 天（14.8）</td>
+</tr>
+</tbody>
+</table></div>
+<p>结果只存可合并的累加量（Accumulator），盈利率、区间与结论在读取时计算。这样分片并行、增量合并与审计复算都使用同一组数据。</p>
+<h3 id="s63">14.2 能力契约</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>能力</th>
+<th>输入重点</th>
+<th>输出 / 约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>元数据查询</td>
+<td>赛种、等级、联赛、搜索词、游标</td>
+<td>合法且授权的联赛 / 赛事 / 玩法 / 商户 / 赔率源及版本</td>
+</tr>
+<tr>
+<td>创建任务</td>
+<td>FilterSnapshot、幂等请求标识</td>
+<td>按 5.8 顺序检查后返回三种结果之一：新建的 taskId；可复用的 taskId（reused = true）；拒绝原因（超过单任务上限，附实际笔数；或配额已用完，附已用 / 配额与恢复时间）。不在请求中同步计算</td>
+</tr>
+<tr>
+<td>查询配额</td>
+<td>当前账号</td>
+<td>今日已用、配额、单任务上限、重置时间</td>
+</tr>
+<tr>
+<td>任务列表 / 状态 / 详情</td>
+<td>状态、分页、taskIds</td>
+<td>独立阶段、进度、时间、错误、版本引用</td>
+</tr>
+<tr>
+<td>取消 / 重试</td>
+<td>taskId、幂等标识</td>
+<td>单一终态；重试新建任务并保存 retryOf</td>
+</tr>
+<tr>
+<td>读取结果</td>
+<td>成功 taskId / resultId</td>
+<td>原子发布的完整累加量与覆盖原因</td>
+</tr>
+<tr>
+<td>查询注单明细</td>
+<td>resultId、入口、所选源、筛选、精确查找值、排序、分页</td>
+<td>服务端筛选、排序，取前 10,000 笔后分页；合计用聚合查询，基于全部符合条件的注单；明细过期时返回“已清理”状态</td>
+</tr>
+<tr>
+<td>查询匹配情况</td>
+<td>resultId、对比源</td>
+<td>规则表、各源覆盖原因与时延、该源未匹配集中度（前 10 场赛事、6 个玩法）</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="s64">14.3 提交示例</h3>
+<pre><code class="language-json">{
+  &quot;requestKey&quot;: &quot;由客户端为本次提交生成的唯一标识&quot;,
+  &quot;filters&quot;: {
+    &quot;startAt&quot;: &quot;2026-09-01T00:00:00+08:00&quot;,
+    &quot;endExclusive&quot;: &quot;2026-10-01T00:00:00+08:00&quot;,
+    &quot;timezone&quot;: &quot;Asia/Hong_Kong&quot;,
+    &quot;sportId&quot;: &quot;football&quot;,
+    &quot;stage&quot;: &quot;all&quot;,
+    &quot;leagueLevel&quot;: null,
+    &quot;leagueId&quot;: null,
+    &quot;eventId&quot;: null,
+    &quot;playSetId&quot;: &quot;main&quot;,
+    &quot;marketIds&quot;: [&quot;main_0&quot;,&quot;main_1&quot;,&quot;main_2&quot;,&quot;main_3&quot;,&quot;main_4&quot;,&quot;main_5&quot;],
+    &quot;merchantIds&quot;: [],
+    &quot;compareSourceIds&quot;: [&quot;N01&quot;,&quot;N02&quot;,&quot;L01&quot;,&quot;L02&quot;]
+  }
+}
+</code></pre>
+<p>main_0～main_5 依次为全场独赢、全场让分、全场大小、半场独赢、半场让分、半场大小；生产使用系统玩法 ID。后台固定施加「单关正常单」条件，并校验 sportId 为足球、marketIds 属于主玩法。不能信任客户端传入的赔率、盈亏、覆盖率或身份。null 或空数组表示全部；merchantIds 由服务端展开为所选商户及其全部下级。</p>
+<h3 id="s65">14.4 数值协议</h3>
+<p>数量为非负整数；金额使用最小货币单位整数或确定精度十进制字符串；盈利率与差值明确单位（% / 百分点）与精度；未知使用 null，不混用 0、空字符串和破折号。</p>
+<p>例如默认任务 L01 的盈亏差为 45,230,938 分，展示 +452,309.38 USD。</p>
+<h3 id="s66">14.5 报价匹配的实现</h3>
+<p>报价匹配是本功能最重的一步。本期在任务内直接对 third_market_odds_all 做匹配，结果写入 14.8 的明细表，不建立永久的“注单 × 源”预匹配表：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>匹配算法</td>
+<td>按 (赛事, 玩法, 盘口线, 投注项) 分组；注单与报价各自按时间排序做 as-of 归并，避免逐笔查询</td>
+</tr>
+<tr>
+<td>读取范围</td>
+<td>只读取任务时间范围（投注时间 − 最大容差）内、所选源、主玩法的报价，按日期分区裁剪</td>
+</tr>
+<tr>
+<td>并行</td>
+<td>按源与注单分片并行，每个源匹配完成后设取消检查点</td>
+</tr>
+<tr>
+<td>一致性</td>
+<td>任务固定使用的 matchRuleVersion 与快照版本写入结果</td>
+</tr>
+<tr>
+<td>后续优化</td>
+<td>若容量测试中任务耗时不达标，再评估按日增量预匹配；如采用，同样设置保留期，不永久保存</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="s67">14.6 快照、一致性及重结算</h3>
+<p>准备阶段固定注单、结算、映射元数据与各源快照版本。一个任务内所有源使用完全相同的可模拟注单集合，再各自按匹配结果划分已模拟与无法模拟。分片计算后统一校验并原子发布。结果与明细始终查询同一 resultId，不重新读取最新事实拼接。重结算过的注单在读取时取最终结算结果（last_settle = 1）。源数据重结算或快照补录不回写已完成结果，用户重新生成获得新结果。</p>
+<h3 id="s68">14.7 数据来源与取数条件（依据注单数据字典）</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>用途</th>
+<th>来源表</th>
+<th>关键字段 / 条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>验证样本</td>
+<td>t_order + t_order_detail（order_no 关联）</td>
+<td>有效注单沿用全系统统一口径（与体育报表现有报表一致）；在此基础上：series_type = 1（单关）；order_status ∈ {0 成功未结算, 1 成功已结算}，排除 2 取消、3 待确认、4 拒单、5 撤单；sport_id = 1（足球）；play_id ∈ 主玩法 6 项；match_type ∈ {1 早盘, 2 滚球}，排除冠军盘、活动赛事；child_play_id 为空（排除 15 分钟子玩法）；未删除；t_order.pre_settle = 0（排除提前结算，含部分提前结算）</td>
+</tr>
+<tr>
+<td>比赛阶段</td>
+<td>t_order_detail.match_type</td>
+<td>1 → 赛前，2 → 滚球</td>
+</tr>
+<tr>
+<td>联赛等级</td>
+<td>t_order_detail.tournament_level（或 s_tournament.tournament_level）</td>
+<td>字典为 1–16 级，见 D-05</td>
+</tr>
+<tr>
+<td>商户</td>
+<td>ty_merchant（t_order.merchant_id = ty_merchant.id）</td>
+<td>排除测试商户（ty_merchant.is_test = 1）；巡查商户是否排除见 D-09；商户筛选按所选商户及其全部下级展开</td>
+</tr>
+<tr>
+<td>实际赔率 / 实际赔率源</td>
+<td>t_order_detail.odds_value、odds_data_sourse</td>
+<td>odds_value 作为欧赔参与计算</td>
+</tr>
+<tr>
+<td>结算</td>
+<td>t_settle（order_no 关联）</td>
+<td>last_settle = 1（重结算注单取最终结算结果）；结算结果为取消、走水的注单按盈亏 0 保留，是否改按全系统有效注单口径见 D-17；实际平台盈亏 = −profit_amount；order_status = 0 或无最终结算记录时为未结算</td>
+</tr>
+<tr>
+<td>对比源报价</td>
+<td>third_market_odds_all</td>
+<td>standardMatchInfoId = match_id；marketCategoryId = play_id；addition1 = market_value；oddsType 对应投注项；dataSourceCode = 源代码；取 createTime ≤ bet_time 的最后一条；赔率 = oddsValue ÷ 100000</td>
+</tr>
+<tr>
+<td>封盘</td>
+<td>third_market_odds_all.thirdMarketSourceStatus</td>
+<td>枚举待确认（D-01）</td>
+</tr>
+<tr>
+<td>报表币种</td>
+<td>t_order.currency_code、rmb_exchange_rate；t_currency_rate</td>
+<td>见 D-06</td>
+</tr>
+</tbody>
+</table></div>
+<p>数据字典中未见、需要补充的数据：</p>
+<ul>
+<li>
+<p>全系统有效注单口径对结算结果为取消、走水的处理，以及"取消"以哪个字段表示（D-17）；巡查商户的判定字段（D-09）。</p>
+</li>
+<li>
+<p>主玩法 6 项的 play_id 清单，以及 play_options 与 oddsType 的对应关系（D-05）。</p>
+</li>
+<li>thirdMarketSourceStatus 的枚举含义（D-01）。</li>
+</ul>
+<h3 id="s69">14.8 模拟明细存储与保留（Doris）</h3>
+<p>模拟明细是逐笔、逐源的回放结果，只用于任务完成后短期的抽查与核对，不需要永久保留。任务计算时把明细写入 Doris，<strong>最多保留 3 天</strong>；汇总结果单独随任务记录保存。</p>
+<h4>14.8.1 存储分层</h4>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>内容</th>
+<th>存储</th>
+<th>数据量（每任务）</th>
+<th>保留</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>任务记录与汇总结果：对比表、维度拆分、匹配情况、未匹配集中度（每源保留前 50 场赛事）</td>
+<td>任务结果存储</td>
+<td>几十 KB，与注单量基本无关</td>
+<td>随任务记录，保留期见 D-08</td>
+</tr>
+<tr>
+<td>模拟明细：注单行 + 注单 × 源行</td>
+<td>Doris 两张明细表</td>
+<td>与注单量成正比，见 14.8.3</td>
+<td>最多 3 天</td>
+</tr>
+</tbody>
+</table></div>
+<p>明细过期后，汇总结果仍可查看；明细入口提示“已超过保留期并清理”，需要时点击「重新生成」。</p>
+<h4>14.8.2 表设计</h4>
+<p>采用两张表，注单属性只存一份，避免按源重复：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>表</th>
+<th>粒度</th>
+<th>主要字段</th>
+<th>单行估算（原始 / 压缩后）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>odds_sim_bet</td>
+<td>任务 × 注单（含不可模拟）</td>
+<td>dt、task_id、bet_no、order_no、uid、merchant_id、tournament_id、tournament_level、match_id、match_info、match_type、play_id、play_option、market_value、market_main、score_benchmark、bet_time、bet_amount、original_bet_amount、currency_code、odds_value、origin_odds、market_type、odds_data_source、settle_result、actual_pnl、eligibility</td>
+<td>约 200 B / 50 B</td>
+</tr>
+<tr>
+<td>odds_sim_bet_source</td>
+<td>任务 × 可模拟注单 × 对比源（含无法模拟）</td>
+<td>dt、task_id、source_code、bet_no、match_code、quote_create_time、quote_source_time、lag_ms、source_odds、sim_pnl、pnl_diff、abs_diff、odds_dev</td>
+<td>约 100 B / 25 B</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>商户名称、联赛名称等从 ty_merchant、s_tournament 等维表按需关联，不写入明细。</li>
+<li>分区：按明细写入日期 dt 做日分区，开启动态分区，只保留最近 3 个分区（当天 + 前 2 天）。因此明细实际保留 2～3 天，满足“最多三天”；页面显示的“明细保留至”即所在分区的删除时间（写入日期 + 3 天的 00:00）。如需严格按 72 小时清理，可改为小时分区，代价是分区数增加。</li>
+<li>分桶：按 task_id 哈希分桶，同一任务的数据集中在少量分片，查询只扫描本任务。</li>
+<li>排序键：odds_sim_bet 为 (task_id, bet_no)；odds_sim_bet_source 为 (task_id, source_code, bet_no)。bet_no、order_no、uid、match_id 建 BloomFilter 索引，支持精确查找。</li>
+<li>abs_diff（盈亏差绝对值）在写入时计算并存储，用于默认排序。</li>
+</ul>
+<h4>14.8.3 数据量评估</h4>
+<p>估算口径：4 个对比源；可模拟占验证注单约 99%；Doris 列存压缩按 4 倍估算（实际一般为 3～5 倍）；“3 副本”为按 3 副本部署时的磁盘占用。</p>
+<p>单个任务：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th style="text-align: right;">单任务注单数</th>
+<th style="text-align: right;">odds_sim_bet 行数</th>
+<th style="text-align: right;">odds_sim_bet_source 行数</th>
+<th style="text-align: right;">压缩后（单副本）</th>
+<th style="text-align: right;">3 副本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">10 万</td>
+<td style="text-align: right;">10 万</td>
+<td style="text-align: right;">约 40 万</td>
+<td style="text-align: right;">约 15 MB</td>
+<td style="text-align: right;">约 45 MB</td>
+</tr>
+<tr>
+<td style="text-align: right;">100 万</td>
+<td style="text-align: right;">100 万</td>
+<td style="text-align: right;">约 397 万</td>
+<td style="text-align: right;">约 150 MB</td>
+<td style="text-align: right;">约 450 MB</td>
+</tr>
+<tr>
+<td style="text-align: right;">500 万</td>
+<td style="text-align: right;">500 万</td>
+<td style="text-align: right;">约 1,989 万</td>
+<td style="text-align: right;">约 750 MB</td>
+<td style="text-align: right;">约 2.2 GB</td>
+</tr>
+</tbody>
+</table></div>
+<p>3 天保留期内的总量（按 3 天的任务数累计）：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>场景</th>
+<th style="text-align: right;">每天任务数</th>
+<th style="text-align: right;">单任务注单</th>
+<th style="text-align: right;">3 天内行数</th>
+<th style="text-align: right;">压缩后（单副本）</th>
+<th style="text-align: right;">3 副本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>常规</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">100 万</td>
+<td style="text-align: right;">约 3.0 亿</td>
+<td style="text-align: right;">约 9 GB</td>
+<td style="text-align: right;">约 27 GB</td>
+</tr>
+<tr>
+<td>较高</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">100 万</td>
+<td style="text-align: right;">约 7.5 亿</td>
+<td style="text-align: right;">约 22 GB</td>
+<td style="text-align: right;">约 67 GB</td>
+</tr>
+<tr>
+<td>峰值上限（5 个活跃账号用满配额）</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">500 万</td>
+<td style="text-align: right;">约 37 亿</td>
+<td style="text-align: right;">约 112 GB</td>
+<td style="text-align: right;">约 336 GB</td>
+</tr>
+</tbody>
+</table></div>
+<p>结论：</p>
+<ul>
+<li><strong>常规与较高场景的数据量合理。</strong> 几亿行、几十 GB，对 Doris 是常规规模；写入（每任务几百万行）与按 task_id 的查询都在秒级。</li>
+<li><strong>最坏情况由上限与配额决定。</strong> 3 天内单副本最多约为“活跃账号数 × 每日配额 10 × 3 天 × 750 MB”，即每个活跃账号约 22 GB（3 副本约 67 GB）；5 个账号用满配额即为表中峰值上限。实际还会因复用、失败与取消返还而更低。</li>
+<li><strong>两表设计比单张宽表省一半左右。</strong> 若注单属性按源重复存储，100 万注单的任务约 300 MB（单副本），是两表设计的 2 倍。</li>
+<li><strong>不再建立永久的预匹配表</strong>（14.5），避免长期存储全量“注单 × 源”数据。</li>
+</ul>
+<h4>14.8.4 写入、清理与限额</h4>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>写入</td>
+<td>计算阶段分批写入两张表；发布前核对行数（odds_sim_bet = 验证注单数，odds_sim_bet_source = 可模拟注单数 × 对比源数）与汇总守恒</td>
+</tr>
+<tr>
+<td>失败 / 取消</td>
+<td>立即按 task_id 删除已写入的明细，不等分区过期</td>
+</tr>
+<tr>
+<td>重新生成</td>
+<td>生成新的 task_id 与新明细；原任务明细按保留期自然过期</td>
+</tr>
+<tr>
+<td>同条件复用</td>
+<td>3 天内相同条件且数据、快照、规则版本未变化的成功任务，直接打开已有结果，不新建任务、不写入明细（5.8）</td>
+</tr>
+<tr>
+<td>单任务上限</td>
+<td>验证注单 500 万笔；提交时计数预检，超出不创建任务（5.8）</td>
+</tr>
+<tr>
+<td>每日配额</td>
+<td>每个账号每天 10 个任务（可配置），失败与取消返还，复用不计入（5.8）</td>
+</tr>
+<tr>
+<td>监控</td>
+<td>监控两表的分区大小、行数、写入耗时与查询耗时；接近容量阈值时告警</td>
+</tr>
+</tbody>
+</table></div>
+<h4>14.8.5 明细查询</h4>
+<ul>
+<li>所有查询都带 task_id 与该任务的 dt，命中单个分区与少量分桶。</li>
+<li>列表：odds_sim_bet 关联所选源的 odds_sim_bet_source（不可模拟注单没有源行，用左关联），按排序键取前 10,000 笔后分页。</li>
+<li>合计：在同一条件下做聚合（笔数、金额、已匹配笔数、实际盈亏、模拟盈亏、盈亏差），不受 10,000 笔上限影响。</li>
+<li>「无法模拟明细 · 查询」：odds_sim_bet_source 中该源 match_code ≠ 0 的行。</li>
+<li>精确查找：在本任务内按 bet_no、order_no、uid、match_id 等值过滤。</li>
+</ul>
+<h2 id="s70">15. 非功能要求与运行指标</h2>
+<h3 id="s71">15.1 性能及容量</h3>
+<ul>
+<li>提交接口与计算解耦，用户无需等待即可继续编辑和提交。</li>
+<li>原型在浏览器内生成 89,500 笔注单与 4 源报价约 0.8 秒，默认任务 8.9 万笔 × 4 个源的聚合约 0.2 秒；这只说明聚合本身不是瓶颈，不代表生产耗时。生产瓶颈在快照读取与匹配。</li>
+<li>聚合采用可合并累加量，按注单分片并行；取消检查点设在每个源的匹配完成后及每个分片之后。</li>
+<li>明细写入 Doris 两张明细表，最多保留 3 天；查询按 task_id 与 dt 裁剪到单个分区，服务端排序、上限 10,000 笔与分页；精确查找走 BloomFilter 索引。数据量见 14.8.3。</li>
+<li>状态推送或批量轮询：建议从 2 秒开始，长等待退避到 5～10 秒，终态停止。</li>
+<li>容量测试至少覆盖：单任务百万级注单、4 个源、滚球秒级快照；多任务并发；明细写入与 3 天总量（14.8.3 的较高与峰值场景）。具体目标见 D-08。</li>
+<li>记录排队时长、读取时长、逐源匹配时长、聚合时长、校验时长与结果读取时长。</li>
+</ul>
+<h3 id="s72">15.2 安全、权限与审计</h3>
+<p>服务端从认证上下文确定用户与租户；创建、查看、取消、重试、结果、明细与匹配情况接口均做权限校验。源原始报价按赔率接入的数据权限控制可见性。日志记录 taskId、操作、操作者、时间、版本引用和结果，不写入不必要的完整注单明细。</p>
+<h3 id="s73">15.3 可靠性与可恢复性</h3>
+<p>任务状态与汇总结果持久化，同一任务结果最多发布一次；模拟明细按 14.8 最多保留 3 天，过期不影响汇总结果。刷新或重新进入页面可恢复授权任务列表，不重复创建任务。数据校验、技术重试与用户重试分别记录，不混用新旧分片快照。</p>
+<h3 id="s74">15.4 展示与可用性</h3>
+<p>桌面和窄屏页面不横向溢出，宽表在区域内横向滚动且首列固定。数字右对齐、千分位，状态不只依赖颜色。组件有标签、键盘焦点和关闭入口，进度可被辅助技术识别。UTC+8 在筛选、任务和明细时间处清楚表达。</p>
+<h3 id="s75">15.5 使用与质量指标</h3>
+<p>采集任务提交、去重命中、复用命中、超上限拒绝、配额拒绝、开始、成功、失败、取消、重试、查看结果、切换任务、切换维度、查看明细、查看匹配情况等事件，以 taskId / resultId 关联。运营指标口径见 MRD 4.2。覆盖率、未匹配原因分布与守恒校验失败作为数据质量指标单独监控。</p>
+<h2 id="s76">16. 验收矩阵</h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>用例</th>
+<th>范围</th>
+<th>操作 / 前提</th>
+<th>预期</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AC-01</td>
+<td>初始页面</td>
+<td>打开页面并等待</td>
+<td>默认筛选保留；不查询注单与快照；任务、统计、对比、拆分区域隐藏</td>
+</tr>
+<tr>
+<td>AC-02</td>
+<td>时间</td>
+<td>结束时间 23:59，注单在 23:59:59.999</td>
+<td>纳入；下一分钟排除</td>
+</tr>
+<tr>
+<td>AC-03</td>
+<td>时间</td>
+<td>空值、反向或超过 62 天</td>
+<td>拒绝应用 / 提交，不影响已有任务</td>
+</tr>
+<tr>
+<td>AC-04</td>
+<td>等级</td>
+<td>打开等级选项；选择足球 1 级</td>
+<td>全部及 1～15 级有序；1 级含五大联赛与欧冠</td>
+</tr>
+<tr>
+<td>AC-05</td>
+<td>独立筛选</td>
+<td>已选联赛与赛事后切换等级；先选赛事再选另一联赛</td>
+<td>联赛、赛事均保留；选择联赛不清空赛事，选择赛事不改写联赛</td>
+</tr>
+<tr>
+<td>AC-05a</td>
+<td>独立筛选</td>
+<td>打开联赛、赛事下拉不输入；输入名称或 ID</td>
+<td>不输入时不展示候选，只提示输入；输入后展示当前赛种全部匹配项，不按等级 / 联赛过滤</td>
+</tr>
+<tr>
+<td>AC-05b</td>
+<td>交集</td>
+<td>选择一场不属于所选联赛的赛事后生成分析</td>
+<td>正常提交，无校验错误；查看结果为无样本</td>
+</tr>
+<tr>
+<td>AC-05c</td>
+<td>商户</td>
+<td>打开商户树；展开、搜索、勾选父商户、删除单项、清空</td>
+<td>默认一级商户；可逐级展开；勾选父商户后下级显示为已选；查询范围含全部下级；删除与清空生效</td>
+</tr>
+<tr>
+<td>AC-06</td>
+<td>玩法</td>
+<td>打开玩法集与玩法选项；点击赛种</td>
+<td>玩法集只有主玩法；玩法为 6 项且按固定顺序；赛种只读显示足球，不弹出选项</td>
+</tr>
+<tr>
+<td>AC-07</td>
+<td>多选</td>
+<td>清空玩法或对比源后提交</td>
+<td>提示原因，不创建任务，分析区保持隐藏</td>
+</tr>
+<tr>
+<td>AC-08</td>
+<td>校验</td>
+<td>注入非足球赛种、无效联赛 / 赛事 / 商户 ID、非主玩法玩法、无效源</td>
+<td>前后端拒绝，不按全部放行；联赛与赛事、等级的归属不校验</td>
+</tr>
+<tr>
+<td>AC-09</td>
+<td>多任务</td>
+<td>连续提交 4 个不同任务</td>
+<td>3 项执行、1 项排队，生成分析仍可用</td>
+</tr>
+<tr>
+<td>AC-10</td>
+<td>去重</td>
+<td>同条件重复提交、交换玩法、源或商户的勾选顺序</td>
+<td>复用已有任务并定位</td>
+</tr>
+<tr>
+<td>AC-11</td>
+<td>队列</td>
+<td>名额释放且有多个等待项</td>
+<td>最早提交者先开始</td>
+</tr>
+<tr>
+<td>AC-11a</td>
+<td>复用</td>
+<td>默认任务成功后再次以相同条件生成分析</td>
+<td>不新建任务；直接打开已有结果并提示；任务显示“已复用 1 次”；配额不变</td>
+</tr>
+<tr>
+<td>AC-11b</td>
+<td>复用</td>
+<td>正在查看该结果时再次生成或点击「重新生成」</td>
+<td>提示当前结果即为最新，不新建任务</td>
+</tr>
+<tr>
+<td>AC-11c</td>
+<td>复用</td>
+<td>相同条件但演示快照状态不同、或原任务明细已清理</td>
+<td>不复用，新建任务</td>
+</tr>
+<tr>
+<td>AC-11d</td>
+<td>上限</td>
+<td>演示设置把上限调为 5 万笔，提交 1 级联赛（66,134 笔）</td>
+<td>提示“当前条件共 66,134 笔注单，超过单任务上限 5 万笔”，不创建任务</td>
+</tr>
+<tr>
+<td>AC-11e</td>
+<td>配额</td>
+<td>演示设置把配额调为 2，已有 2 个计入配额的任务后提交新条件</td>
+<td>提示配额已用完与恢复时间，不创建任务；相同条件的复用仍可用</td>
+</tr>
+<tr>
+<td>AC-11f</td>
+<td>配额返还</td>
+<td>任务失败或被取消</td>
+<td>今日已用数减少；重试成功后再计入</td>
+</tr>
+<tr>
+<td>AC-12</td>
+<td>取消</td>
+<td>取消排队 / 执行中任务</td>
+<td>仅该项取消，释放名额，其他继续</td>
+</tr>
+<tr>
+<td>AC-13</td>
+<td>隔离</td>
+<td>取消后旧计算晚返回</td>
+<td>不回写结果或其他任务状态</td>
+</tr>
+<tr>
+<td>AC-14</td>
+<td>重试</td>
+<td>修改草稿后重试失败项</td>
+<td>按原条件新建 taskId，保留 retryOf</td>
+</tr>
+<tr>
+<td>AC-15</td>
+<td>结果</td>
+<td>查看 A → B → A</td>
+<td>A 前后一致，不重算，不覆盖草稿</td>
+</tr>
+<tr>
+<td>AC-16</td>
+<td>结果</td>
+<td>打开明细时其他任务完成</td>
+<td>明细仍属于原 taskId</td>
+</tr>
+<tr>
+<td>AC-17</td>
+<td>重新生成</td>
+<td>正在查看 A，草稿为 B</td>
+<td>使用 A 的条件新建任务</td>
+</tr>
+<tr>
+<td>AC-18</td>
+<td>基础</td>
+<td>默认任务查看结果</td>
+<td>88,503 笔；实际盈利率 2.53%（赛前 3.62%、滚球 1.75%）；可模拟 87,877 笔</td>
+</tr>
+<tr>
+<td>AC-19</td>
+<td>覆盖</td>
+<td>默认任务不可模拟明细</td>
+<td>626 笔 / 184,390.00 USD，原因笔数：未结算 353、结算明细不完整 109、映射缺失 164</td>
+</tr>
+<tr>
+<td>AC-20</td>
+<td>匹配</td>
+<td>默认任务匹配情况</td>
+<td>覆盖率 N01 99.63%、N02 87.79%、L01 78.49%、L02 55.72%；每源原因之和 = 87,877</td>
+</tr>
+<tr>
+<td>AC-21</td>
+<td>匹配</td>
+<td>容差边界：滚球时差 10.000 秒 / 10.001 秒</td>
+<td>原型前者匹配、后者超出容差；生产按 D-01 验收</td>
+</tr>
+<tr>
+<td>AC-22</td>
+<td>匹配</td>
+<td>让分 / 大小，源只有其他盘口线</td>
+<td>记盘口线不一致，不插值；独赢不出现此原因</td>
+</tr>
+<tr>
+<td>AC-22a</td>
+<td>匹配</td>
+<td>独赢注单买和局，源缺和局报价；注单买主胜，源缺和局报价</td>
+<td>前者记“缺少该投注项报价”；后者照常匹配</td>
+</tr>
+<tr>
+<td>AC-22b</td>
+<td>原始赔率</td>
+<td>抽检已匹配注单</td>
+<td>模拟赔率 = oddsValue ÷ 100000（或按 7.1 换算），不做去水或加水</td>
+</tr>
+<tr>
+<td>AC-23</td>
+<td>口径</td>
+<td>检查对比表、拆分表与明细</td>
+<td>无口径切换与口径标签；口径说明只在「计算规则」中</td>
+</tr>
+<tr>
+<td>AC-23a</td>
+<td>单值列</td>
+<td>检查对比表、维度拆分、匹配情况两张表</td>
+<td>每个单元格只有一个数据；对比表 17 列、无区间列，最后一列为「无法模拟明细 · 查询」；维度拆分每个源两列</td>
+</tr>
+<tr>
+<td>AC-24</td>
+<td>无法模拟</td>
+<td>默认任务对比表</td>
+<td>每个源 已模拟 + 无法模拟 = 可模拟（笔数与金额）；L02 无法模拟 38,915 笔 / 11,640,174.00 USD</td>
+</tr>
+<tr>
+<td>AC-25</td>
+<td>覆盖样本</td>
+<td>默认任务覆盖样本</td>
+<td>每源笔数 = 已匹配笔数；差值为同一子集上的配对结果</td>
+</tr>
+<tr>
+<td>AC-26</td>
+<td>结论与用语</td>
+<td>任一源行；检查对比表、维度拆分、计算规则弹窗与表格说明</td>
+<td>结论只出现“盈利高于实际”“盈利低于实际”“与实际差别不明显”“样本不足”“无样本”，且与 9.3 后台判断一致；页面无“显著”“区间”“置信”“方差”等统计用语</td>
+</tr>
+<tr>
+<td>AC-27</td>
+<td>样本</td>
+<td>某源或某拆分单元格 &lt; 300 笔</td>
+<td>显示样本不足，不参与最佳判断</td>
+</tr>
+<tr>
+<td>AC-28</td>
+<td>无法模拟明细</td>
+<td>点击某源行最后一列「查询」</td>
+<td>明细只含该源无法模拟的注单；匹配状态与对比源锁定；各原因笔数与匹配情况一致</td>
+</tr>
+<tr>
+<td>AC-29</td>
+<td>选择偏差</td>
+<td>按实际赔率源拆分</td>
+<td>各源在自身承接注单上的盈利率差接近 0</td>
+</tr>
+<tr>
+<td>AC-30</td>
+<td>拆分</td>
+<td>5 个维度页签、分页</td>
+<td>行数、排序、最佳高亮正确；按玩法为 6 行且按固定顺序；每维度合计与总表守恒</td>
+</tr>
+<tr>
+<td>AC-31</td>
+<td>明细</td>
+<td>6 类入口</td>
+<td>初始集合、预选源与默认排序正确；标题含 taskId、口径与“不提供导出”</td>
+</tr>
+<tr>
+<td>AC-32</td>
+<td>明细</td>
+<td>切换对比源、匹配状态、赔率比较、结算结果、排序、分页</td>
+<td>在入口集合内求交集；第 27～36 列随源变化；合计基于全部符合条件的注单</td>
+</tr>
+<tr>
+<td>AC-33</td>
+<td>明细</td>
+<td>源行「查看」入口筛选未匹配</td>
+<td>0 笔，提示没有符合条件的注单</td>
+</tr>
+<tr>
+<td>AC-33a</td>
+<td>明细上限</td>
+<td>默认任务「全部注单明细」</td>
+<td>符合条件 88,503 笔 / 26,514,794.00 USD；列表为前 10,000 笔（每页 50 条共 200 页）</td>
+</tr>
+<tr>
+<td>AC-33b</td>
+<td>排序</td>
+<td>默认排序；不可模拟入口</td>
+<td>第 1 行盈亏差绝对值最大，未匹配与不可模拟排在已匹配之后；不可模拟入口按注单金额</td>
+</tr>
+<tr>
+<td>AC-33c</td>
+<td>精确查找</td>
+<td>输入注单编号、订单编号、用户ID、赛事编号；输入联赛或球队名称</td>
+<td>编号完全匹配时返回对应注单；名称不做模糊匹配，返回 0 笔</td>
+</tr>
+<tr>
+<td>AC-33d</td>
+<td>字段</td>
+<td>检查表头与单元格</td>
+<td>36 列分 4 组并标注来源表；计算列以蓝色标示；每个单元格只有一个数据；列名与 12.3 一致</td>
+</tr>
+<tr>
+<td>AC-33e</td>
+<td>未匹配集中度</td>
+<td>打开匹配情况并切换源</td>
+<td>默认覆盖率最低的源；显示前 10 场赛事与 6 个玩法；按赛事、按玩法合计都等于该源未匹配笔数</td>
+</tr>
+<tr>
+<td>AC-33f</td>
+<td>生产明细</td>
+<td>百万级注单下查询明细</td>
+<td>服务端排序、上限与分页；合计用聚合查询；只扫描本任务分区</td>
+</tr>
+<tr>
+<td>AC-33g</td>
+<td>明细保留</td>
+<td>生产环境检查明细表分区</td>
+<td>只保留最近 3 个日分区；失败或取消的任务明细被立即删除；页面“保留至”与分区删除时间一致</td>
+</tr>
+<tr>
+<td>AC-34</td>
+<td>快照缺失</td>
+<td>演示 L01 快照缺失</td>
+<td>任务成功；L01 覆盖率 0%，可模拟注单全部计入无法模拟（快照缺失）；其他源不受影响；黄色提示</td>
+</tr>
+<tr>
+<td>AC-35</td>
+<td>快照失败</td>
+<td>演示快照读取失败</td>
+<td>任务失败，旧结果保留，可重试</td>
+</tr>
+<tr>
+<td>AC-36</td>
+<td>空态</td>
+<td>15 级或无注单范围</td>
+<td>完成后查看为零值卡片与空表，不沿用其他任务数值</td>
+</tr>
+<tr>
+<td>AC-37</td>
+<td>筛选项</td>
+<td>检查查询条件</td>
+<td>共 10 项，无实际赔率源筛选；实际赔率源仍出现在金额占比、按实际赔率源拆分与明细中</td>
+</tr>
+<tr>
+<td>AC-37a</td>
+<td>源标识</td>
+<td>检查筛选、任务条件、对比表、拆分表、匹配情况、明细与演示设置</td>
+<td>只显示 N01、N02、L01、L02 等代码，不出现供应商名称</td>
+</tr>
+<tr>
+<td>AC-38</td>
+<td>删除项</td>
+<td>检查页面与弹窗</td>
+<td>无匹配容差卡片、口径标签行与结论摘要；页面无辅助说明文字，口径与解读说明只在弹窗中；无导出（含明细导出）、币种筛选、拒单 / 串关回放、分配编辑；无主玩法以外的玩法；无足球以外的赛种</td>
+</tr>
+<tr>
+<td>AC-39</td>
+<td>布局</td>
+<td>桌面与 390px 窄屏</td>
+<td>页面无横向溢出；宽表可横向滚动</td>
+</tr>
+<tr>
+<td>AC-40</td>
+<td>刷新</td>
+<td>离线原型刷新；生产恢复</td>
+<td>原型回到初始状态；生产只恢复已有任务，不新建或重算</td>
+</tr>
+<tr>
+<td>AC-41</td>
+<td>生产权限</td>
+<td>越权 taskId / resultId / 商户 / 源报价</td>
+<td>服务端拒绝</td>
+</tr>
+<tr>
+<td>AC-42</td>
+<td>生产故障</td>
+<td>断网、节点异常、发布 / 取消竞争</td>
+<td>可恢复或明确失败；单一终态</td>
+</tr>
+<tr>
+<td>AC-43</td>
+<td>明细过期</td>
+<td>演示设置选择“明细已清理”后生成并查看结果</td>
+<td>结果区与任务详情显示明细已清理；各明细入口提示已超过保留期；对比表、拆分、匹配情况正常</td>
+</tr>
+<tr>
+<td>AC-44</td>
+<td>生产容量</td>
+<td>峰值量级与多任务压测</td>
+<td>达到 D-08 评审后的目标</td>
+</tr>
+<tr>
+<td>AC-45</td>
+<td>取数排除</td>
+<td>范围内含提前结算、测试商户注单</td>
+<td>均不进入验证样本、不可模拟与明细</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="s77">17. 交付、联调与发布</h2>
+<h3 id="s78">17.1 交付清单</h3>
+<p>本次交付高保真原型、MRD 与 PRD。生产交付应包含：赔率源快照接入与保留、赛事 / 玩法 / 投注项映射、Doris 明细表与保留策略、异步任务与结果服务（复用接拒模拟的任务服务）、页面接入、明细与匹配情况接口、权限、审计与监控。</p>
+<h3 id="s79">17.2 联调顺序</h3>
+<ol>
+<li>确认匹配规则（D-01）、映射（D-02）、原始赔率口径的使用前提（D-03）、结算口径（D-04）。</li>
+<li>选取少量赛事，逐笔核对报价时点、时延、赔率换算与重算盈亏。</li>
+<li>核对覆盖原因分布与守恒；再验证汇总、结论与拆分。</li>
+<li>验证多任务、取消恢复、权限与容量；最后验证明细写入、过期清理与 3 天总量。</li>
+</ol>
+<p>不得用 UI 数字正确替代后台快照、匹配和权限验收。</p>
+<h3 id="s80">17.3 发布条件</h3>
+<p>关键口径有责任方确认；单任务与多任务验收无阻断问题；结果可追溯和恢复；权限、监控与容量参数确定；覆盖率异常有解释和处理记录。</p>
+<p>本次已用无头浏览器验证：联赛等级 / 联赛 / 赛事独立筛选与交集、商户树形多选与按商户集合复用、初始空白、校验拦截、主玩法 6 项筛选与部分玩法任务、3 并行与排队、去重、取消、失败重试、快照缺失、快照读取失败、空范围、赛种只读、源代码展示、无实际赔率源筛选、固定口径与无法模拟展示、对比区精简、每列一个数据、明细保留与过期、上限 / 配额 / 复用、明细排序 / 上限 / 精确查找、未匹配集中度、按玩法拆分与独赢明细、A→B→A 一致、窄屏无横向溢出，以及默认任务全部守恒校验。这不等于生产服务、真实快照、容量或结算引擎已验收。</p>
+<h2 id="s81">18. 待确认事项及当前处理</h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>决策</th>
+<th>待确认内容</th>
+<th>当前文档 / 页面处理</th>
+<th>影响范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D-01</td>
+<td>报价匹配：容差取值；时间基准用入库时间 createTime 还是下发时间 dataSourceTime；封盘判定（thirdMarketSourceStatus 枚举）；是否区分玩法设容差</td>
+<td>原型赛前 300 秒、滚球 10 秒，以入库时间为准（保证投注时报价已在平台上；下发时间仅作链路排查参考），封盘视为无报价</td>
+<td>覆盖率、匹配结果与边界测试</td>
+</tr>
+<tr>
+<td>D-02</td>
+<td>赛事、玩法、投注项、盘口线在各源之间的映射及版本</td>
+<td>原型假设映射完整可用；未映射记原因</td>
+<td>覆盖率与样本</td>
+</tr>
+<tr>
+<td>D-03</td>
+<td>原始赔率口径的使用前提：平台是否直接采用实际赔率源的报价；操盘调整是否需要识别；结论中如何说明各源水位差异；后续是否提供统一水位口径</td>
+<td>原型：平台直接采用实际赔率源报价，约 20% 注单有一档操盘调整；只提供原始赔率口径</td>
+<td>结论解读</td>
+</tr>
+<tr>
+<td>D-04</td>
+<td>结算与统计单元：舍入；全场玩法是否统一按 90 分钟（含补时）赛果结算</td>
+<td>已确认并写入正文：只取单关、不回放串关；提前结算注单、测试商户注单在取数时排除；重结算取最终结算结果（7.3、14.7）。结算结果为取消、走水的注单原型按盈亏 0 进入分母，是否统计见 D-17。原型全场按 90 分钟、半场按上半场赛果</td>
+<td>样本范围、盈亏与分母</td>
+</tr>
+<tr>
+<td>D-05</td>
+<td>真实联赛等级与玩法元数据：足球主玩法 6 项的 play_id 清单、各源玩法映射；数据字典中联赛级别为 1–16，页面沿用 15 级，需统一</td>
+<td>主玩法 6 项已确认；五大联赛 / 欧冠 1 级；其余等级为演示映射；联赛等级直接沿用后台现有定义可一并解决</td>
+<td>筛选级联、匹配与拆分</td>
+</tr>
+<tr>
+<td>D-06</td>
+<td>报表币种及金额精度</td>
+<td>原型 USD；无币种筛选、不混合原币</td>
+<td>金额与汇总</td>
+</tr>
+<tr>
+<td>D-07</td>
+<td>源原始报价的可见权限；赔率源启用 / 停用在历史区间的处理（已停用源能否回放）；源代码与供应商对应关系的维护与可见范围；明细中用户ID 的可见范围</td>
+<td>原型 4 个启用源，以代码展示，均可见；已停用源若不可回放，需说明其历史注单在实际赔率源金额占比中的展示方式</td>
+<td>明细字段与可选源</td>
+</tr>
+<tr>
+<td>D-08</td>
+<td>运行参数：并发、超时、汇总结果保留期、最小样本与置信水平、明细列表上限、性能目标；每日配额的具体数值与按账号还是按租户；跨账号复用；明细保留按日分区（实际 2～3 天）还是严格 72 小时</td>
+<td>已确认：单任务上限 500 万笔、按日配额、3 天内相同条件复用、单任务时间跨度最多 62 天。原型默认：每个账号每天 10 个、3 并行、300 笔、95%、明细前 10,000 笔、明细保留 3 个日分区</td>
+<td>运行服务、存储容量与结论标签</td>
+</tr>
+<tr>
+<td>D-09</td>
+<td>商户范围：巡查商户注单是否排除；体育报表现有报表的"正常商户"具体包含哪些、排除哪些</td>
+<td>原型只排除测试商户。货量分析规定"仅统计正常商户，巡查商户、测试商户等非正常商户不参与"，建议与体育报表现有口径一致；需给出判定字段</td>
+<td>样本范围</td>
+</tr>
+<tr>
+<td>D-10</td>
+<td>不可模拟原因「结算明细不完整」「投注项 / 盘口映射缺失」在真实数据中是否存在、数量多少、判定字段</td>
+<td>原型按演示比例生成；仅「正常单尚未结算」有数据字典依据（order_status = 0）。若不存在或极少，从页面不可模拟原因中去掉，只保留后台异常计数</td>
+<td>不可模拟、基础统计、D-15</td>
+</tr>
+<tr>
+<td>D-11</td>
+<td>"有效注单"口径</td>
+<td><strong>已确认</strong>：沿用全系统统一的有效注单口径（与体育报表现有报表一致），不单独定义；14.7 的条件按该口径实现</td>
+<td>样本范围</td>
+</tr>
+<tr>
+<td>D-12</td>
+<td>实际赔率源在自身注单上的重算赔率：用源报价还是实际赔率</td>
+<td>原型用源报价重算（与其他源同一规则）；「按实际赔率源」拆分对角线可作校准：接近 0 说明平台基本直接采用源报价、匹配正确；明显偏离需排查加水 / 操盘调整、报价时点、换算舍入或映射</td>
+<td>选择偏差拆分、实际源行</td>
+</tr>
+<tr>
+<td>D-13</td>
+<td>与「赔率源表现报表」的口径对齐："货量占比"（volumeRatioPct）、"真实咬度"（realBiteRatePct）与本功能"实际赔率源金额占比"、按实际赔率源拆分"实际盈利率"的时间口径（结算日期 / 投注时间）、样本范围、分母与命名</td>
+<td>本功能按投注时间、足球主玩法单关正常单计算，叫"盈利率"；对齐或在计算规则中写明差异待定</td>
+<td>命名与解读</td>
+</tr>
+<tr>
+<td>D-14</td>
+<td>是否增加商户风控标签筛选（商户类型、分类、等级、风险等级，读取"商户标签管理"）</td>
+<td>原型不增加；若增加，规则沿用货量分析（未选具体商户时组合筛选，选了具体商户后不叠加），并纳入"3 天内相同条件复用"比较</td>
+<td>筛选、复用</td>
+</tr>
+<tr>
+<td>D-15</td>
+<td>实际盈利率两处数值不一致：当前查询结果"实际平台盈利率"（÷ 已结算金额）与对比表"实际赔率"行盈利率（÷ 可模拟金额）</td>
+<td>原型两处并存（演示 2.53% / 2.49%），差异来自已结算但不可模拟的注单；若 D-10 确认两类不存在，两处数值相同，本项关闭</td>
+<td>基础统计、对比表</td>
+</tr>
+<tr>
+<td>D-16</td>
+<td>明细字段命名："原始赔率"列（实为玩家下注时按盘口类型显示的赔率，与"原始赔率口径"同名不同义）；"报价时延（秒）"（实为下注时间 − 赔率入库时间）</td>
+<td>原型沿用原名；建议改为"下注显示赔率""报价距下注时长（秒）"，对比表"滚球平均时延"同步</td>
+<td>明细、对比表</td>
+</tr>
+<tr>
+<td>D-17</td>
+<td>结算结果为取消（如比赛腰斩）、走水的注单是否统计：两者平台盈亏均为 0、与赔率无关，计入只影响分母（演示中取消约占 0.2%，计入与否实际盈利率为 2.53% / 2.54%）；建议不单独规定，按全系统有效注单口径处理，两类一并确定；同时确认"结算结果为取消"在真实系统中记为 t_settle.out_come = 取消，还是注单状态直接变为 order_status = 2，及其枚举值</td>
+<td>原型沿用原始规则：两者均保留在样本中，按盈亏 0 计入分母；明细「结算结果」可筛"走水 / 取消"。注单状态为取消（order_status = 2）仍在取数时排除</td>
+<td>样本范围、分母、取数实现</td>
+</tr>
+</tbody>
+</table></div>
+<p>待确认项的演示值不得写成已批准的生产政策。</p>
+<h2 id="s82">19. 附录：可复现演示基线</h2>
+<h3 id="s83">19.1 数据说明</h3>
+<p>以下数值需在默认筛选下手动点击「生成分析」，任务成功后点击「查看结果」才展示。固定种子 20261024；默认足球、全部阶段、全部等级 / 联赛 / 赛事、主玩法全部 6 个玩法、全部商户、对比 4 个源、2026 年 9 月、USD。演示数据共 89,500 笔，全部为足球。</p>
+<p>演示数据中，各源的覆盖率、报价时延、定价误差与水位按联赛等级随机设定；平台直接采用实际赔率源的报价，约 20% 注单有一档（0.01）操盘调整；约 12% 的注单来自专挑实际赔率偏高投注项的玩家。这些设定只用于体验流程和展示选择偏差，不代表真实赔率源表现。</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>指标</th>
+<th style="text-align: right;">预期值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>验证注单 / 投注金额</td>
+<td style="text-align: right;">88,503 笔 / 26,514,794.00 USD</td>
+</tr>
+<tr>
+<td>可模拟 / 不可模拟</td>
+<td style="text-align: right;">87,877 笔 / 626 笔</td>
+</tr>
+<tr>
+<td>不可模拟原因</td>
+<td style="text-align: right;">未结算 353 · 结算明细不完整 109 · 映射缺失 164</td>
+</tr>
+<tr>
+<td>已结算金额 / 实际平台盈亏</td>
+<td style="text-align: right;">26,408,867.00 / +668,702.87 USD</td>
+</tr>
+<tr>
+<td>实际盈利率（赛前 / 滚球）</td>
+<td style="text-align: right;">2.53%（3.62% / 1.75%）</td>
+</tr>
+<tr>
+<td>实际赔率源金额占比</td>
+<td style="text-align: right;">N01 91.66% · N02 3.43% · L01 3.93% · L02 0.98%</td>
+</tr>
+<tr>
+<td>可模拟注单的实际结果</td>
+<td style="text-align: right;">87,877 笔 / 26,330,404.00 USD，实际盈亏 +655,954.83，盈利率 2.49%</td>
+</tr>
+<tr>
+<td>滚球平均报价时延</td>
+<td style="text-align: right;">N01 1.52 秒 · N02 2.31 秒 · L01 1.72 秒 · L02 6.18 秒</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="s84">19.2 默认对比表：各源覆盖样本 · 原始赔率</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>赔率源</th>
+<th style="text-align: right;">覆盖率</th>
+<th style="text-align: right;">已模拟笔数</th>
+<th style="text-align: right;">已模拟金额</th>
+<th style="text-align: right;">无法模拟笔数</th>
+<th style="text-align: right;">无法模拟金额</th>
+<th style="text-align: right;">实际平台盈亏</th>
+<th style="text-align: right;">模拟平台盈亏</th>
+<th style="text-align: right;">盈利率</th>
+<th style="text-align: right;">盈亏差</th>
+<th style="text-align: right;">盈利率差</th>
+<th style="text-align: right;">平均赔率偏差</th>
+<th style="text-align: right;">高于实际赔率</th>
+<th style="text-align: right;">滚球平均时延（秒）</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实际赔率</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">87,877</td>
+<td style="text-align: right;">26,330,404.00</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">+655,954.83</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">2.49%</td>
+<td style="text-align: right;">基准</td>
+<td style="text-align: right;">基准</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td>比较基准</td>
+</tr>
+<tr>
+<td>N01</td>
+<td style="text-align: right;">99.63%</td>
+<td style="text-align: right;">87,551</td>
+<td style="text-align: right;">26,235,187.00</td>
+<td style="text-align: right;">326</td>
+<td style="text-align: right;">95,217.00</td>
+<td style="text-align: right;">+653,527.48</td>
+<td style="text-align: right;">+657,532.45</td>
+<td style="text-align: right;">2.51%</td>
+<td style="text-align: right;">+4,004.97</td>
+<td style="text-align: right;">+0.02</td>
+<td style="text-align: right;">+0.001</td>
+<td style="text-align: right;">13.17%</td>
+<td style="text-align: right;">1.52</td>
+<td>与实际差别不明显</td>
+</tr>
+<tr>
+<td>N02</td>
+<td style="text-align: right;">87.79%</td>
+<td style="text-align: right;">77,143</td>
+<td style="text-align: right;">23,129,539.00</td>
+<td style="text-align: right;">10,734</td>
+<td style="text-align: right;">3,200,865.00</td>
+<td style="text-align: right;">+530,895.95</td>
+<td style="text-align: right;">+802,698.31</td>
+<td style="text-align: right;">3.47%</td>
+<td style="text-align: right;">+271,802.36</td>
+<td style="text-align: right;">+1.18</td>
+<td style="text-align: right;">−0.018</td>
+<td style="text-align: right;">42.44%</td>
+<td style="text-align: right;">2.31</td>
+<td>盈利高于实际</td>
+</tr>
+<tr>
+<td>L01</td>
+<td style="text-align: right;">78.49%</td>
+<td style="text-align: right;">68,972</td>
+<td style="text-align: right;">20,685,653.00</td>
+<td style="text-align: right;">18,905</td>
+<td style="text-align: right;">5,644,751.00</td>
+<td style="text-align: right;">+395,964.62</td>
+<td style="text-align: right;">+848,274.00</td>
+<td style="text-align: right;">4.10%</td>
+<td style="text-align: right;">+452,309.38</td>
+<td style="text-align: right;">+2.19</td>
+<td style="text-align: right;">−0.046</td>
+<td style="text-align: right;">33.08%</td>
+<td style="text-align: right;">1.72</td>
+<td>盈利高于实际</td>
+</tr>
+<tr>
+<td>L02</td>
+<td style="text-align: right;">55.72%</td>
+<td style="text-align: right;">48,962</td>
+<td style="text-align: right;">14,690,230.00</td>
+<td style="text-align: right;">38,915</td>
+<td style="text-align: right;">11,640,174.00</td>
+<td style="text-align: right;">+384,419.08</td>
+<td style="text-align: right;">+516,319.30</td>
+<td style="text-align: right;">3.51%</td>
+<td style="text-align: right;">+131,900.22</td>
+<td style="text-align: right;">+0.90</td>
+<td style="text-align: right;">−0.007</td>
+<td style="text-align: right;">43.23%</td>
+<td style="text-align: right;">6.18</td>
+<td>盈利高于实际</td>
+</tr>
+</tbody>
+</table></div>
+<p>各源“实际平台盈亏”不同，因为每个源只在自己已模拟的注单上计算。N01 是 91.66% 注单的实际赔率源，差值只来自操盘调整和少量无报价，接近 0。其他三个源的结论都是“盈利高于实际”，主要因为它们的水位高于 N01（平均赔率偏差为负），再叠加选择偏差，不能直接理解为定价更准。</p>
+<h3 id="s85">19.3 无法模拟原因（各源笔数）</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>赔率源</th>
+<th style="text-align: right;">赛事未映射</th>
+<th style="text-align: right;">源未提供该玩法</th>
+<th style="text-align: right;">盘口线不一致</th>
+<th style="text-align: right;">缺少该投注项报价</th>
+<th style="text-align: right;">投注时点封盘</th>
+<th style="text-align: right;">超出时延容差</th>
+<th style="text-align: right;">快照缺失</th>
+<th style="text-align: right;">合计</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>N01</td>
+<td style="text-align: right;">97</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">97</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">79</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">326</td>
+</tr>
+<tr>
+<td>N02</td>
+<td style="text-align: right;">1,239</td>
+<td style="text-align: right;">1,158</td>
+<td style="text-align: right;">4,448</td>
+<td style="text-align: right;">628</td>
+<td style="text-align: right;">1,741</td>
+<td style="text-align: right;">1,520</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">10,734</td>
+</tr>
+<tr>
+<td>L01</td>
+<td style="text-align: right;">7,758</td>
+<td style="text-align: right;">924</td>
+<td style="text-align: right;">7,074</td>
+<td style="text-align: right;">356</td>
+<td style="text-align: right;">1,945</td>
+<td style="text-align: right;">848</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">18,905</td>
+</tr>
+<tr>
+<td>L02</td>
+<td style="text-align: right;">21,120</td>
+<td style="text-align: right;">5,989</td>
+<td style="text-align: right;">4,720</td>
+<td style="text-align: right;">916</td>
+<td style="text-align: right;">1,880</td>
+<td style="text-align: right;">4,290</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">38,915</td>
+</tr>
+</tbody>
+</table></div>
+<p>L02 未匹配最多的赛事是“纽卡斯尔 vs 曼城”（2,095 笔）和“阿森纳 vs 热刺”（2,091 笔），全部为赛事未映射。按玩法看，L02 半场三个玩法的覆盖率为 42.12%～48.10%，全场三个玩法约 60%。</p>
+<h3 id="s86">19.4 拆分示例（每个源两列：盈利率差 / 覆盖率）</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>拆分</th>
+<th>行</th>
+<th style="text-align: right;">可模拟注单</th>
+<th style="text-align: right;">实际盈利率</th>
+<th style="text-align: right;">N01 盈利率差</th>
+<th style="text-align: right;">N01 覆盖率</th>
+<th style="text-align: right;">N02 盈利率差</th>
+<th style="text-align: right;">N02 覆盖率</th>
+<th style="text-align: right;">L01 盈利率差</th>
+<th style="text-align: right;">L01 覆盖率</th>
+<th style="text-align: right;">L02 盈利率差</th>
+<th style="text-align: right;">L02 覆盖率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>比赛阶段</td>
+<td>赛前</td>
+<td style="text-align: right;">36,668</td>
+<td style="text-align: right;">3.59%</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">99.75%</td>
+<td style="text-align: right;">+1.13</td>
+<td style="text-align: right;">91.21%</td>
+<td style="text-align: right;">+1.99</td>
+<td style="text-align: right;">82.91%</td>
+<td style="text-align: right;">+1.14</td>
+<td style="text-align: right;">61.52%</td>
+</tr>
+<tr>
+<td>比赛阶段</td>
+<td>滚球</td>
+<td style="text-align: right;">51,209</td>
+<td style="text-align: right;">1.70%</td>
+<td style="text-align: right;">+0.02</td>
+<td style="text-align: right;">99.54%</td>
+<td style="text-align: right;">+1.21</td>
+<td style="text-align: right;">85.33%</td>
+<td style="text-align: right;">+2.34</td>
+<td style="text-align: right;">75.32%</td>
+<td style="text-align: right;">+0.69</td>
+<td style="text-align: right;">51.56%</td>
+</tr>
+<tr>
+<td>玩法</td>
+<td>全场独赢</td>
+<td style="text-align: right;">13,339</td>
+<td style="text-align: right;">0.61%</td>
+<td style="text-align: right;">+0.13</td>
+<td style="text-align: right;">99.78%</td>
+<td style="text-align: right;">+1.51</td>
+<td style="text-align: right;">92.65%</td>
+<td style="text-align: right;">+2.74</td>
+<td style="text-align: right;">86.87%</td>
+<td style="text-align: right;">+1.09</td>
+<td style="text-align: right;">59.77%</td>
+</tr>
+<tr>
+<td>玩法</td>
+<td>半场独赢</td>
+<td style="text-align: right;">6,987</td>
+<td style="text-align: right;">3.26%</td>
+<td style="text-align: right;">+0.16</td>
+<td style="text-align: right;">99.80%</td>
+<td style="text-align: right;">+2.20</td>
+<td style="text-align: right;">88.22%</td>
+<td style="text-align: right;">+3.02</td>
+<td style="text-align: right;">84.69%</td>
+<td style="text-align: right;">+0.51</td>
+<td style="text-align: right;">45.63%</td>
+</tr>
+<tr>
+<td>玩法</td>
+<td>半场大小</td>
+<td style="text-align: right;">8,726</td>
+<td style="text-align: right;">2.54%</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">99.70%</td>
+<td style="text-align: right;">+0.77</td>
+<td style="text-align: right;">85.03%</td>
+<td style="text-align: right;">+1.92</td>
+<td style="text-align: right;">76.47%</td>
+<td style="text-align: right;">+0.58</td>
+<td style="text-align: right;">42.12%</td>
+</tr>
+<tr>
+<td>实际赔率源</td>
+<td>N01 承接</td>
+<td style="text-align: right;">80,379</td>
+<td style="text-align: right;">2.66%</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">100.00%</td>
+<td style="text-align: right;">+1.30</td>
+<td style="text-align: right;">87.34%</td>
+<td style="text-align: right;">+2.26</td>
+<td style="text-align: right;">77.59%</td>
+<td style="text-align: right;">+1.00</td>
+<td style="text-align: right;">55.19%</td>
+</tr>
+<tr>
+<td>实际赔率源</td>
+<td>L01 承接</td>
+<td style="text-align: right;">3,524</td>
+<td style="text-align: right;">1.66%</td>
+<td style="text-align: right;">−1.09</td>
+<td style="text-align: right;">96.34%</td>
+<td style="text-align: right;">−0.97</td>
+<td style="text-align: right;">87.51%</td>
+<td style="text-align: right;">−0.01</td>
+<td style="text-align: right;">100.00%</td>
+<td style="text-align: right;">−0.98</td>
+<td style="text-align: right;">57.69%</td>
+</tr>
+</tbody>
+</table></div>
+<p>页面上结论为盈利高于或低于实际的盈利率差加粗（例如半场独赢 L02 的 +0.51 结论为与实际差别不明显，不加粗），覆盖率低于 50% 标黄。7 级联赛中 L02 覆盖率只有 10.62%（已模拟 196 笔），页面显示“样本不足”，不参与最佳判断。</p>
+<p>以上数值来自与原型一致的验证数据。基础统计、对比、拆分与明细须从同一份注单与快照计算，不能为贴近预期而单独修改某个卡片或表格值。</p></main></div></body></html>
