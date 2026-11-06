@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>赔率源模拟分析 · 待确认项</title><style>
+:root{color-scheme:light;--text:#243047;--muted:#6b778a;--line:#dfe5ee;--head:#f5f7fa;--accent:#1677ff;--note:#eef5ff;--bg:#f3f5f8;--paper:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;font-size:14px;line-height:1.75}
+.wrap{display:flex;gap:24px;max-width:1440px;margin:0 auto;padding:28px 24px}
+nav.toc{position:sticky;top:20px;align-self:flex-start;width:250px;flex:none;max-height:calc(100vh - 40px);overflow:auto;background:var(--paper);border:1px solid #e7ebf0;border-radius:10px;padding:16px 14px;font-size:12.5px}
+nav.toc b{display:block;font-size:13px;margin-bottom:8px;color:#16233a}
+nav.toc a{display:block;color:#4a5a70;text-decoration:none;padding:4px 6px;border-radius:5px;line-height:1.45}
+nav.toc a:hover{background:var(--note);color:var(--accent)}
+nav.toc a.l3{padding-left:18px;font-size:12px;color:var(--muted)}
+main{flex:1;min-width:0;background:var(--paper);border:1px solid #e7ebf0;border-radius:10px;box-shadow:0 8px 30px rgba(31,45,61,.06);padding:44px 52px 72px}
+h1{margin:0 0 24px;font-size:28px;line-height:1.35;color:#16233a}
+h2{margin:40px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--line);font-size:21px;color:#1e2b43;scroll-margin-top:16px}
+h3{margin:26px 0 12px;font-size:16.5px;color:#263650;scroll-margin-top:16px}
+h4{margin:20px 0 10px;font-size:15px}
+p{margin:10px 0}ul,ol{margin:8px 0 14px;padding-left:25px}li{margin:4px 0}
+.tbl{overflow-x:auto;margin:14px 0 22px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 11px;border:1px solid var(--line);text-align:left;vertical-align:top;word-break:break-word}
+th{background:var(--head);color:#344054;font-weight:600;white-space:nowrap}
+tr:nth-child(even) td{background:#fbfcfe}
+td[align=right],th[align=right]{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+code{padding:2px 5px;border-radius:4px;background:#f2f4f7;color:#344054;font-family:Consolas,"SFMono-Regular",monospace;font-size:.92em}
+pre{background:#f6f8fb;border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow:auto}
+pre code{background:none;padding:0}
+blockquote{margin:12px 0;padding:10px 16px;background:var(--note);border-left:3px solid var(--accent);color:#3d5276;border-radius:0 6px 6px 0}
+blockquote p{margin:4px 0}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+hr{border:0;border-top:1px dashed var(--line);margin:28px 0}
+.mermaid svg{max-width:560px!important;height:auto}
+.mermaid{background:#fbfcfe;border:1px solid var(--line);border-radius:8px;padding:12px;margin:14px 0;text-align:center}
+@media(max-width:1000px){nav.toc{display:none}.wrap{padding:0}main{border:0;border-radius:0;padding:28px 18px}table{font-size:12px}}
+@media print{body{background:#fff;font-size:12px}nav.toc{display:none}.wrap{padding:0;max-width:none}main{border:0;box-shadow:none;padding:0}h2{break-after:avoid}tr{break-inside:avoid}}
+
+.cf{margin:12px 0 26px}
+.cf label{display:block;font-size:13px;font-weight:600;color:#1e3a6b;margin-bottom:6px}
+.cf textarea{width:100%;min-height:72px;resize:vertical;font:inherit;font-size:13px;line-height:1.6;border:1px solid #cdd7e5;border-radius:6px;padding:8px 10px;background:#fbfcfe;color:var(--text)}
+.cf textarea:focus{outline:2px solid #bcd3fb;background:#fff}
+@media print{.cf textarea{border:0;background:none;min-height:0;padding:0}}
+</style></head><body><div class="wrap"><nav class="toc"><b>目录</b><a class="l2" href="#s1">仍待确认</a><a class="l2" href="#s2">D-01　报价匹配规则</a><a class="l2" href="#s3">D-02　各源映射及版本</a><a class="l2" href="#s4">D-03　原始赔率口径的使用前提</a><a class="l2" href="#s5">D-04　结算与统计单元</a><a class="l2" href="#s6">D-05　联赛等级与玩法元数据</a><a class="l2" href="#s7">D-06　报表币种及金额精度</a><a class="l2" href="#s8">D-07　权限与赔率源显示</a><a class="l2" href="#s9">D-08　运行参数</a><a class="l2" href="#s10">D-10　两类不可模拟原因是否真实存在</a><a class="l2" href="#s11">D-22　同盘口报价"同一时刻"的秒数标准</a><a class="l2" href="#s12">D-23　水位档位「X/Y」的含义</a><a class="l2" href="#s13">D-24　半场独赢是否使用上半场档位表</a><a class="l2" href="#s14">D-25　赔率快照可查询的起始日期</a><a class="l2" href="#s15">D-26　加水后高赔的取位方式</a><a class="l2" href="#s16">D-27　源水位低于目标水位时的处理</a><a class="l2" href="#s17">D-28　独赢的具体加水算法</a><a class="l2" href="#s18">已确认</a><a class="l2" href="#s19">同批新增的页面要求</a></nav><main><h1>赔率源模拟分析 · 待确认项</h1>
+<blockquote>
+<p>更新日期：2026-11-06（第 3 次）<br />
+待确认事项只在本文档维护，PRD 只写当前采用的口径并引用 D-xx 编号；「OddsSourceSimulation_MRD.html」第 10 章编号一致。原 PRD 第 18 章的 D-01～D-08 已移入本文档。</p>
+</blockquote>
+<h2 id="s1">仍待确认</h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>类型</th>
+<th>事项</th>
+<th>需谁确认</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D-01</td>
+<td>报价匹配</td>
+<td>时延容差取值、时间基准（入库时间 / 下发时间）、封盘判定枚举、是否按玩法设容差</td>
+<td>赔率接入 / 研发</td>
+</tr>
+<tr>
+<td>D-02</td>
+<td>映射</td>
+<td>赛事、玩法、投注项、盘口线在各源之间的映射及版本</td>
+<td>赔率接入 / 研发</td>
+</tr>
+<tr>
+<td>D-03</td>
+<td>原始赔率</td>
+<td>原始赔率口径的使用前提：平台是否直接采用实际赔率源的报价、操盘调整是否需要识别</td>
+<td>操盘</td>
+</tr>
+<tr>
+<td>D-04</td>
+<td>结算</td>
+<td>舍入规则；全场玩法是否统一按 90 分钟（含补时）赛果结算</td>
+<td>结算 / 研发</td>
+</tr>
+<tr>
+<td>D-05</td>
+<td>元数据</td>
+<td>主玩法 6 项的 play_id 清单与各源玩法映射；联赛等级 1–16（字典）与页面 15 级的统一</td>
+<td>研发</td>
+</tr>
+<tr>
+<td>D-06</td>
+<td>币种</td>
+<td>报表币种及金额精度</td>
+<td>产品 / 财务</td>
+</tr>
+<tr>
+<td>D-07</td>
+<td>权限</td>
+<td>源原始报价的可见与导出权限；已停用源能否回放历史区间；赔率源显示名称的维护方</td>
+<td>产品 / 安全</td>
+</tr>
+<tr>
+<td>D-08</td>
+<td>运行参数</td>
+<td>并发、超时、汇总结果保留期、最小样本与置信水平、性能目标；每日配额数值及按账号还是按租户；跨账号复用</td>
+<td>产品 / 研发 / 运维</td>
+</tr>
+<tr>
+<td>D-10</td>
+<td>取数规则</td>
+<td>不可模拟原因「结算明细不完整」「投注项 / 盘口映射缺失」是否真实存在</td>
+<td>研发</td>
+</tr>
+<tr>
+<td>D-22</td>
+<td>统一水位</td>
+<td>去水时同盘口各投注项报价"同一时刻"的秒数标准</td>
+<td>操盘 / 研发</td>
+</tr>
+<tr>
+<td>D-23</td>
+<td>统一水位</td>
+<td>水位档位「X/Y」两个数字的含义（原型暂按 早盘 / 滚球）</td>
+<td>需求方</td>
+</tr>
+<tr>
+<td>D-24</td>
+<td>统一水位</td>
+<td>半场独赢是否也使用「上半场抽水」档位表</td>
+<td>需求方</td>
+</tr>
+<tr>
+<td>D-25</td>
+<td>取数规则</td>
+<td>赔率快照可查询的起始日期（原型暂按 2026-10-01）</td>
+<td>研发</td>
+</tr>
+<tr>
+<td>D-26</td>
+<td>统一水位</td>
+<td>加水后高赔的取位方式（四舍五入 / 截断，保留几位小数）</td>
+<td>需求方 / 操盘</td>
+</tr>
+<tr>
+<td>D-27</td>
+<td>统一水位</td>
+<td>源水位低于目标水位时，高赔会低于低赔，是否需要特殊处理</td>
+<td>需求方 / 操盘</td>
+</tr>
+<tr>
+<td>D-28</td>
+<td>统一水位</td>
+<td>独赢（三项盘）的具体加水算法</td>
+<td>需求方 / 操盘</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="s2">D-01　报价匹配规则</h2>
+<ul>
+<li><strong>待确认</strong>：时延容差取值；报价时点以平台入库时间（createTime）还是源下发时间（dataSourceTime）为准；封盘判定（thirdMarketSourceStatus 枚举）；是否按玩法设不同容差。</li>
+<li><strong>原型暂定</strong>：早盘 300 秒、滚球 10 秒；以入库时间为准（保证投注时报价已在平台上，下发时间仅作链路排查）；封盘视为无报价。</li>
+<li><strong>关联</strong>：PRD 7.1、7.2、14.7</li>
+</ul>
+<h2 id="s3">D-02　各源映射及版本</h2>
+<ul>
+<li><strong>待确认</strong>：赛事、玩法、投注项、盘口线在各源之间的映射规则与版本管理。</li>
+<li><strong>原型暂定</strong>：映射完整可用；未映射记“赛事未映射”等原因。</li>
+<li><strong>关联</strong>：PRD 7.2、14.6</li>
+</ul>
+<h2 id="s4">D-03　原始赔率口径的使用前提</h2>
+<ul>
+<li><strong>待确认</strong>：平台是否直接采用实际赔率源的报价；操盘调整是否需要识别并单独说明。</li>
+<li><strong>原型暂定</strong>：平台直接采用实际赔率源报价，约 20% 注单有一档（0.01）操盘调整。需要排除各源水位差异时，已提供统一水位口径。</li>
+<li><strong>关联</strong>：PRD 8.2</li>
+</ul>
+<h2 id="s5">D-04　结算与统计单元</h2>
+<ul>
+<li><strong>待确认</strong>：赢 / 半赢损益的舍入规则；全场玩法是否统一按 90 分钟（含补时）赛果结算。</li>
+<li><strong>原型暂定</strong>：金额以分存储、四舍五入到分；全场按 90 分钟（含补时）、半场按上半场赛果。已确认的取数规则（只取单关、排除结算取消、提前结算参与计算、重结算取最终结果、走水按 0）不在此列。</li>
+<li><strong>关联</strong>：PRD 9.1、14.7</li>
+</ul>
+<h2 id="s6">D-05　联赛等级与玩法元数据</h2>
+<ul>
+<li><strong>待确认</strong>：主玩法 6 项的 play_id 清单及 play_options 与 oddsType 的对应；各源玩法映射；数据字典中联赛级别为 1–16，页面沿用 15 级，需统一。</li>
+<li><strong>原型暂定</strong>：五大联赛 / 欧冠为 1 级，其余等级为演示映射；直接沿用后台现有联赛等级定义可一并解决。</li>
+<li><strong>关联</strong>：PRD 4.1、4.3、14.7</li>
+</ul>
+<h2 id="s7">D-06　报表币种及金额精度</h2>
+<ul>
+<li><strong>待确认</strong>：报表币种与金额精度。</li>
+<li><strong>原型暂定</strong>：USD；无币种筛选、不混合原币。</li>
+<li><strong>关联</strong>：PRD 4.1、14.4</li>
+</ul>
+<h2 id="s8">D-07　权限与赔率源显示</h2>
+<ul>
+<li><strong>待确认</strong>：源原始报价的可见权限与导出权限；已停用的源能否回放其启用期间的历史区间；赔率源显示名称由谁维护。</li>
+<li><strong>当前处理</strong>：启用 / 停用由「赔率源管理」实现，停用源不可再选择，已有结果不受影响；页面与导出显示赔率源配置中的显示名称。</li>
+<li><strong>关联</strong>：PRD 2.2、4.6、12.2、15.2</li>
+</ul>
+<h2 id="s9">D-08　运行参数</h2>
+<ul>
+<li><strong>待确认</strong>：并发、超时、汇总结果保留期、最小样本与置信水平、性能目标；每日配额的具体数值及按账号还是按租户；是否开放跨账号复用。</li>
+<li><strong>当前处理</strong>：已确认单任务上限 500 万笔、按日配额、3 天内相同条件复用、单次查询最多 180 天。原型默认每个账号每天 10 个任务、3 项并行、最小样本 300 笔、95% 置信水平。</li>
+<li><strong>关联</strong>：PRD 5.3、5.8、9.3、14.8、15.1</li>
+</ul>
+<h2 id="s10">D-10　两类不可模拟原因是否真实存在</h2>
+<ul>
+<li><strong>现状</strong>：不可模拟原因有三类，仅「正常单尚未结算」有数据字典依据（order_status = 0）。「结算明细不完整」「投注项 / 盘口映射缺失」未定义判定字段，原型中的占比为演示值。</li>
+<li><strong>待确认</strong>：两类在真实数据中是否存在、数量多少、判定字段与条件。</li>
+<li><strong>当前处理</strong>：原型与文档保留这两类原因，标注"待研发确认"。若不存在或极少，从页面不可模拟原因中去掉，只保留后台异常计数。</li>
+<li><strong>关联</strong>：PRD 6.2、7.3、14.7</li>
+</ul>
+<h2 id="s11">D-22　同盘口报价"同一时刻"的秒数标准</h2>
+<ul>
+<li><strong>背景</strong>：去水需要同盘口全部投注项的报价，各项均取投注时点前最后一条。源的报价逐条入库，各项更新时间可能不同；缺任一项、任一项封盘，或各项时间相差超过标准时，该注单对该源记为"同盘口报价不全"（无法模拟）。</li>
+<li><strong>待确认</strong>：各投注项报价时间相差多少秒以内视为同一时刻，早盘、滚球是否分开设置。</li>
+<li><strong>原型暂定</strong>：早盘 60 秒、滚球 3 秒。</li>
+</ul>
+<hr />
+<h2 id="s12">D-23　水位档位「X/Y」的含义</h2>
+<ul>
+<li><strong>背景</strong>：需求方提供两张档位表。上半场抽水：10/10、10/12、12/14、14/16、16/18、18/20、20/20、22/22、24/24、26/26、28/28、30/30、32/32、40/40（14 档）；全场抽水：6/8、7/9、8/10、9/11、10/12、12/14、14/16、16/18、18/20、20/20、22/22、24/24、26/26、28/28、30/30、32/32、40/40（17 档）。N 水 = 两项盘两边香港盘都为 1 − N/200，返还率 = 1 − N/400（6 水 98.5%、10 水 97.5%、40 水 90.0%）。</li>
+<li><strong>待确认</strong>：X/Y 是否为「早盘水位 / 滚球水位」。判断依据：每档后一个数都不小于前一个，滚球抽水通常高于早盘，20 水以上两数相同；另一种可能是「让分 / 大小」，但与“后数不小于前数”的规律不吻合。</li>
+<li><strong>原型暂定</strong>：按早盘 / 滚球处理。赔率口径选「统一水位」后出现「全场水位」「上半场水位」两个下拉，默认各取第一档（全场 6/8、上半场 10/10）；每笔注单按自己的玩法（全场 / 半场）选表，按比赛阶段取 X 或 Y。</li>
+<li><strong>关联</strong>：原型筛选区、「数据口径」「匹配情况」弹窗</li>
+</ul>
+<h2 id="s13">D-24　半场独赢是否使用上半场档位表</h2>
+<ul>
+<li><strong>背景</strong>：上半场档位表用于三个半场玩法，全场档位表用于三个全场玩法。</li>
+<li><strong>待确认</strong>：半场独赢是否也用上半场档位表。</li>
+<li><strong>原型暂定</strong>：半场独赢、半场让分、半场大小都用上半场档位表。</li>
+</ul>
+<h2 id="s14">D-25　赔率快照可查询的起始日期</h2>
+<ul>
+<li><strong>背景</strong>：赔率数据只能获取到 10 月以后，查询的开始时间需从有数据的日期开始；单次查询最多 180 天。</li>
+<li><strong>待确认</strong>：可查询的具体起始日期与时刻（UTC+8）。</li>
+<li><strong>原型暂定</strong>：2026-10-01 00:00。开始时间早于该日期时提示错误；快捷时间（如最近 60 天）早于起始日时，开始时间自动调整为起始日并提示。</li>
+</ul>
+<h2 id="s15">D-26　加水后高赔的取位方式</h2>
+<ul>
+<li><strong>背景</strong>：高赔 = 1 ÷ (低赔 + N/100)，结果通常不是整数位，例如源低赔 0.80、6 水：1 ÷ 0.86 = 1.1628。</li>
+<li><strong>待确认</strong>：四舍五入还是截断，保留几位小数（香港盘）。</li>
+<li><strong>原型暂定</strong>：四舍五入到 2 位小数（1.16）。</li>
+</ul>
+<h2 id="s16">D-27　源水位低于目标水位时的处理</h2>
+<ul>
+<li><strong>背景</strong>：低赔保持源原始报价不变时，如果源本身的水位比目标水位低，算出的高赔会比低赔还低。例：源 0.98 / 0.98（约 4 水）、目标 10 水 → 0.98 / 0.93。</li>
+<li><strong>待确认</strong>：这种情况是否照常处理，还是改为别的方式（例如两边一起减水），或该注单不参与统一水位模拟。</li>
+<li><strong>原型暂定</strong>：照常按公式计算。</li>
+</ul>
+<h2 id="s17">D-28　独赢的具体加水算法</h2>
+<ul>
+<li><strong>背景</strong>：独赢已确认也按所选水位加水，但「低赔不变、水位补给高赔」的规则只适用于两项盘。</li>
+<li><strong>待确认</strong>：三项盘如何分配水位、对应的返还率。</li>
+<li><strong>原型暂定</strong>：三项按比例去水，再按返还率 1 − N/400 加水。</li>
+</ul>
+<h2 id="s18">已确认</h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>编号</th>
+<th>事项</th>
+<th>结论</th>
+<th>写入位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D-09</td>
+<td>巡查商户注单是否排除</td>
+<td>不单独定义巡查商户。测试 / 内部商户与测试 / 内部用户的过滤规则与现有报表通用过滤规则一致</td>
+<td>PRD 7.3、14.7</td>
+</tr>
+<tr>
+<td>D-11</td>
+<td>"有效注单"口径</td>
+<td>沿用全系统统一的有效注单口径（与体育报表现有报表一致），不单独定义</td>
+<td>PRD 14.7</td>
+</tr>
+<tr>
+<td>D-12</td>
+<td>实际赔率源在自身注单上的重算赔率</td>
+<td>用实际赔率。「按实际赔率源」拆分中，源与自身对应的单元格显示“-”，也不参与"最佳"判断</td>
+<td>PRD 7.2、9.1、9.4、11.2</td>
+</tr>
+<tr>
+<td>D-13</td>
+<td>与赔率源表现报表对齐命名</td>
+<td>不改名，继续叫"盈利率 / 盈利率差"</td>
+<td>—</td>
+</tr>
+<tr>
+<td>D-14</td>
+<td>是否增加商户风控标签筛选</td>
+<td>不增加商户类型、等级、风险等级。只增加「商户分类」，放在商户前，选项读取操盘风控后台的商户风控标签配置</td>
+<td>PRD 4.1</td>
+</tr>
+<tr>
+<td>D-15</td>
+<td>实际盈利率两处数值不一致</td>
+<td>两处都保留：当前查询结果按已结算金额算，对比表实际行按可模拟金额算</td>
+<td>PRD 6.1</td>
+</tr>
+<tr>
+<td>D-16</td>
+<td>明细字段命名</td>
+<td>「原始赔率」改为「下注显示赔率」。赔率入库时间、赔率下发时间、报价时延（秒）三列从明细中删除</td>
+<td>已失效：2026-11-06 起页面不展示注单明细</td>
+</tr>
+<tr>
+<td>D-17</td>
+<td>结算结果为取消、走水的注单是否统计</td>
+<td>结算结果为取消的注单在取数时排除；走水注单按盈亏 0 保留</td>
+<td>PRD 7.3、9.1、14.7</td>
+</tr>
+<tr>
+<td>赔率口径</td>
+<td>是否增加统一水位口径</td>
+<td>增加「赔率口径」筛选项，选项为原始赔率（默认）/ 统一水位。选统一水位后出现「全场水位」「上半场水位」两个下拉，档位为需求方提供的两张表，默认各取第一档（全场 6/8、上半场 10/10）；X/Y 的含义与半场独赢用表见 D-23、D-24。各源（含实际赔率源）用自身报价按比例去水后加水；新增无法模拟原因“同盘口报价不全”；「实际赔率」行保持真实结果；口径作为任务条件</td>
+<td>原型、PRD（2026-11-06）</td>
+</tr>
+<tr>
+<td>D-19</td>
+<td>让分 / 大小（两项盘）的加水算法</td>
+<td>不再以“是否大于 1”区分。统一规则：低赔保持源原始报价不变，目标水位与之相差的水位全部补给高赔；两边相同时以主队为低赔。水位按业务方验证式：水位 = 1 ÷ 高赔 − 低赔（香港盘），即 高赔 = 1 ÷ (低赔 + N/100)。例：0.70 / 1.10、10 水 → 0.70 / 1.25；0.95 / 0.95、10 水 → 0.95 / 0.95；0.90 / 0.90、10 水 → 0.90 / 1.00（与业务方 365 例子中“0.95 / 0.95”的写法不同，以本规则为准）。下拉选项只显示档位，不显示返还率（同一档水位下，两边越不平衡返还率越低）</td>
+<td>原型、PRD（2026-11-06）</td>
+</tr>
+<tr>
+<td>D-20</td>
+<td>有一边香港盘正好等于 1.00 时的处理</td>
+<td>并入 D-19：统一规则不区分是否大于 1，不需单独规定</td>
+<td>—</td>
+</tr>
+<tr>
+<td>D-21</td>
+<td>独赢的加水方式与返还率</td>
+<td>独赢也同样按所选水位加水，返还率跟随该注单对应的水位；原型按三项按比例去水、加水</td>
+<td>原型、PRD（2026-11-06）</td>
+</tr>
+<tr>
+<td>D-18</td>
+<td>提前结算注单是否统计</td>
+<td>按正常注单参与计算。实际盈亏用提前结算后的真实盈亏，模拟盈亏按最终结算结果重算</td>
+<td>PRD 7.3、9.1、14.7</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="s19">同批新增的页面要求</h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>事项</th>
+<th>处理</th>
+<th>写入位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>赔率源管理</td>
+<td>在「数据口径」按钮后加「赔率源管理」按钮，进入后维护对比赔率源筛选项中各源的启用 / 停用</td>
+<td>PRD 4.6</td>
+</tr>
+<tr>
+<td>明细第一列固定</td>
+<td>注单编号列固定在左侧，横向滚动时不动</td>
+<td>PRD 12.3</td>
+</tr>
+<tr>
+<td>比赛阶段命名</td>
+<td>本需求的页面和文档中，"赛前"统一改为"早盘"（早盘 / 滚球）</td>
+<td>全文</td>
+</tr>
+<tr>
+<td>投注时间限制</td>
+<td>开始时间不早于赔率数据起始日（见 D-25），单次查询最多 180 天</td>
+<td>原型、PRD（2026-11-06）</td>
+</tr>
+<tr>
+<td>取消注单级明细</td>
+<td>去掉全部注单明细、不可模拟明细、对比表的已模拟明细；不可模拟注单在「当前查询结果」按原因汇总（注单数、笔数占比、金额、金额占比，占比分母为验证注单）；对比表最后一列改为「无法模拟原因」，按原因汇总该源无法模拟注单（分母为可模拟注单）</td>
+<td>原型、PRD（2026-11-06）</td>
+</tr>
+<tr>
+<td>平均时延</td>
+<td>对比表「滚球平均时延」、匹配情况中的早盘 / 滚球平均时延全部去掉</td>
+<td>原型、PRD（2026-11-06）</td>
+</tr>
+<tr>
+<td>维度拆分卡片</td>
+<td>五张卡片：联赛、联赛等级、玩法、赛事、赔率源对比。「比赛阶段」卡片改为「赛事」；「按实际赔率源」改名「赔率源对比」；赛事、赔率源对比不提供明细</td>
+<td>原型、PRD（2026-11-06）</td>
+</tr>
+<tr>
+<td>卡片明细</td>
+<td>不展示注单，展示下一层维度聚合，只保留比赛阶段筛选（全部 / 早盘 / 滚球）：联赛 → 赛事；联赛等级 → 联赛；玩法 → 投注项 / 盘口值 + 平均赔率</td>
+<td>原型、PRD（2026-11-06）</td>
+</tr>
+<tr>
+<td>待确认项的位置</td>
+<td>待确认事项只列在本文档，不写入 PRD；原型按当前暂定口径展示，不标“待确认”</td>
+<td>—</td>
+</tr>
+<tr>
+<td>取消明细保留期</td>
+<td>页面不展示注单明细，去掉“模拟明细保留 3 天”的说法及相关提示、演示设置；3 天内相同条件复用已有结果的规则保留</td>
+<td>原型、PRD（2026-11-06）</td>
+</tr>
+<tr>
+<td>玩法明细写法</td>
+<td>参照复盘看板「TZ项」：玩法[下注时比分] 投注项 盘口值，如“全场大小[] 大 1.5/2”“全场大小[0:0] 小 2”“全场独赢[] 乌林济之星”“全场独赢[] 平局”（独赢和局写“平局”），早盘比分为空；平均赔率按香港盘显示、去掉末尾 0</td>
+<td>原型、PRD（2026-11-06）</td>
+</tr>
+</tbody>
+</table></div>
+</main></div><script>
+(function(){
+const KEY='oddsSourceSim.openItems.notes';
+let data={};try{data=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){data={}}
+const main=document.querySelector('main');
+[...main.querySelectorAll('h2')].forEach(h=>{const m=h.textContent.match(/^(D-\d+)/);if(!m)return;const id=m[1];
+ let end=h.nextElementSibling;while(end&&!/^H[12]$/.test(end.tagName)&&end.tagName!=='HR')end=end.nextElementSibling;
+ const box=document.createElement('div');box.className='cf';
+ box.innerHTML='<label for="note-'+id+'">备注</label><textarea id="note-'+id+'"></textarea>';
+ if(end)end.parentNode.insertBefore(box,end);else main.appendChild(box);
+ const ta=box.querySelector('textarea');ta.value=data[id]||'';
+ ta.addEventListener('input',()=>{data[id]=ta.value;try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}});
+});
+})();
+</script></body></html>
