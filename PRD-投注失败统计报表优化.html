@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>投注失败统计报表优化 PRD V1.0</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f7fa;color:#303133;font:14px/1.75 Arial,"Microsoft YaHei",sans-serif}.page{max-width:1040px;margin:32px auto;padding:38px 48px;background:#fff;border:1px solid #e4e7ed;box-shadow:0 2px 12px rgba(0,0,0,.05)}h1{margin:0 0 8px;font-size:28px}h2{margin:30px 0 12px;padding-bottom:8px;border-bottom:1px solid #ebeef5;font-size:19px}p{margin:8px 0}.meta{display:flex;flex-wrap:wrap;gap:8px 24px;margin-bottom:26px;color:#606266}.meta span{white-space:nowrap}ol,ul{margin:8px 0;padding-left:24px}li{margin:5px 0}.formula{margin:10px 0;padding:12px 16px;border-left:3px solid #409eff;background:#f5f9ff}a{color:#409eff;text-decoration:none}a:hover{text-decoration:underline}.note{padding:12px 16px;background:#fff7e6;color:#8a5a00}@media(max-width:760px){.page{margin:0;padding:24px 20px;border:0}.meta{display:block}.meta span{display:block}}
+</style>
+</head>
+<body><main class="page">
+<h1>投注失败统计报表优化 PRD</h1>
+<div class="meta"><span>版本：V1.0</span><span>日期：2026-11-06</span><span>产品范围：大数据报表平台／体育报表</span></div>
+
+<h2>一、需求背景</h2>
+<p>运营需在既有投注失败统计报表中自助查询并导出全部商户的体育单关滚球投注失败数据，减少重复调数。</p>
+
+<h2>二、需求范围</h2>
+<ol>
+<li>沿用“数据报表＞体育报表＞操盘统计＞投注失败统计报表”，不新增菜单。</li>
+<li>保留现有趋势图、统计查询、原因复制、SH及联赛下钻能力。</li>
+<li>统计页新增“是否扣款”筛选，选项为“是、否”。</li>
+<li>在统计页“查询、重置”后增加“投注失败详情”按钮，按钮组右对齐。</li>
+<li>点击“投注失败详情”进入独立详情视图；详情不按CP方拆分。</li>
+</ol>
+
+<h2>三、详情查询</h2>
+<p>支持赛种、开赛时间、联赛等级、联赛名称、商户标签、商户编码查询，以及查询、重置、导出和返回统计页。</p>
+
+<h2>四、统计范围</h2>
+<ol>
+<li>商户范围：全部商户，不使用固定商户白名单。</li>
+<li>业务范围：体育单关滚球。</li>
+<li>原因：取自主页面拒单原因。</li>
+<li>投注总笔数：按当前查询周期、当前结果分组统计，包含全部注单状态。</li>
+<li>默认时间沿用现有报表规则，不采用原月度调数的1日至24日作为默认值。</li>
+</ol>
+
+<h2>五、详情及导出字段</h2>
+<ol>
+<li>商户ID</li><li>商户Code</li><li>赛事日期</li><li>开赛时间</li><li>联赛等级</li><li>联赛名称</li><li>赛事对阵信息</li><li>标准赛事ID</li><li>操盘手</li><li>赛种</li><li>原因</li><li>投注失败笔数（无扣款）</li><li>投注失败笔数（有扣款）</li><li>当月投注总笔</li><li>拒单率（无扣款）</li><li>拒单率（有扣款）</li><li>总拒单率</li>
+</ol>
+<p>页面与导出字段及内容保持一致。导出文件中的商户编码、赛事ID按文本格式输出。</p>
+
+<h2>六、计算规则</h2>
+<div class="formula">无扣款拒单率＝投注失败笔数（无扣款）÷投注总笔数</div>
+<div class="formula">有扣款拒单率＝投注失败笔数（有扣款）÷投注总笔数</div>
+<div class="formula">总拒单率＝（投注失败笔数（无扣款）＋投注失败笔数（有扣款））÷投注总笔数</div>
+<p>三项拒单率均以百分比展示并四舍五入到整数。</p>
+<p class="note">投注总笔数为0时，拒单率暂显示“-”，需在需求评审时确认。</p>
+
+<h2>七、交互规则</h2>
+<ol>
+<li>统计页按钮顺序为“查询、重置、投注失败详情”。</li>
+<li>详情查询条件相互组合过滤；重置恢复详情默认条件。</li>
+<li>详情继承主页面当前拒单原因，不继承CP方。</li>
+<li>导出按详情当前查询条件生成，字段顺序与页面一致。</li>
+<li>点击“返回”恢复统计页面。</li>
+</ol>
+
+<h2>八、验收标准</h2>
+<ol>
+<li>既有趋势、统计查询、原因复制、SH及联赛下钻功能保持可用。</li>
+<li>“是否扣款”筛选及“投注失败详情”入口正常使用。</li>
+<li>详情6项查询条件、查询、重置、导出和返回功能正常。</li>
+<li>详情覆盖全部商户的体育单关滚球数据，不按CP方拆分。</li>
+<li>页面及导出17项字段完整且一致。</li>
+<li>投注总笔数符合查询周期和当前分组口径。</li>
+<li>三项拒单率符合计算公式，并四舍五入到整数。</li>
+<li>导出的商户编码、赛事ID无精度或前导零丢失。</li>
+</ol>
+
+<h2>九、参考资料</h2>
+<ul>
+<li><a href="https://lan-zentao.dbsports.online/story-view-4568.html">旧禅道#4568</a></li>
+<li><a href="http://lan-confluence.dbsports.online/pages/viewpage.action?pageId=153645789">旧需求详情</a></li>
+</ul>
+</main></body></html>
