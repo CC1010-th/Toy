@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>赛事事件融合查询 PRD</title><style>*{box-sizing:border-box}body{margin:0;background:#f5f6f8;color:#2b2f36;font:15px/1.75 "Microsoft YaHei","PingFang SC",Arial,sans-serif}main{max-width:860px;margin:32px auto;padding:36px 44px;background:#fff;border:1px solid #e5e7eb;border-radius:6px}h1{font-size:24px;margin:0 0 12px}h2{font-size:17px;margin:28px 0 8px;padding-left:10px;border-left:3px solid #1890ff}.meta{color:#6b7280;font-size:13px;margin:0 0 8px;padding:0;list-style:none}.meta li{display:inline-block;margin-right:20px}ol{padding-left:22px;margin:0}li{margin:4px 0}a{color:#1677ff}@media(max-width:700px){main{margin:0;padding:24px 16px;border:0;border-radius:0}}</style></head><body><main><h1>赛事事件融合查询 PRD</h1><ul class="meta"><li>日期：2026-11-07</li><li>关联禅道：#259</li><li>原型：<a href="https://cc1010-th.github.io/Toy/Prototype-%E8%B5%9B%E4%BA%8B%E8%9E%8D%E5%90%88%E4%B8%8E%E8%B5%94%E7%8E%87%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2.html#event">在线原型</a></li></ul>
+<h2>需求背景</h2>
+<p>为便于查询和核对足球赛事事件融合数据，新增赛事事件融合查询。</p>
+<h2>需求说明</h2>
+<ol>
+<li>在“风控报表”下新增一级菜单“赛事信息”，位置紧邻“风控管理台”之后。</li>
+<li>在“赛事信息”下新增二级菜单“赛事事件融合查询”。</li>
+<li>页面采用普通明细表，一行展示一条事件记录。展示标准赛事ID、赛种ID、数据源、三方赛事ID、三方事件ID、事件编码、事件发生时间、赛事阶段ID、比赛进行时长、主客场、主队数量、客队数量、是否取消、链路ID、来源类型、三方球队ID、球员1名称、球员2名称、扩展信息及异常标记。</li>
+<li>支持按标准赛事ID、三方赛事ID、数据源、事件编码、赛事阶段ID、三方事件ID、链路ID和事件发生日期范围筛选。</li>
+<li>提供查询和重置。日期范围包含开始日和结束日；主客队数量按事件字段展示。</li>
+</ol>
+<h2>验收标准</h2>
+<ol>
+<li>“赛事信息”一级菜单位于“风控管理台”之后，其下展示“赛事事件融合查询”和“赔率聚合查询”两个二级菜单。</li>
+<li>可通过“风控报表 → 赛事信息 → 赛事事件融合查询”进入页面，并按事件记录展示数据。</li>
+<li>筛选、查询和重置正常，结果与筛选条件一致，日期范围包含起止日期。</li>
+<li>取消标记、主客队数量、时间及链路信息展示正确。</li>
+</ol>
+</main></body></html>
