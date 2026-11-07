@@ -1712,7 +1712,7 @@
       <a class="nav-item" href="#" aria-current="page"><span>▦</span> 投注接拒策略模拟分析</a>
       <a class="nav-item" href="滚球盘口数据提取.html"><span>▦</span> 滚球盘口数据提取</a>
       <div class="sidebar-bottom">
-        <i></i> 独立交互原型<small>本地演示数据 · V1.27</small>
+        <i></i> 独立交互原型<small>本地演示数据 · V1.28</small>
       </div>
     </aside>
     <div class="workspace">
@@ -2012,7 +2012,7 @@
           </section>
         </div>
         <footer class="page-footer">
-          <span>PA Sports BI · 需求讨论原型 V1.27 · 2026-10-30</span
+          <span>PA Sports BI · 需求讨论原型 V1.28 · 2026-11-05</span
           ><button class="text-button" onclick="openDialog('demoSettings')">
             原型演示设置
           </button>
@@ -2359,6 +2359,20 @@
           .replace("T", " ")
           .slice(0, minute ? 16 : 23);
       const inputStamp = (ms) => localStamp(ms, true).replace(" ", "T");
+      const DAY_MS = 86400000;
+      const DEMO_NOW = Math.floor(Date.now() / 60000) * 60000;
+      const demoLocalNow = new Date(DEMO_NOW + 8 * 3600000);
+      const DEMO_TODAY =
+        Date.UTC(
+          demoLocalNow.getUTCFullYear(),
+          demoLocalNow.getUTCMonth(),
+          demoLocalNow.getUTCDate(),
+        ) -
+        8 * 3600000;
+      // Keep fixtures and the default filter in one rolling 30-day window so
+      // the standalone prototype does not expire as the real date advances.
+      const DEMO_RANGE_START = DEMO_TODAY - 29 * DAY_MS;
+      const DEMO_RANGE_END = DEMO_NOW;
       const SPORTS = {
         football: {
           name: "足球",
@@ -2580,7 +2594,10 @@
               league: l.id,
               index: j,
               name: a + " vs " + b,
-              kickoff: Date.UTC(2026, 7, 3 + (j % 26), 12 + (li % 3), 0, 0),
+              kickoff:
+                DEMO_RANGE_START +
+                (j % 26) * DAY_MS +
+                (12 + (li % 3)) * 3600000,
             };
             EVENTS[sport].push(e);
             eventMap.set(id, e);
@@ -2852,8 +2869,8 @@
         status: "all",
         stage: "live",
         currency: "CNY",
-        start: "2026-08-01T00:00",
-        end: "2026-08-31T23:59",
+        start: inputStamp(DEMO_RANGE_START),
+        end: inputStamp(DEMO_RANGE_END),
       });
       let draft = defaults(),
         applied = structuredClone(draft),
@@ -4565,6 +4582,7 @@
           return;
         }
         let filtered = rows || currentRows;
+        const sourceTotal = filtered.length;
         if (type === "rejected")
           filtered = filtered.filter((r) => r.status === "rejected");
         if (type === "unavailable")
@@ -4575,12 +4593,19 @@
               simulatedStatus(r, offset, configuration) !==
               simulatedStatus(r, 0, configuration),
           );
+        const limitedToTenThousand = type === "all" && offset === null;
+        if (limitedToTenThousand)
+          filtered = [...filtered]
+            .sort((a, b) => b.betAt - a.betAt || a.id.localeCompare(b.id))
+            .slice(0, 10000);
         drawer = {
           taskId: resultTaskId,
           rows: filtered,
           filtered: [],
           page: 1,
           offset,
+          sourceTotal,
+          limitedToTenThousand,
           title:
             type === "unavailable"
               ? "不可模拟注单明细"
@@ -4596,7 +4621,9 @@
           " · " +
           scopeText(applied) +
           (offset === null
-            ? ""
+            ? limitedToTenThousand
+              ? " · 按投注时间倒序仅展示前 10,000 条"
+              : ""
             : " · 相对 T₀ " +
               signed(offset) +
               " 秒 · 仅展示与 0 秒基准状态不同的注单");
@@ -4617,7 +4644,7 @@
             "实际状态",
             "模拟状态",
             "系统接拒时间",
-            "模拟接拒时间",
+            ...(offset === null ? [] : ["模拟接拒时间"]),
             "金额 " + applied.currency,
             "赔率",
             "结算结果",
@@ -4696,7 +4723,12 @@
           applied.currency +
           " · 可模拟拒单 " +
           fmt(s.simReject) +
-          " 笔";
+          " 笔" +
+          (drawer.limitedToTenThousand
+            ? " · 当前任务共 " +
+              fmt(drawer.sourceTotal) +
+              " 笔，仅展示前 10,000 条"
+            : "");
         $("detailBody").innerHTML =
           rows
             .slice((drawer.page - 1) * size, drawer.page * size)
@@ -4708,7 +4740,17 @@
                       "accepted"
                     ? "接单"
                     : "拒单";
-              const cat = category(r);
+              const cat = category(r),
+                simulatedTimeCell =
+                  drawer.offset !== null
+                    ? '<td class="num">' +
+                      (canChange(r, configuration)
+                        ? configuration.map.get(configKey(r)) +
+                          drawer.offset +
+                          " 秒"
+                        : "—") +
+                      "</td>"
+                    : "";
               return (
                 "<tr><td>" +
                 r.id +
@@ -4744,11 +4786,9 @@
                 (Number.isInteger(configuration?.map.get(configKey(r)))
                   ? configuration.map.get(configKey(r)) + " 秒"
                   : "—") +
-                '</td><td class="num">' +
-                (drawer.offset !== null && canChange(r, configuration)
-                  ? configuration.map.get(configKey(r)) + drawer.offset + " 秒"
-                  : "—") +
-                '</td><td class="num">' +
+                "</td>" +
+                simulatedTimeCell +
+                '<td class="num">' +
                 money(r.stake) +
                 '</td><td class="num">' +
                 (r.odds === null ? "—" : (r.odds / 100).toFixed(2)) +
@@ -4789,8 +4829,17 @@
               );
             })
             .join("") ||
-          '<tr><td colspan="19" class="empty">没有匹配的注单</td></tr>';
-        $("detailPage").textContent = drawer.page + " / " + pageCount;
+          '<tr><td colspan="' +
+            (drawer.offset === null ? 14 : 15) +
+            '" class="empty">没有匹配的注单</td></tr>';
+        $("detailPage").textContent = drawer.limitedToTenThousand
+          ? "共 " +
+            fmt(drawer.sourceTotal) +
+            " 笔（最多查看前 10,000 条） · " +
+            drawer.page +
+            " / " +
+            pageCount
+          : drawer.page + " / " + pageCount;
         $("detailPrev").disabled = drawer.page === 1;
         $("detailNext").disabled = drawer.page === pageCount;
       }
