@@ -56,10 +56,10 @@ cat('310004','88001002','102','全场大小','Total Goals',['G01','N02'],'22:05:
   grp('510016','316','大','Over','Over',[src('G01',31000,'22:05:16')],'22:05:02'),
   grp('510017','317','小','Under','Under',[src('G01',13500,'22:05:16')],'22:05:02')])])
 ];
-/* 展示字段：按 Total 字段清单顺序完整列出，每个字段一列；赔率按 0.0001 换算，列表以“、”分隔，国际化名称取中文，时间戳格式化 */
-const CAT_F=[['id','玩法实例主键'],['createDate','入库日期'],['standardMarketCategoryId','标准玩法ID'],['standardMatchId','标准赛事ID'],['sportId','标准赛种ID'],['nameI18n','玩法名称'],['modifyTime','玩法聚合结果修改时间'],['dataSources','数据源列表'],['linkId','最近一次下发链路ID'],['createTime','创建时间']];
-const SLOT_F=[['id','盘口实例主键'],['createDate','入库日期'],['categoryId','所属玩法实例ID'],['standardMarketId','标准盘口ID'],['marketCategoryId','标准玩法ID'],['oddsValue','盘口值'],['oddsName','盘口名称'],['thirdMarketSourceIds','三方盘口源ID列表'],['additions','扩展字段'],['linkId','最近一次下发链路ID'],['createTime','入库时间']];
-const GRP_F=[['id','投注项组实例主键'],['createDate','入库日期'],['marketSlotId','所属盘口实例ID'],['standardMarketOddsId','标准投注项ID'],['standardMarketId','所属标准盘口ID'],['oddsType','投注项类型'],['i18nNames','投注项名称'],['additions','投注项扩展字段'],['sourceOdds','多源赔率列表'],['linkId','最近一次下发链路ID'],['createTime','入库时间']];
+/* 展示字段：按 Total 字段清单顺序列出，省略三层入库日期及与同行重复的关联键（ADR-0035），每个字段一列；赔率按 0.0001 换算，列表以“、”分隔，国际化名称取中文，时间戳格式化 */
+const CAT_F=[['id','玩法实例主键'],['standardMarketCategoryId','标准玩法ID'],['standardMatchId','标准赛事ID'],['sportId','标准赛种ID'],['nameI18n','玩法名称'],['modifyTime','玩法聚合结果修改时间'],['dataSources','数据源列表'],['linkId','最近一次下发链路ID'],['createTime','创建时间']];
+const SLOT_F=[['id','盘口实例主键'],['standardMarketId','标准盘口ID'],['oddsValue','盘口值'],['oddsName','盘口名称'],['thirdMarketSourceIds','三方盘口源ID列表'],['additions','扩展字段'],['linkId','最近一次下发链路ID'],['createTime','入库时间']];
+const GRP_F=[['id','投注项组实例主键'],['standardMarketOddsId','标准投注项ID'],['oddsType','投注项类型'],['i18nNames','投注项名称'],['additions','投注项扩展字段'],['sourceOdds','多源赔率列表'],['linkId','最近一次下发链路ID'],['createTime','入库时间']];
 const SRC_F=[['oddsValue','赔率值'],['dataSourceCode','数据源编码'],['modifyTime','赔率时间'],['aoOddsValue','AO百家赔赔率'],['originalOddsValue','投注项原始赔率'],['thirdTempletSourceId','三方投注项模板原始ID'],['linkId','该源暂存链路ID']];
 const TIME_KEYS=['modifyTime','createTime'];
 const eventFields=[['standardMatchId','标准赛事ID'],['thirdMatchSourceId','三方赛事ID'],['dataSourceCode','数据源'],['eventCode','事件编码'],['matchPeriodId','赛事阶段ID'],['thirdEventId','三方事件ID'],['copyLinkId','链路ID'],['from','事件发生时间起'],['to','事件发生时间止']];
