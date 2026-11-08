@@ -1,22 +1,28 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>赔率聚合查询 PRD</title><style>*{box-sizing:border-box}body{margin:0;background:#f5f6f8;color:#2b2f36;font:15px/1.75 "Microsoft YaHei","PingFang SC",Arial,sans-serif}main{max-width:860px;margin:32px auto;padding:36px 44px;background:#fff;border:1px solid #e5e7eb;border-radius:6px}h1{font-size:24px;margin:0 0 12px}h2{font-size:17px;margin:28px 0 8px;padding-left:10px;border-left:3px solid #1890ff}.meta{color:#6b7280;font-size:13px;margin:0 0 8px;padding:0;list-style:none}.meta li{display:inline-block;margin-right:20px}ol{padding-left:22px;margin:0}li{margin:4px 0}a{color:#1677ff}@media(max-width:700px){main{margin:0;padding:24px 16px;border:0;border-radius:0}}</style></head><body><main><h1>赔率聚合查询 PRD</h1><ul class="meta"><li>日期：2026-11-07</li><li>关联禅道：#260</li><li>原型：<a href="https://cc1010-th.github.io/Toy/Prototype-%E8%B5%9B%E4%BA%8B%E8%9E%8D%E5%90%88%E4%B8%8E%E8%B5%94%E7%8E%87%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2.html#odds">在线原型</a></li></ul>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>赔率聚合查询 PRD</title><style>*{box-sizing:border-box}body{margin:0;background:#f5f6f8;color:#2b2f36;font:15px/1.75 "Microsoft YaHei","PingFang SC",Arial,sans-serif}main{max-width:860px;margin:32px auto;padding:36px 44px;background:#fff;border:1px solid #e5e7eb;border-radius:6px}h1{font-size:24px;margin:0 0 12px}h2{font-size:17px;margin:28px 0 8px;padding-left:10px;border-left:3px solid #1890ff}.meta{color:#6b7280;font-size:13px;margin:0 0 8px;padding:0;list-style:none}.meta li{display:inline-block;margin-right:20px}ol{padding-left:22px;margin:0}ul.sub{padding-left:20px;margin:4px 0;list-style:disc}li{margin:4px 0}a{color:#1677ff}@media(max-width:700px){main{margin:0;padding:24px 16px;border:0;border-radius:0}}</style></head><body><main><h1>赔率聚合查询 PRD</h1><ul class="meta"><li>日期：2026-11-08</li><li>关联禅道：#260</li><li>原型：<a href="https://cc1010-th.github.io/Toy/Prototype-%E8%B5%9B%E4%BA%8B%E8%9E%8D%E5%90%88%E4%B8%8E%E8%B5%94%E7%8E%87%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2.html#odds">在线原型</a></li></ul>
 <h2>需求背景</h2>
 <p>为便于查询和核对足球多数据源赔率聚合结果，新增赔率聚合查询。</p>
 <h2>需求说明</h2>
 <ol>
 <li>在“风控报表”下新增一级菜单“赛事信息”，位置紧邻“风控管理台”之后。</li>
 <li>在“赛事信息”下新增二级菜单“赔率聚合查询”。</li>
-<li>页面按“标准赛事→玩法→盘口→投注项”逐级展开，打开时默认全部收起；展开投注项后，以明细表展示各数据源赔率。</li>
-<li>展示各层实例ID、标准ID及对应名称；玩法层展示数据源列表、聚合修改时间、创建时间及下发链路ID；盘口层展示盘口值、三方盘口ID列表、入库时间及下发链路ID；投注项层展示投注项类型、入库时间及下发链路ID。来源明细展示数据源、当前赔率、原始赔率、AO赔率、源赔率时间、三方投注项模板ID和来源链路ID。</li>
-<li>支持按标准赛事ID、标准玩法ID、标准盘口ID、标准投注项ID、三方盘口ID、数据源和玩法聚合修改日期范围筛选；三方盘口ID匹配所属盘口的三方盘口ID列表，数据源筛选对应来源赔率。</li>
-<li>提供查询和重置。日期范围包含开始日和结束日；当前赔率及原始赔率按存储单位换算，玩法聚合修改时间、源赔率时间及入库时间分别展示。</li>
+<li>查询结果以列表展示，一行对应一个盘口，并展示其所属玩法信息；每行提供“投注项列表”，点击后以弹窗展示该盘口下的投注项，各投注项的多源赔率列表点击后展开查看。</li>
+<li>完整展示赔率聚合结果字段：每个字段单独一列并展示原值，不省略、不新增、不合并；列表及国际化字段按原值展示，时间戳字段展示为“年-月-日 时:分:秒”。
+<ul class="sub">
+<li>玩法：玩法实例主键、入库日期、标准玩法ID、标准赛事ID、标准赛种ID、玩法名称国际化、玩法聚合结果修改时间、数据源列表、最近一次下发链路ID、创建时间。</li>
+<li>盘口：盘口实例主键、入库日期、所属玩法实例ID、标准盘口ID、标准玩法ID、盘口值、盘口名称、三方盘口源ID列表、扩展字段、最近一次下发链路ID、入库时间。</li>
+<li>投注项：投注项组实例主键、入库日期、所属盘口实例ID、标准投注项ID、所属标准盘口ID、投注项类型、投注项名称国际化、投注项扩展字段、多源赔率列表、最近一次下发链路ID、入库时间。</li>
+<li>多源赔率：赔率值、数据源编码、赔率时间、AO百家赔赔率、投注项原始赔率、三方投注项模板原始ID、该源暂存链路ID。</li>
+</ul></li>
+<li>支持按标准赛事ID、标准玩法ID、标准盘口ID、标准投注项ID、三方盘口ID、数据源和玩法聚合修改日期范围筛选；三方盘口ID匹配所属盘口的三方盘口源ID列表，数据源筛选对应多源赔率。</li>
+<li>提供查询和重置；日期范围包含开始日和结束日。</li>
 </ol>
 <h2>验收标准</h2>
 <ol>
 <li>“赛事信息”一级菜单位于“风控管理台”之后，其下展示“赛事事件融合查询”和“赔率聚合查询”两个二级菜单。</li>
-<li>可通过“风控报表 → 赛事信息 → 赔率聚合查询”进入页面；页面首次打开时全部收起。</li>
-<li>逐级展开后对应赛事、玩法、盘口、投注项及来源赔率关联正确，不混入其他记录。</li>
+<li>可通过“风控报表 → 赛事信息 → 赔率聚合查询”进入页面；列表一行对应一个盘口，所属玩法信息对应正确。</li>
+<li>点击“投注项列表”后，弹窗仅展示该盘口下的投注项；展开多源赔率列表后，各数据源赔率与投注项对应正确，不混入其他记录。</li>
 <li>筛选、查询和重置正常；日期范围包含起止日期，数据源和三方盘口ID筛选符合规定口径。</li>
-<li>来源赔率明细完整展示当前赔率、原始赔率、AO赔率及来源信息；赔率换算、各类时间和链路信息对应正确。</li>
+<li>玩法、盘口、投注项及多源赔率字段完整，均按原值逐列展示，无省略、新增或合并；时间格式正确。</li>
 </ol>
 </main></body></html>
