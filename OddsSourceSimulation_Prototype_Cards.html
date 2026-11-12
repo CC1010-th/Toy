@@ -171,8 +171,9 @@ main .section-heading p{display:none}
 <div class="field"><label for="merchantControl">商户 <span id="merchantCount"></span></label><button class="control" id="merchantControl" aria-haspopup="tree" onclick="openMerchantTree(this)"><span id="merchantText"></span><span>⌄</span></button></div>
 
 <div class="field"><label for="oddsMode">赔率口径</label><select id="oddsMode" onchange="setFilter('oddsMode',this.value)"><option value="raw">原始赔率</option><option value="unified">统一水位</option></select></div>
-<div class="field" id="wFullField"><label for="wFull">全场水位 <span class="label-note">早盘 / 滚球</span></label><select id="wFull" onchange="setFilter('wFull',this.value)"></select></div>
-<div class="field" id="wHalfField"><label for="wHalf">上半场水位 <span class="label-note">早盘 / 滚球</span></label><select id="wHalf" onchange="setFilter('wHalf',this.value)"></select></div>
+<div class="field" id="wFullField"><label for="wFull">全场水位 <span class="label-note">让分 / 大小</span></label><select id="wFull" onchange="setFilter('wFull',this.value)"></select></div>
+<div class="field" id="wHalfField"><label for="wHalf">上半场水位 <span class="label-note">让分 / 大小</span></label><select id="wHalf" onchange="setFilter('wHalf',this.value)"></select></div>
+<div class="field" id="wWinField"><label for="wWin">独赢水位</label><select id="wWin" onchange="setFilter('wWin',this.value)"></select></div>
 <div class="field"><label for="sourcesControl">对比赔率源 <span id="sourcesCount"></span></label><button class="control accented" id="sourcesControl" onclick="openSelect('sources',this)"><span id="sourcesText"></span><span>⌄</span></button></div>
 </div><div class="filter-bottom"><span id="mappingHint"></span><div class="actions"><span class="quota-text" id="quotaText"></span><button onclick="resetFilters()">重置</button><button class="primary" id="queryButton" onclick="runQuery()">生成分析</button></div></div><p class="inline-error" id="queryError" role="alert" hidden></p></section>
 <section class="card task-bar" id="taskCenter" aria-label="分析任务" hidden>
@@ -185,7 +186,7 @@ main .section-heading p{display:none}
 </section>
 <section class="card empty-result" id="emptyResult" hidden><span class="empty-symbol">▤</span><h2 id="emptyResultTitle">等待分析结果</h2><p id="emptyResultHint">任务正在异步处理。</p></section>
 <div id="analysisResults" hidden>
-<div class="applied-line"><span id="appliedScope"></span><span class="applied-right"><span id="queryStamp"></span><button class="export-btn" onclick="exportExcel()" title="导出赔率源模拟总览与五张维度卡片，共 6 张表（一个 Excel 文件，每张表一个工作表）">⇩ 导出 Excel（6 张表）</button></span></div>
+<div class="applied-line"><span id="appliedScope"></span><span class="applied-right"><span id="queryStamp"></span><button class="export-btn" onclick="exportCsv()" title="导出赔率源模拟总览与五张维度卡片，共 6 个 CSV 文件（每张表一个文件）">⇩ 导出 CSV（6 个文件）</button></span></div>
 <section class="card" id="baselineSection"><div class="section-heading"><div><h2>当前查询结果 <span class="badge muted">历史实际</span></h2><p>验证样本为范围内的单关正常单；实际盈亏只统计已结算部分，未知盈亏不填 0。</p></div><div class="actions"><button class="text-button" id="ineligibleEntry" onclick="openIneligible()">不可模拟注单 ↗</button></div></div><div class="stats-grid" id="stats"></div><div class="coverage-line" id="coverage"></div></section>
 <section class="card compare" id="comparisonSection"><div class="section-heading"><div><h2>赔率源模拟总览 <span class="badge blue">核心分析</span></h2><p>每个源只在自己有报价的注单上按原始赔率重新结算，并与这批注单的实际结果逐笔配对；投注时缺少该源报价的注单无法模拟，逐源列出。</p></div><div class="actions"><button id="refreshTask" title="使用当前查看结果的条件重新读取数据与快照" onclick="regenerate()">↻ 重新生成</button></div></div>
 <div id="snapWarning" class="notice warning" role="alert" hidden></div>
@@ -216,11 +217,11 @@ main .section-heading p{display:none}
 <h3>报价匹配</h3><p>对每笔可模拟注单，在每个对比赔率源的快照中查找同一赛事（经赛事映射）、同一玩法、同一投注项、同一盘口线（独赢无盘口线），取投注时间之前最后一次有效报价，时间以本平台接收报价的时刻为准。报价与投注的时差须不超过容差：早盘 300 秒、滚球 10 秒。源未映射该赛事、未提供该玩法或盘口线、缺少该投注项报价、投注时点封盘、超出容差均记为“未匹配”，该注单对这个源无法模拟；不插值，也不借用其他源或实际赔率代替。</p>
 <h3>统计口径：各源覆盖样本</h3><p>每个源只在自己匹配到报价的可模拟注单上重算，并与这批注单的实际结果逐笔配对。投注时缺少某个源报价的注单（赛事未映射、未开该玩法或盘口线、缺少该投注项报价、封盘、超出时延、快照缺失），对该源无法模拟，不计入该源的模拟结果；模拟总览逐源列出无法模拟的笔数与金额，并可按原因查看汇总。各源样本不同，请比较盈利率差（同一批注单上的模拟减实际），不要直接比较盈利率高低。</p>
 <h3>赔率口径：原始赔率</h3><p>直接使用源对该投注项的报价（换算为十进制赔率）重算，不做去水或加水。对比源正好是注单的实际赔率源时，使用该注单的实际赔率重算。源自身水位较高时，模拟盈利率通常也较高；可结合“平均赔率偏差”判断差异主要来自水位还是个别注单。</p>
-<h3>赔率口径：统一水位</h3><p>选择「统一水位」后，再选择「全场水位」与「上半场水位」（默认各取第一档：全场 6/8、上半场 10/10）。全场独赢、全场让分、全场大小按全场水位；半场独赢、半场让分、半场大小按上半场水位。档位写作 X/Y，X 为早盘水位、Y 为滚球水位，每笔注单按自己的比赛阶段取对应水位 N。各源（含实际赔率源）都用自己同盘口的报价计算，赔率先换算为香港盘。</p><p><b>让分、大小（两项盘）</b>：低赔保持源原始报价不变，相差的水位全部补给高赔；两边相同时以主队为低赔。水位 = 1 ÷ 高赔 − 低赔，因此 高赔 = 1 ÷ (低赔 + N/100)。例：源 0.70 / 1.10、10 水 → 0.70 / 1.25（1 ÷ 1.25 − 0.70 = 0.10）；源 0.95 / 0.95、10 水 → 0.95 / 0.95。高赔四舍五入到 2 位小数。</p><p><b>独赢（三项盘）</b>：三项按比例去水，再按返还率 1 − N/400 加水。</p><p>需要同盘口全部投注项在同一时刻（早盘 60 秒、滚球 3 秒内）的报价才能判断低赔；缺任一项、封盘或时间不一致时，该注单对该源记为“同盘口报价不全”。「实际赔率」行始终为真实成交与结算结果。</p><h3>盈亏重算</h3><p>投注额、投注项、盘口和赛果沿用原注单，只替换赔率。独赢只有赢 / 输，不会走水或半赢半输。平台盈利为正：玩家输 +v，玩家赢 −v×(D−1)，半输 +v/2，半赢 −v×(D−1)/2，走水 / 取消 0。盈利率 = 平台盈亏 ÷ 样本金额。</p>
+<h3>赔率口径：统一水位</h3><p>选择「统一水位」后，再选择「全场水位」「上半场水位」「独赢水位」（默认各取第一档：全场 6/8、上半场 10/10、独赢 104）。全场、上半场水位写作 X/Y，X 为让分水位、Y 为大小水位，分别用于对应阶段的让分、大小；独赢水位用于全场独赢与半场独赢。各源（含实际赔率源）都用自己同盘口全部投注项的报价，先按通用规则去水得到无水赔率，再按所选水位加水。</p><p><b>加水算法（待确认）</b>：参考规则如下。</p><p>独赢（三项 EU）：PA = (1 / ((1 / 抽水赔，截取 8 位小数) + 概率差)) + 水差</p><p>AO 两项 EU：PA = 1 / (1/O ∓ 水差)，其中 O = oddsValue（抽水赔）÷ 100000（抽水欧赔）；上盘（非 2/No）用 −：1/O − diffValue；下盘（2/No）用 +：1/O + diffValue</p><p>大小、让分（足球 MY · 新抽水）：<a href="http://lan-confluence.dbsports.online/pages/viewpage.action?pageId=76714851" target="_blank" rel="noopener">2269 足球-马来抽水分配优化（足球马来玩法）</a></p><p class="muted">原型演示暂按：比例去水；让分 / 大小按上述马来新抽水规则（spread = 水位/100）加水；独赢按无水概率比例加水，水位为三项隐含概率之和；不叠加水差、概率差。</p><p>需要同盘口全部投注项在同一时刻（早盘 60 秒、滚球 3 秒内）的报价才能去水；缺任一项、封盘或时间不一致时，该注单对该源记为“同盘口报价不全”。「实际赔率」行始终为真实成交与结算结果。</p><h3>盈亏重算</h3><p>投注额、投注项、盘口和赛果沿用原注单，只替换赔率。独赢只有赢 / 输，不会走水或半赢半输。平台盈利为正：玩家输 +v，玩家赢 −v×(D−1)，半输 +v/2，半赢 −v×(D−1)/2，走水 / 取消 0。盈利率 = 平台盈亏 ÷ 样本金额。</p>
 <h3>差值与结论</h3><p>盈亏差 = 同一批注单的模拟盈亏 − 实际盈亏；盈利率差 = 盈亏差 ÷ 已模拟金额，单位为百分点。</p><p>赛果有偶然性，注单少时盈亏差可能只是运气。结论会把差值大小和已模拟笔数放在一起看：差距大到基本不可能是运气造成时，标记“盈利高于实际”或“盈利低于实际”；否则标记“与实际差别不明显”。已模拟少于 300 笔时标记“样本不足”，不下结论。</p>
 <h3>赔率源模拟总览与维度拆分</h3><p>模拟总览“实际赔率”行为全部可模拟注单的实际结果；每个源只在已模拟注单上计算，无法模拟注单不计入该源结果，可在每行最后一列按原因查看笔数、金额与占比。平均赔率偏差 = 源赔率 − 实际赔率（十进制），原始赔率包含各源自身水位。维度拆分包含联赛、联赛等级、玩法、赛事、赔率源对比五张卡片；每个源两列：盈利率差（该源已模拟注单上的模拟减实际）与覆盖率；「赔率源对比」卡片（按实际赔率源拆分）：原始赔率口径下，源与自身对应的盈利率差显示“-”，不参与最佳判断；统一水位口径下，每行以该行实际赔率源统一水位后的结果为基准（新增「统一水位盈利率」列），各格盈利率差 = 列源统一水位 − 行源统一水位，只在两源统一水位后都能计算的注单上配对比较，覆盖率为配对注单 ÷ 该行可模拟注单，对角线为 0；其他源都不高于 0 时，最佳为行源自己；覆盖率低于 50% 标黄；结论为盈利高于或低于实际的盈利率差加粗；绿底为已模拟不少于 300 笔且盈利率差最高的源，仅作分析参考，不自动调整分配。</p><p>卡片明细不展示注单，展示下一层维度的聚合，只保留比赛阶段（全部 / 早盘 / 滚球）筛选：联赛卡片 → 该联赛下各赛事；联赛等级卡片 → 该等级下各联赛；玩法卡片 → 该玩法下各投注项 / 盘口值，写法与复盘看板一致，如“全场大小[] 大 1.5/2”“全场大小[0:0] 小 2”“全场独赢[] 乌林济之星”“全场独赢[] 平局”（[ ] 内为下注时比分，早盘为空），并列出平均赔率（可模拟注单实际成交赔率的简单平均，按香港盘显示）。赛事、赔率源对比两张卡片不提供明细。</p>
 <h3>重要提示：选择偏差</h3><p>历史注单是玩家看到实际赔率后才下的。部分玩家专门挑选实际赔率偏高的投注项，这些注单换成其他源的赔率后，平台通常会显得更赚钱。因此回放结果对“非实际源”偏乐观，可在「赔率源对比」卡片中比较各源在其他源承接注单上的盈利率差来观察这一现象。回放适合筛选候选源，结论需结合线上分流验证。</p>
-<h3>商户分类</h3><p>选项读取「操盘风控后台 > 风控管理 > 风控标签 > 商户标签管理」中的商户分类配置，可多选。未选择具体商户时按商户分类筛选；选择了具体商户后以商户范围为准，商户分类不叠加。</p><h3>对比赔率源</h3><p>可选项为「赔率源管理」中启用的赔率源。停用后不再出现在筛选项中，已提交的任务与已生成的结果不受影响；包含已停用源的条件不能再次提交。</p><h3>明细</h3><p>页面不提供注单级明细。不可模拟注单在「当前查询结果」右上角「不可模拟注单」入口中按原因汇总；各源无法模拟注单在模拟总览最后一列按原因汇总（注单数、金额、占比）；联赛、联赛等级、玩法卡片的明细为下一层维度的聚合。</p><h3>投注时间</h3><p>赔率快照从 2026-10-01 起可查，开始时间不能早于该日期；单次查询最多 180 天。快捷时间若早于起始日，开始时间自动调整为起始日。</p><h3>不可模拟注单</h3><p>不再提供不可模拟注单明细，改为在「当前查询结果」右上角「不可模拟注单」入口打开弹窗，按原因列出注单数、金额及其占验证注单的比例。</p><h3>导出</h3><p>结果区右上角「导出 Excel（6 张表）」一次导出当前查看任务的 6 张表，生成一个 Excel 文件、每张表一个工作表：赔率源模拟总览、按联赛、按联赛等级、按玩法、按赛事、赔率源对比（按实际赔率源）。每张表顶部注明任务编号、查询条件、投注时间、赔率口径和导出时间；卡片表按页面当前的排序导出全部行，卡片明细（下一层维度）不导出。</p><h3>提交限制</h3><p>单任务验证注单最多 500 万笔，超出时不创建任务，请缩小范围；每个账号每天的任务数有配额（默认 10 个，UTC+8 次日 00:00 重置，失败、取消的任务返还配额）；3 天内相同条件、数据与快照版本未变化的成功任务，再次提交时直接打开已有结果，不新建任务、不占配额。</p><h3>异步任务</h3><p>页面首次打开不查询。点击「生成分析」后创建独立任务，在后台读取注单与快照、按源匹配并重算；最多 3 项同时计算，其余排队。每项任务锁定自己的条件、快照版本与匹配规则；完成后由用户点击「查看结果」，切换口径只使用已生成的结果，不重新计算。</p>
+<h3>商户分类</h3><p>选项读取「操盘风控后台 > 风控管理 > 风控标签 > 商户标签管理」中的商户分类配置，可多选。未选择具体商户时按商户分类筛选；选择了具体商户后以商户范围为准，商户分类不叠加。</p><h3>对比赔率源</h3><p>可选项为「赔率源管理」中启用的赔率源。停用后不再出现在筛选项中，已提交的任务与已生成的结果不受影响；包含已停用源的条件不能再次提交。</p><h3>明细</h3><p>页面不提供注单级明细。不可模拟注单在「当前查询结果」右上角「不可模拟注单」入口中按原因汇总；各源无法模拟注单在模拟总览最后一列按原因汇总（注单数、金额、占比）；联赛、联赛等级、玩法卡片的明细为下一层维度的聚合。</p><h3>投注时间</h3><p>赔率快照从 2026-10-01 起可查，开始时间不能早于该日期；单次查询最多 180 天。快捷时间若早于起始日，开始时间自动调整为起始日。</p><h3>不可模拟注单</h3><p>不再提供不可模拟注单明细，改为在「当前查询结果」右上角「不可模拟注单」入口打开弹窗，按原因列出注单数、金额及其占验证注单的比例。</p><h3>导出</h3><p>结果区右上角「导出 CSV（6 个文件）」一次导出当前查看任务的 6 张表，每张表生成一个 CSV 文件：赔率源模拟总览、按联赛、按联赛等级、按玩法、按赛事、赔率源对比（按实际赔率源）。每个文件顶部注明任务编号、查询条件、投注时间、赔率口径和导出时间；卡片表按页面当前的排序导出全部行，卡片明细（下一层维度）不导出。</p><h3>提交限制</h3><p>单任务验证注单最多 500 万笔，超出时不创建任务，请缩小范围；每个账号每天的任务数有配额（默认 10 个，UTC+8 次日 00:00 重置，失败、取消的任务返还配额）；3 天内相同条件、数据与快照版本未变化的成功任务，再次提交时直接打开已有结果，不新建任务、不占配额。</p><h3>异步任务</h3><p>页面首次打开不查询。点击「生成分析」后创建独立任务，在后台读取注单与快照、按源匹配并重算；最多 3 项同时计算，其余排队。每项任务锁定自己的条件、快照版本与匹配规则；完成后由用户点击「查看结果」，切换口径只使用已生成的结果，不重新计算。</p>
 </div><div class="dialog-foot"><button class="primary" onclick="closeDialog('definitions')">知道了</button></div></dialog>
 <dialog id="demoSettings"><div class="dialog-head"><h2>原型演示设置</h2><button aria-label="关闭演示设置" onclick="closeDialog('demoSettings')">×</button></div><div class="dialog-content prose"><p>本地模拟异步任务，不会修改真实系统。设置仅影响新提交的任务，已提交任务保持原设置；刷新或关闭本文件后任务不保留。</p><label>赔率快照读取状态<select id="demoSnap"><option value="normal">正常 · 4 个赔率源均有快照</option><option value="l01missing">L01-Bet365 快照缺失 · 任务成功并提示</option><option value="error">快照服务读取失败 · 任务失败</option></select></label><label class="demo-execution-label">单任务注单上限<select id="demoCap"><option value="5000000">500 万笔（正式规则）</option><option value="50000">5 万笔（演示超出上限）</option></select></label><label class="demo-execution-label">每日任务配额<select id="demoQuota"><option value="10">每个账号 10 个（默认）</option><option value="2">每个账号 2 个（演示配额用完）</option></select></label><label class="demo-execution-label">任务运行状态<select id="demoExecution"><option value="normal">正常执行 · 展示完整异步流程</option><option value="slow">较慢执行 · 方便体验排队及取消</option><option value="fail-once">下一次计算失败 · 重试后恢复正常</option></select></label><p>演示注单的投注时间为 2026 年 10 月 1 日至 10 月 30 日（赔率数据从 10 月 1 日起可查）；注单集中在 6 个一级联赛及 12 个 2～13 级联赛。各源的覆盖率与定价误差按等级随机设定，仅用于体验流程，不代表真实赔率源表现。</p></div><div class="dialog-foot"><button onclick="closeDialog('demoSettings')">取消</button><button class="primary" id="demoApply" onclick="applyDemoMode()">应用并生成分析</button></div></dialog>
 <dialog id="ruleDialog" class="config-dialog"><div class="dialog-head"><div><h2>匹配规则与覆盖</h2><p class="muted" id="ruleDialogScope"></p></div><button aria-label="关闭匹配规则" onclick="closeDialog('ruleDialog')">×</button></div><div class="dialog-content"><div class="table-shell"><table class="rule-table"><thead><tr><th>规则项</th><th>当前规则</th><th>说明</th></tr></thead><tbody id="ruleBody"></tbody></table></div><h3>各赔率源匹配情况 <span class="small-label" id="coverHint"></span></h3><div class="table-shell"><table class="cover-table"><thead id="coverHead"></thead><tbody id="coverBody"></tbody></table></div><h3>未匹配集中度 <span class="small-label">定位需要补映射或补报价的赛事与玩法，不需要翻查逐笔注单</span></h3><label class="small-label miss-pick">赔率源 <select id="missSource" onchange="renderMiss()"></select></label><div class="table-shell"><table class="miss-table"><thead><tr><th>赛事编号</th><th>对阵信息（未匹配最多的前 10 场）</th><th>开赛时间</th><th>联赛</th><th class="num">未匹配笔数</th><th class="num">占该源未匹配</th><th>主要原因</th><th class="num">主要原因笔数</th></tr></thead><tbody id="missEventBody"></tbody></table></div><div class="table-shell miss-gap"><table class="miss-table"><thead><tr><th>玩法</th><th class="num">可模拟</th><th class="num">已匹配</th><th class="num">覆盖率</th><th class="num">未匹配</th><th>主要原因</th><th class="num">主要原因笔数</th></tr></thead><tbody id="missMarketBody"></tbody></table></div></div><div class="dialog-foot"><button class="primary" onclick="closeDialog('ruleDialog')">知道了</button></div></dialog>
@@ -259,16 +260,17 @@ const srcLabel=i=>SOURCES[i].name; // 页面统一显示赔率源配置中的「
 const INELIGIBLE_REASONS=['正常注单尚未结算','结算明细不完整','投注项 / 盘口映射缺失'];
 const REASONS=['已匹配','赛事未映射','源未提供该玩法','盘口线不一致','缺少该投注项报价','投注时点封盘','超出时延容差','快照缺失','同盘口报价不全'];
 const C_SYNC=8; // 仅统一水位口径：同盘口任一投注项缺报价 / 封盘 / 与其他项报价时间相差超过同一时刻标准
-// 赔率口径：原始赔率（默认）或统一水位。N 水 = 两项盘两边都为香港盘 (1 − N/200) 时的返还率；每 1 水 = 返还率少 0.25%
+// 赔率口径：原始赔率（默认）或统一水位。N 水：两项盘两边香港盘之和为 2 − N/100（spread = N/100）
 const ODDS_MODES={raw:{label:'原始赔率'},unified:{label:'统一水位',short:'统一水位'}};
-// 统一水位档位（需求方提供）。X 为早盘水位、Y 为滚球水位；全场玩法用全场表，三个半场玩法用上半场表。默认各取第一档
+// 统一水位档位（需求方提供）。全场 / 上半场：X 为让分水位、Y 为大小水位；独赢水位 = 三项隐含概率之和（%），全场与半场独赢共用。默认各取第一档
 const W_FULL=['6/8','7/9','8/10','9/11','10/12','12/14','14/16','16/18','18/20','20/20','22/22','24/24','26/26','28/28','30/30','32/32','40/40'];
 const W_HALF=['10/10','10/12','12/14','14/16','16/18','18/20','20/20','22/22','24/24','26/26','28/28','30/30','32/32','40/40'];
-const waterRate=n=>1-n/400; // N 水：两项盘两边香港盘都为 1 − N/200，返还率 = 1 − N/400
+const W_WIN=['104','105','108','110','112','115','120','125','130'];
 const rateText=r=>Number((r*100).toFixed(2))+'%';
 const waterOptLabel=w=>w;
-function modeLabel(x){return (x.oddsMode||'raw')==='raw'?'原始赔率':'统一水位（全场 '+x.wFull+' · 上半场 '+x.wHalf+'）'}
-function betWater(b,snap){const pair=(isHalf(marketIndex(b.market))?snap.wHalf:snap.wFull).split('/').map(Number);return pair[b.stage==='live'?1:0]}
+function modeLabel(x){return (x.oddsMode||'raw')==='raw'?'原始赔率':'统一水位（全场 '+x.wFull+' · 上半场 '+x.wHalf+' · 独赢 '+x.wWin+'）'}
+// 每笔注单取水位：独赢取独赢水位；让分取全场 / 上半场档位的 X，大小取 Y
+function betWater(b,snap){const mi=marketIndex(b.market);if(outcomeCount(mi)===3)return Number(snap.wWin);const pair=(isHalf(mi)?snap.wHalf:snap.wFull).split('/').map(Number);return pair[/大小/.test(b.market)?1:0]}
 const SYNC_SEC={prematch:60,live:3}; // 同一时刻标准
 const C_STALE=6,C_MISSING=7;
 const TOLERANCE={prematch:300,live:10};
@@ -415,13 +417,18 @@ function matchCode(b,s,snap){if(snap.missing.includes(s)||s>=ACTUAL_N)return C_M
 function syncMiss(b,s){const three=outcomeCount(marketIndex(b.market))===3;return hashUnit('sync',s,b.id)<(b.stage==='live'?.05:.015)*(three?1.6:1)*(s===3?1.8:1)}
 // 重算赔率：对比源为注单的实际赔率源时用实际赔率（注单赔率），其他源用源报价
 function simOdds(b,s,snap){if(snap.oddsMode==='raw')return s===b.actualSource?b.odds:Q[b.qi+s*4];return unifiedOdds(b,s,betWater(b,snap))}
-// 统一水位（两项盘：让分 / 大小）：低赔保持源原始报价不变，目标水位与原始低赔之间相差的水位全部补给高赔。
-// 水位按业务方验证式：水位 = 1 ÷ 高赔 − 低赔（香港盘），故 高赔 = 1 ÷ (低赔 + N/100)。两边相同时以主队为低赔。
-// 独赢（三项盘）：三项按比例去水，再按返还率 1 − N/400 加水。
+// 统一水位：先去水，再按所选水位加水。去水按通用规则（原型演示采用按比例去水：无水概率 = (1/D) ÷ Σ(1/D)）。
+// 让分 / 大小（足球马来新抽水）：spread = N/100，sp = 2/(2 − spread/2)；无水欧赔 ≤ 2 的一边为基准（第 1 项优先），
+//   基准边马来赔 = 无水欧赔/sp − 1（去尾 2 位，最低 0.01）；另一边 = x+spread<1 ? −(x+spread) : 2−(x+spread)。马来赔换算为欧赔参与结算。
+// 独赢：水位 = 三项隐含概率之和（%），按无水概率比例分配：欧赔 = 1 ÷ (无水概率 × N/100)，四舍五入 2 位小数。
+const myToDec=m=>m>0?1+m:1+1/(-m); // 马来盘 → 欧赔
+function unifiedPair(fair,N){const spread=N/100,sp=2/(2-spread/2),base=fair[0]<=2?0:1;
+ let x=Math.floor((fair[base]/sp-1)*100+1e-6)/100;x=Math.max(0.01,x);
+ const t=Math.round((x+spread)*100)/100,y=t<1?-t:Math.round((2-t)*100)/100,my=base===0?[x,y]:[y,x];return my}
 function unifiedOdds(b,s,N){const n=outcomeCount(marketIndex(b.market)),o=b.qi/16*12+s*3,d=[];for(let k=0;k<n;k++)d.push(QM[o+k]/100);
- if(n===3){const sum=d.reduce((t,x)=>t+1/x,0);return Math.max(101,Math.round(d[b.side]*sum*waterRate(N)*100))}
- const hk=d.map(x=>x-1),lo=hk[0]<=hk[1]?0:1;if(b.side===lo)return QM[o+lo];
- return Math.max(101,Math.round((1+1/(hk[lo]+N/100))*100))}
+ const inv=d.map(x=>1/x),sum=inv.reduce((t,x)=>t+x,0),p=inv.map(x=>x/sum); // 去水：无水概率
+ if(n===3)return Math.max(101,Math.round(100/(p[b.side]*N/100)));
+ return myToDec(unifiedPair(p.map(x=>1/x),N)[b.side])*100}
 function rawQuote(b,s){return Q[b.qi+s*4]}
 const DIMS={league:'按联赛',level:'按联赛等级',market:'按玩法',event:'按赛事',actual:'按实际赔率源'};
 const CARD_TITLE={league:'联赛',level:'联赛等级',market:'玩法',event:'赛事',actual:'赔率源对比'}; // 卡片标题
@@ -473,7 +480,7 @@ function checkResult(ctx){
 }
 
 // ---------- Filters ----------
-const defaults=()=>({sport:'football',stage:'all',leagueLevel:'all',league:'all',event:'all',group:'main',markets:groupMarkets('football','main'),merchantCats:[],merchants:[],sources:enabledSources(),oddsMode:'raw',wFull:W_FULL[0],wHalf:W_HALF[0],start:'2026-10-01T00:00',end:'2026-10-31T23:59'});
+const defaults=()=>({sport:'football',stage:'all',leagueLevel:'all',league:'all',event:'all',group:'main',markets:groupMarkets('football','main'),merchantCats:[],merchants:[],sources:enabledSources(),oddsMode:'raw',wFull:W_FULL[0],wHalf:W_HALF[0],wWin:W_WIN[0],start:'2026-10-01T00:00',end:'2026-10-31T23:59'});
 let draft=defaults(),applied=clone(draft),current=null,dirty=false;
 let dropdown=null,optionLimit=60;
 const view={dim:'league',bdPage:1,bdSort:{}}; // bdSort[维度]={src,key:'diff'|'cov',dir:'desc'|'asc'}
@@ -490,7 +497,7 @@ function validateQueryScope(f){
  const allowed=new Set(groupMarkets(f.sport,f.group));if(f.markets.some(m=>!allowed.has(m)))return '玩法不属于当前玩法集，请重新选择。';
  if(!f.sources.length)return '请至少选择一个对比赔率源。';
  if(!((f.oddsMode||'raw') in ODDS_MODES))return '请选择有效的赔率口径。';
- if(f.oddsMode==='unified'&&(!W_FULL.includes(f.wFull)||!W_HALF.includes(f.wHalf)))return '请选择有效的全场水位与上半场水位。';
+ if(f.oddsMode==='unified'&&(!W_FULL.includes(f.wFull)||!W_HALF.includes(f.wHalf)||!W_WIN.includes(f.wWin)))return '请选择有效的全场水位、上半场水位与独赢水位。';
  if(f.sources.some(s=>!(s in SRC_INDEX)))return '存在无效的对比赔率源。';
  const off=f.sources.filter(id=>!SOURCES[SRC_INDEX[id]].enabled);if(off.length)return off.map(id=>srcLabel(SRC_INDEX[id])).join('、')+' 已在赔率源管理中停用，请从对比赔率源中移除后再提交。';
  return '';
@@ -526,7 +533,7 @@ function renderMerchantTree(){if(!mTree)return;const q=$('merchantSearch').value
 function renderFilters(){
  const allMk=groupMarkets(draft.sport,draft.group);
  $('dateText').textContent=draft.start.replace('T',' ')+' ～ '+draft.end.replace('T',' ');
- $('sportText').textContent=SPORTS[draft.sport].name;$('stage').value=draft.stage;$('oddsMode').value=draft.oddsMode;{const u=draft.oddsMode==='unified';$('wFullField').style.display=$('wHalfField').style.display=u?'':'none';if(!$('wFull').options.length){$('wFull').innerHTML=W_FULL.map(w=>'<option value="'+w+'">'+waterOptLabel(w)+'</option>').join('');$('wHalf').innerHTML=W_HALF.map(w=>'<option value="'+w+'">'+waterOptLabel(w)+'</option>').join('')}$('wFull').value=draft.wFull;$('wHalf').value=draft.wHalf}
+ $('sportText').textContent=SPORTS[draft.sport].name;$('stage').value=draft.stage;$('oddsMode').value=draft.oddsMode;{const u=draft.oddsMode==='unified';$('wFullField').style.display=$('wHalfField').style.display=$('wWinField').style.display=u?'':'none';if(!$('wFull').options.length){$('wFull').innerHTML=W_FULL.map(w=>'<option value="'+w+'">'+waterOptLabel(w)+'</option>').join('');$('wHalf').innerHTML=W_HALF.map(w=>'<option value="'+w+'">'+waterOptLabel(w)+'</option>').join('');$('wWin').innerHTML=W_WIN.map(w=>'<option value="'+w+'">'+waterOptLabel(w)+'</option>').join('')}$('wFull').value=draft.wFull;$('wHalf').value=draft.wHalf;$('wWin').value=draft.wWin}
  $('leagueLevelText').textContent=leagueLevelLabel(draft.leagueLevel);
  $('leagueText').textContent=draft.league==='all'?'全部联赛':leagueMap.get(draft.league).name;
  $('eventText').textContent=draft.event==='all'?'全部赛事':eventMap.get(draft.event).name;
@@ -590,7 +597,7 @@ function updateElapsed(){document.querySelectorAll('[data-elapsed-task]').forEac
 function syncTaskClock(){if(tasks.some(t=>TASK_ACTIVE.includes(t.state))){if(!taskClock)taskClock=setInterval(updateElapsed,1000)}else{clearInterval(taskClock);taskClock=null}updateElapsed()}
 function activeSignature(scope,mode,behavior){return JSON.stringify({...scope,merchantCats:scope.merchants.length?[]:[...(scope.merchantCats||[])].sort(),merchants:[...scope.merchants].sort(),markets:[...scope.markets].sort(),sources:[...scope.sources].sort(),snapMode:mode,behavior})}
 function visibleTasks(){const filter='all';return tasks.filter(t=>filter==='all'||filter==='active'&&TASK_ACTIVE.includes(t.state)||filter==='succeeded'&&t.state==='succeeded'||filter==='attention'&&['failed','cancelled'].includes(t.state)).slice().reverse()}
-function taskSummary(t){const s=t.scope,all=GROUPS[s.group].markets.length;return GROUPS[s.group].name+(s.markets.length<all?'（'+s.markets.length+' 个玩法）':'')+' · '+STAGES[s.stage]+' · '+leagueLevelLabel(s.leagueLevel)+' · '+(s.league==='all'?'全部联赛':leagueMap.get(s.league).name)+' · '+s.sources.length+' 个源'+((s.oddsMode||'raw')!=='raw'?' · 统一水位 '+s.wFull+' / '+s.wHalf:'')}
+function taskSummary(t){const s=t.scope,all=GROUPS[s.group].markets.length;return GROUPS[s.group].name+(s.markets.length<all?'（'+s.markets.length+' 个玩法）':'')+' · '+STAGES[s.stage]+' · '+leagueLevelLabel(s.leagueLevel)+' · '+(s.league==='all'?'全部联赛':leagueMap.get(s.league).name)+' · '+s.sources.length+' 个源'+((s.oddsMode||'raw')!=='raw'?' · 统一水位 '+s.wFull+' / '+s.wHalf+' / '+s.wWin:'')}
 function setHTML(el,value){if(el.innerHTML!==value)el.innerHTML=value}
 function taskBadgeCls(t){return t.state==='succeeded'?'green':t.state==='failed'?'failure':t.state==='cancelled'?'muted':'blue'}
 function taskActions(t,compact){const viewed=resultTaskId===t.id;
@@ -642,7 +649,7 @@ function renderTaskDetails(){
 }
 function pumpQueue(){clearTimeout(queueTimer);queueTimer=null;let available=MAX_CONCURRENT-tasks.filter(t=>t.slotHeld).length;for(const job of tasks){if(available<=0)break;if(job.state==='queued'&&!job.slotHeld){job.slotHeld=true;available--;void executeTask(job)}}renderTasks()}
 function scheduleQueue(){if(!queueTimer)queueTimer=setTimeout(pumpQueue,350)}
-async function readSnapshots(scope,mode){await waitForTask(220);if(mode==='error')throw new Error('赔率源快照服务读取失败，任务未生成新结果。请重试，或在演示设置中恢复正常后重新生成。');return {version:'DEMO-ODDS-SNAP-20261024',rule:'MATCH-RULE-v1.0',readAt:Date.now(),oddsMode:scope.oddsMode||'raw',wFull:scope.wFull,wHalf:scope.wHalf,missing:scope.sources.map(id=>SRC_INDEX[id]).filter(i=>SOURCES[i].noData||mode==='l01missing'&&i===SRC_INDEX.L01)}}
+async function readSnapshots(scope,mode){await waitForTask(220);if(mode==='error')throw new Error('赔率源快照服务读取失败，任务未生成新结果。请重试，或在演示设置中恢复正常后重新生成。');return {version:'DEMO-ODDS-SNAP-20261024',rule:'MATCH-RULE-v1.0',readAt:Date.now(),oddsMode:scope.oddsMode||'raw',wFull:scope.wFull,wHalf:scope.wHalf,wWin:scope.wWin,missing:scope.sources.map(id=>SRC_INDEX[id]).filter(i=>SOURCES[i].noData||mode==='l01missing'&&i===SRC_INDEX.L01)}}
 async function executeTask(job){
  const slow=job.behavior==='slow';
  try{
@@ -854,7 +861,7 @@ function renderDrill(){
 }
 
 // 模拟总览「无法模拟原因」：该源无法模拟注单按原因汇总（不展示注单）
-// ---------- 导出：一个 Excel 文件，6 张表（赔率源模拟总览 + 五张维度卡片），按当前查看的任务结果与卡片排序 ----------
+// ---------- 导出：6 个 CSV 文件（赔率源模拟总览 + 五张维度卡片），按当前查看的任务结果与卡片排序 ----------
 function exportOverviewRows(){
  const res=current,s=res.stats,node=res.overview.cover,act=metrics(node.actual),r2=n=>fin(n)?Number(n.toFixed(2)):null,mv=c=>fin(c)?c/100:null;
  const head=['赔率源','覆盖率（%）','已模拟笔数','已模拟金额','无法模拟笔数','无法模拟金额','实际平台盈亏','模拟平台盈亏','盈利率（%）','盈亏差','盈利率差（百分点）','平均赔率偏差','高于实际赔率（%）','结论'];
@@ -912,6 +919,16 @@ function exportExcel(){
  const a=document.createElement('a'),url=URL.createObjectURL(zipStore(files));a.href=url;a.download='OddsSourceSimulation_'+resultTaskId+'.xlsx';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
  toast('已导出 '+sheets.length+' 张表：'+sheets.map(s=>s[0]).join('、'));
 }
+const csvCell=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+function csvText(meta,head,rows){return '\uFEFF'+[...meta.map(x=>[x]),[],head,...rows].map(r=>r.map(csvCell).join(',')).join('\r\n')}
+function exportCsv(){
+ if(!current)return;
+ const meta=['赔率源模拟分析 · '+resultTaskId,'查询条件：'+scopeText(applied),'投注时间：'+applied.start.replace('T',' ')+' ～ '+applied.end.replace('T',' ')+'（UTC+8）','赔率口径：'+oddsLabel()+' · 统计口径：各源覆盖样本 · 金额单位：USD','任务完成于 '+localStamp(resultFinishedAt,true)+' UTC+8 · 快照 '+current.snapVersion+' · 导出于 '+localStamp(Date.now(),true)+' UTC+8'];
+ const sheets=[['赔率源模拟总览',...exportOverviewRows()],...BD_ORDER.map(d=>['按'+CARD_TITLE[d].replace('赔率源对比','实际赔率源'),...exportCardRows(d)])];
+ sheets[5][0]='赔率源对比（按实际赔率源）';
+ sheets.forEach((s,i)=>setTimeout(()=>{const blob=new Blob([csvText(meta,s[1],s[2])],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='OddsSourceSimulation_'+resultTaskId+'_'+s[0].replace(/[\\/:*?"<>|]/g,'_')+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000)},i*180));
+ toast('已导出 '+sheets.length+' 个 CSV 文件：'+sheets.map(s=>s[0]).join('、'));
+}
 function openIneligible(){const s=current.stats;$('ineligibleScope').textContent=resultTaskId+' · 验证注单 '+fmt(s.total)+' 笔 / '+money(s.amount)+' USD';openDialog('ineligibleDialog')}
 function openUnmatched(src){const res=current,s=res.stats,c=res.cov[src],keys=REASONS.map((r,i)=>i).slice(1,isRaw()?8:9),po=(a,b)=>pct(b?a/b*100:null);
  let n=0,v=0;keys.forEach(k=>{n+=c.reasons[k];v+=c.amt[k]});
@@ -922,7 +939,7 @@ function openUnmatched(src){const res=current,s=res.stats,c=res.cov[src],keys=RE
 function openRuleDialog(){
  const res=current,s=res.stats;
  $('ruleDialogScope').textContent=resultTaskId+' · 可模拟 '+fmt(s.eligible)+' 笔 · 报价容差 早盘 '+TOLERANCE.prematch+' 秒 / 滚球 '+TOLERANCE.live+' 秒 · '+res.ruleVersion+' · '+res.snapVersion+' · 读取于 '+localStamp(res.readAt,true)+' UTC+8';
- const rules=[['玩法范围','主玩法：全场 / 半场的独赢、让分、大小，共 6 个玩法','其他玩法不在本期验证样本内'],['赛事','经赛事映射后为同一场比赛','源未映射该赛事时记“赛事未映射”'],['玩法 / 投注项 / 盘口线','玩法、投注项须与原注单一致；让分、大小的盘口线也须一致','独赢无盘口线；不同盘口线不插值、不换算，记“盘口线不一致”'],['投注项报价','源须有该注单投注项的报价','没有时记“缺少该投注项报价”；同盘口其他投注项是否有报价不影响'],['报价时点','投注时间之前最后一次有效报价','以本平台接收报价的时刻为准，不使用源方发布时间'],['时延容差','早盘 ≤'+TOLERANCE.prematch+' 秒 · 滚球 ≤'+TOLERANCE.live+' 秒','超过容差记“超出时延容差”；投注时点源封盘记“投注时点封盘”'],['赔率格式','统一为十进制赔率','third_market_odds_all.oddsValue 已为欧赔 × 100000；其他格式：香港盘 +1，马来盘、印尼盘正值 +1、负值 1 + 1/|值|'],(isRaw()?['赔率口径','原始赔率：直接使用源报价重算','不做去水或加水；源水位高低会体现在模拟结果中。对比源为注单的实际赔率源时，使用该注单的实际赔率']:['赔率口径',modeLabel(res.snap),'全场玩法按全场水位、半场玩法按上半场水位；X 为早盘水位、Y 为滚球水位。让分 / 大小：低赔保持源原始报价，相差的水位全部补给高赔，高赔 = 1 ÷ (低赔 + N/100)，两边相同时以主队为低赔；独赢三项按比例去水、按返还率 1 − N/400 加水']),...(isRaw()?[]:[['同盘口报价','去水需要同盘口全部投注项的报价','任一项缺报价、封盘，或与其他项报价时间相差超过 早盘 '+SYNC_SEC.prematch+' 秒 / 滚球 '+SYNC_SEC.live+' 秒，记“同盘口报价不全”']]),['统计口径','各源覆盖样本','每个源只在已匹配的注单上与实际配对比较'],['不可替代','未匹配时不借用其他源或实际赔率','该注单对这个源无法模拟，计入“无法模拟”，不填 0']];
+ const rules=[['玩法范围','主玩法：全场 / 半场的独赢、让分、大小，共 6 个玩法','其他玩法不在本期验证样本内'],['赛事','经赛事映射后为同一场比赛','源未映射该赛事时记“赛事未映射”'],['玩法 / 投注项 / 盘口线','玩法、投注项须与原注单一致；让分、大小的盘口线也须一致','独赢无盘口线；不同盘口线不插值、不换算，记“盘口线不一致”'],['投注项报价','源须有该注单投注项的报价','没有时记“缺少该投注项报价”；同盘口其他投注项是否有报价不影响'],['报价时点','投注时间之前最后一次有效报价','以本平台接收报价的时刻为准，不使用源方发布时间'],['时延容差','早盘 ≤'+TOLERANCE.prematch+' 秒 · 滚球 ≤'+TOLERANCE.live+' 秒','超过容差记“超出时延容差”；投注时点源封盘记“投注时点封盘”'],['赔率格式','统一为十进制赔率','third_market_odds_all.oddsValue 已为欧赔 × 100000；其他格式：香港盘 +1，马来盘、印尼盘正值 +1、负值 1 + 1/|值|'],(isRaw()?['赔率口径','原始赔率：直接使用源报价重算','不做去水或加水；源水位高低会体现在模拟结果中。对比源为注单的实际赔率源时，使用该注单的实际赔率']:['赔率口径',modeLabel(res.snap),'先去水，再按所选水位加水。全场 / 上半场水位 X 为让分水位、Y 为大小水位；独赢水位全场与半场独赢共用。加水算法待确认，原型演示暂按：让分 / 大小马来新抽水（spread = 水位/100），独赢按无水概率比例加水，不叠加水差、概率差']),...(isRaw()?[]:[['同盘口报价','去水需要同盘口全部投注项的报价','任一项缺报价、封盘，或与其他项报价时间相差超过 早盘 '+SYNC_SEC.prematch+' 秒 / 滚球 '+SYNC_SEC.live+' 秒，记“同盘口报价不全”']]),['统计口径','各源覆盖样本','每个源只在已匹配的注单上与实际配对比较'],['不可替代','未匹配时不借用其他源或实际赔率','该注单对这个源无法模拟，计入“无法模拟”，不填 0']];
  $('ruleBody').innerHTML=rules.map(r=>'<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td class="muted">'+esc(r[2])+'</td></tr>').join('');
  $('coverHead').innerHTML='<tr><th>赔率源</th><th class="num">已匹配</th><th class="num">覆盖率</th>'+REASONS.slice(1,isRaw()?8:9).map(r=>'<th class="num">'+r+'</th>').join('')+'</tr>';
  $('coverHint').textContent='分母为可模拟注单 '+fmt(s.eligible)+' 笔';
