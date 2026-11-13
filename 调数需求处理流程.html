@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>调数需求处理流程</title>
+  <style>
+    :root{--ink:#172033;--muted:#657086;--line:#dfe5ee;--blue:#2457d6;--blue-soft:#eef4ff;--green:#147d64;--green-soft:#eaf8f3;--amber:#9a6200;--amber-soft:#fff6df;--paper:#fff;--bg:#f3f6fa}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.72 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif}
+    .page{width:min(1120px,calc(100% - 32px));margin:36px auto 64px}.hero{padding:38px 42px;background:linear-gradient(135deg,#183c94,#2c69e8);border-radius:18px;color:#fff;box-shadow:0 16px 42px rgba(31,76,171,.18)}
+    .hero h1{margin:0;font-size:34px;letter-spacing:.02em}.hero p{margin:12px 0 0;color:#dce8ff;font-size:16px}.tag{display:inline-block;margin-bottom:12px;padding:4px 10px;border:1px solid rgba(255,255,255,.32);border-radius:999px;font-size:13px}
+    .section{margin-top:22px;padding:28px 32px;background:var(--paper);border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 26px rgba(35,52,82,.05)}h2{margin:0 0 18px;font-size:22px}h3{margin:22px 0 10px;font-size:17px}
+    ul,ol{margin:0;padding-left:22px}li+li{margin-top:7px}.boundary{margin-top:16px;padding:14px 16px;border-left:4px solid var(--green);background:var(--green-soft);border-radius:8px}
+    .principles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;counter-reset:item}.principle{position:relative;padding:16px 16px 16px 50px;background:#f8faff;border:1px solid #e5eaf3;border-radius:12px}.principle:before{counter-increment:item;content:counter(item);position:absolute;left:16px;top:15px;width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;font-size:13px}
+    .flow{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.step{position:relative;min-height:122px;padding:14px 12px;border:1px solid var(--line);border-radius:12px;background:#fff}.step:not(:last-child):after{content:"›";position:absolute;right:-9px;top:42px;z-index:2;width:18px;height:28px;display:grid;place-items:center;color:var(--blue);font-size:25px;font-weight:700}.step b{display:block;margin-bottom:6px;color:var(--blue)}.step small{color:var(--muted);font-size:12px}.step p{margin:7px 0 0;font-size:13px;line-height:1.55}
+    table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border:1px solid var(--line);border-radius:12px}th,td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}th{background:#f5f7fb;font-size:13px;color:#44506a}tr:last-child td{border-bottom:0}td:nth-child(2){white-space:nowrap}
+    .recurring{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{padding:18px;border-radius:12px;border:1px solid var(--line)}.card.existing{background:var(--green-soft);border-color:#bfe6d8}.card.new{background:var(--blue-soft);border-color:#cbdcff}.card h3{margin:0 0 8px}.card p{margin:0;color:#3f4a60}
+    .note{padding:15px 17px;border-radius:10px;background:var(--amber-soft);color:#6e4a08}.bug{display:grid;grid-template-columns:1fr 1fr;gap:12px}.bug div{padding:17px;border:1px solid var(--line);border-radius:12px;background:#fafbfc}.bug b{display:block;margin-bottom:5px}
+    a{color:var(--blue)}.footer{margin-top:18px;text-align:center;color:var(--muted);font-size:12px}
+    @media(max-width:900px){.flow{grid-template-columns:1fr}.step{min-height:auto}.step:not(:last-child):after{content:"↓";right:auto;left:50%;top:auto;bottom:-20px}.principles,.recurring,.bug{grid-template-columns:1fr}.hero{padding:28px}.section{padding:22px 20px}}
+    @media print{body{background:#fff}.page{width:100%;margin:0}.hero,.section{box-shadow:none;break-inside:avoid}.section{margin-top:12px}.flow{grid-template-columns:repeat(7,1fr)}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <header class="hero">
+    <span class="tag">会议讨论稿</span>
+    <h1>调数需求处理流程</h1>
+    <p>业务与数据人员直接沟通评估，项管负责开单、交付和关单。</p>
+  </header>
+
+  <section class="section">
+    <h2>适用场景</h2>
+    <ul>
+      <li>系统延迟、任务故障、数据链路异常等导致数据延迟或丢失，需要核查、补取或导出受影响数据。</li>
+      <li>数据或结算延迟引发二次结算，需要提取受影响商户或注单数据。</li>
+      <li>业务部门需要按指定条件和字段获取一次性数据。</li>
+      <li>每日、每月等固定频率的例行调数需求。</li>
+    </ul>
+    <div class="boundary">只读查询、重新提取、补取结果文件或导出受影响明细适用本流程；补写、修正或删除生产数据，转生产 Bug／数据订正流程。</div>
+  </section>
+
+  <section class="section">
+    <h2>处理原则</h2>
+    <div class="principles">
+      <div class="principle">调数不按常规报表或功能需求流程处理，由数据人员直接与需求方沟通、评估和处理。</div>
+      <div class="principle">普通低风险调数直接处理；敏感、跨权限或高风险调数经审批人审批后处理。</div>
+      <div class="principle">数据人员负责确认口径、处理数据、自检并对结果负责；项管负责开单、交付和关单。</div>
+      <div class="principle">紧急调数可先评估和处理，但应在结果交付前完成建单。</div>
+      <div class="principle">同类调数稳定、重复发生时，由产品评估是否转为报表或自助查询需求。</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>提交信息</h2>
+    <ul>
+      <li>需求用途。</li><li>数据范围和筛选条件。</li><li>输出字段和文件要求。</li>
+      <li>接收人和期望交付时间。</li><li>一次性或例行需求；例行需求说明频率。</li>
+    </ul>
+    <p class="note">需求方在“【调数需求】对接群”提交；信息不完整时，由数据人员直接与需求方补充确认。</p>
+  </section>
+
+  <section class="section">
+    <h2>处理流程</h2>
+    <div class="flow" aria-label="调数需求七步处理流程">
+      <div class="step"><b>1. 提出需求</b><small>需求方</small><p>在调数群提交需求信息。</p></div>
+      <div class="step"><b>2. 沟通评估</b><small>数据人员</small><p>确认口径，评估数据是否可取、处理方式和预计交付时间；需要研发协助时，由研发协助接口人协调。</p></div>
+      <div class="step"><b>3. 判断审批</b><small>数据人员、Troy总</small><p>普通低风险直接处理；敏感、跨权限或高风险提交 Troy总审批。</p></div>
+      <div class="step"><b>4. 数据处理</b><small>数据人员／研发协助人员</small><p>按确认口径提取数据并检查范围、字段、空值、重复和记录数。</p></div>
+      <div class="step"><b>5. 开单</b><small>项管</small><p>在新禅道“产品 → 数据调数”下创建研发需求单；紧急需求应在交付前完成。</p></div>
+      <div class="step"><b>6. 交付</b><small>项管、数据人员</small><p>数据人员提供结果和必要说明，由项管交付需求方。</p></div>
+      <div class="step"><b>7. 关单</b><small>项管</small><p>需求方确认收到且无缺失后关单；需要补数或修正时退回数据人员。</p></div>
+    </div>
+    <p style="margin:16px 0 0">建单入口：<a href="http://lan-zentao3.dbsports.online/zentao/product-browse-9.html">新禅道 · 数据调数</a></p>
+  </section>
+
+  <section class="section">
+    <h2>例行调数</h2>
+    <div class="recurring">
+      <div class="card existing"><h3>已有例行调数</h3><p>需求已经建单，数据人员按既定口径完成后，由项管交付。</p></div>
+      <div class="card new"><h3>新增例行调数</h3><p>首次提出时按上述流程沟通、评估和建单；后续各期由数据人员按已确认口径处理、项管交付，不重复建单或重复走完整流程。</p></div>
+    </div>
+    <p class="note">字段、数据范围、口径、频率或接收人发生实质变化时，按新增调数需求重新确认。</p>
+  </section>
+
+  <section class="section">
+    <h2>角色分工</h2>
+    <table>
+      <thead><tr><th>角色</th><th>人员</th><th>职责</th></tr></thead>
+      <tbody>
+        <tr><td>需求方</td><td>业务部门</td><td>提交需求信息，配合确认口径和接收结果</td></tr>
+        <tr><td>数据人员</td><td>Maimai、Switch</td><td>沟通需求、评估风险、处理数据、自检并对结果负责</td></tr>
+        <tr><td>审批人</td><td>Troy总</td><td>审批敏感、跨权限或高风险调数</td></tr>
+        <tr><td>项管</td><td>Zhenya</td><td>开单、交付和关单</td></tr>
+        <tr><td>研发协助接口人</td><td>待确认</td><td>数据人员无法独立处理时，协调研发提供支持</td></tr>
+        <tr><td>产品</td><td>Vela</td><td>不参与逐单处理；同类调数稳定、重复发生时评估是否产品化</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="section">
+    <h2>数据交付</h2>
+    <p>调数结果仅交付给需求中明确的接收人。</p>
+  </section>
+
+  <section class="section">
+    <h2>Bug 问题说明</h2>
+    <div class="bug">
+      <div><b>新的问题反馈</b>由产品引导需求方到指定群反馈，产品不作为 Bug 的第一受理窗口。</div>
+      <div><b>已经建单的 Bug</b>需求方如需追踪进度，可联系产品；产品向测试询问对应进度后回复需求方。</div>
+    </div>
+  </section>
+  <div class="footer">调数需求处理流程 · 会议讨论稿</div>
+</main>
+</body>
+</html>
