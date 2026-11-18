@@ -1,21 +1,444 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>赛事事件融合查询 PRD</title><style>*{box-sizing:border-box}body{margin:0;background:#f5f6f8;color:#2b2f36;font:15px/1.75 "Microsoft YaHei","PingFang SC",Arial,sans-serif}main{max-width:860px;margin:32px auto;padding:36px 44px;background:#fff;border:1px solid #e5e7eb;border-radius:6px}h1{font-size:24px;margin:0 0 12px}h2{font-size:17px;margin:28px 0 8px;padding-left:10px;border-left:3px solid #1890ff}.meta{color:#6b7280;font-size:13px;margin:0 0 8px;padding:0;list-style:none}.meta li{display:inline-block;margin-right:20px}ol{padding-left:22px;margin:0}li{margin:4px 0}a{color:#1677ff}@media(max-width:700px){main{margin:0;padding:24px 16px;border:0;border-radius:0}}</style></head><body><main><h1>赛事事件融合查询 PRD</h1><ul class="meta"><li>日期：2026-11-07</li><li>关联禅道：#259</li><li>原型：<a href="https://cc1010-th.github.io/Toy/Prototype-%E8%B5%9B%E4%BA%8B%E8%9E%8D%E5%90%88%E4%B8%8E%E8%B5%94%E7%8E%87%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2.html#event">在线原型</a></li></ul>
-<h2>需求背景</h2>
-<p>为便于查询和核对足球赛事事件融合数据，新增赛事事件融合查询。</p>
-<h2>需求说明</h2>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>赛事事件融合查询 PRD</title><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f3f5f8;color:#273142;font:14px/1.75 "Microsoft YaHei","PingFang SC",Arial,sans-serif}.layout{display:grid;grid-template-columns:240px minmax(0,980px);gap:28px;justify-content:center;padding:32px 24px 56px}.toc{position:sticky;top:24px;align-self:start;padding:18px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;box-shadow:0 4px 16px rgba(31,45,61,.05)}.toc-title{margin:0 0 10px;font-size:16px;font-weight:700}.toc a{display:block;padding:5px 8px;border-radius:5px;color:#5b677a;text-decoration:none}.toc a:hover{background:#eef4ff;color:#2f6feb}.doc{padding:42px 52px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;box-shadow:0 6px 24px rgba(31,45,61,.06)}h1{margin:0 0 28px;padding-bottom:18px;border-bottom:2px solid #2f6feb;color:#172033;font-size:30px}h2{margin:38px 0 16px;color:#172033;font-size:22px}h3{margin:26px 0 10px;color:#26364d;font-size:17px}p{margin:9px 0}ul,ol{margin:9px 0;padding-left:25px}li{margin:4px 0}a{color:#2f6feb}code{padding:2px 5px;border-radius:4px;background:#f1f4f8;color:#b42318;font-family:Consolas,monospace}table{width:100%;margin:12px 0 22px;border-collapse:collapse;font-size:13px}th{background:#f5f7fb;color:#344054;text-align:left;font-weight:600}th,td{padding:9px 10px;border:1px solid #dfe3ea;vertical-align:top}tbody tr:nth-child(even){background:#fafbfc}.meta{margin:-16px 0 25px;color:#667085}.badge{display:inline-block;margin-right:8px;padding:2px 9px;border-radius:12px;background:#eaf2ff;color:#2f6feb;font-size:12px}@media(max-width:900px){.layout{display:block;padding:12px}.toc{position:static;margin-bottom:12px}.doc{padding:26px 18px}h1{font-size:24px}.doc{overflow-x:auto}}@media print{body{background:#fff}.layout{display:block;padding:0}.toc{display:none}.doc{border:0;box-shadow:none;padding:0}}
+</style></head><body><div class="layout"><nav class="toc" aria-label="文档目录"><p class="toc-title">文档目录</p><a href="#section-1">1. 文档信息</a>
+<a href="#section-2">2. 需求背景与目标</a>
+<a href="#section-3">3. 页面功能</a>
+<a href="#section-4">4. 查询规则</a>
+<a href="#section-5">5. 结果字段字典</a>
+<a href="#section-6">6. 数据、权限与日志要求</a>
+<a href="#section-7">7. 验收标准</a>
+<a href="#section-8">8. 关联资料</a></nav><main class="doc"><div class="meta"><span class="badge">V1.1</span>更新日期：2026-11-18 · 新禅道 #259</div><h1>赛事事件融合查询 PRD</h1>
+<h2 id="section-1">1. 文档信息</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>文档版本</td>
+<td>V1.1</td>
+</tr>
+<tr>
+<td>更新日期</td>
+<td>2026-11-18</td>
+</tr>
+<tr>
+<td>关联禅道</td>
+<td>新禅道 #259《【风控报表】【赛事信息】新增赛事事件融合查询》</td>
+</tr>
+<tr>
+<td>所属模块</td>
+<td>风控报表 → 赛事信息</td>
+</tr>
+<tr>
+<td>在线原型</td>
+<td><a href="https://cc1010-th.github.io/Toy/Prototype-%E8%B5%9B%E4%BA%8B%E8%9E%8D%E5%90%88%E4%B8%8E%E8%B5%94%E7%8E%87%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2.html#event">赛事事件融合查询</a></td>
+</tr>
+</tbody></table>
+<h2 id="section-2">2. 需求背景与目标</h2>
+<h3>2.1 需求背景</h3>
+<p>当前缺少面向融合结果的赛事事件明细查询入口，不便于业务人员定位和核对足球赛事事件融合数据。</p>
+<h3>2.2 需求目标</h3>
+<p>在风控报表中提供赛事事件融合查询页面，使具备权限的用户能够按赛事、事件、来源及时间条件查询融合后的事件记录，并核对事件字段、链路信息及处理标记。</p>
+<h2 id="section-3">3. 页面功能</h2>
+<h3>3.1 菜单结构</h3>
 <ol>
 <li>在“风控报表”下新增一级菜单“赛事信息”，位置紧邻“风控管理台”之后。</li>
 <li>在“赛事信息”下新增二级菜单“赛事事件融合查询”。</li>
-<li>页面采用普通明细表，一行展示一条融合后的事件记录。按以下顺序展示事件字段，每个字段单独一列，不合并：链路ID、标准赛事ID、数据源、三方事件ID、是否被取消、运动种类、三方赛事ID、事件编码、事件发生时间、主队数量、客队数量、主客场、赛事阶段ID、当前节\阶段剩余时间、比赛进行时长、扩展信息、当前盘数、主队盘得分、客队盘得分、当前局数、主队局得分、客队局得分、来源类型、三方球队ID、扩展字段1～扩展字段10、备注、扩展信息、删除目标事件过滤标记、可能事件ID、可能事件时间、可能事件比赛进行时长、球员1ID、球员1名称、球员2ID、球员2名称、是否错误完赛事件、赛事控制类型。</li>
-<li>是否被取消、删除目标事件过滤标记、是否错误完赛事件展示“是/否”；运动种类展示中文名称；赛事控制类型展示开始、暂停、继续、结束；事件发生时间、可能事件时间展示为“年-月-日 时:分:秒”；其他字段按原值展示。</li>
-<li>支持按赛种、标准赛事ID、三方赛事ID、数据源、事件编码、赛事阶段ID、三方事件ID、链路ID和事件发生日期范围筛选。</li>
-<li>提供查询、重置和分页。日期范围包含开始日和结束日，查询跨度最大30天。分页默认每页20条，可切换为50条或100条。</li>
+<li>“赛事信息”下同时展示“赛事事件融合查询”和“赔率聚合查询”两个二级菜单。</li>
 </ol>
-<h2>验收标准</h2>
+<h3>3.2 页面结构</h3>
+<p>页面由查询条件区、操作区、结果明细表和分页区组成。结果表一行对应一条融合后的事件记录。</p>
+<h3>3.3 页面操作</h3>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>规则</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>查询</td>
+<td>按当前查询条件加载结果，并记录查询日志</td>
+</tr>
+<tr>
+<td>重置</td>
+<td>清除当前已填写或已选择的查询条件</td>
+</tr>
+<tr>
+<td>分页</td>
+<td>支持上一页、页码、下一页及每页条数切换，并展示总记录数</td>
+</tr>
+</tbody></table>
+<h2 id="section-4">4. 查询规则</h2>
+<h3>4.1 查询条件</h3>
+<table>
+<thead>
+<tr>
+<th align="right">序号</th>
+<th>查询条件</th>
+<th>匹配对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">1</td>
+<td>赛种</td>
+<td>运动种类</td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td>标准赛事 ID</td>
+<td>标准赛事 ID</td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td>三方赛事 ID</td>
+<td>三方赛事 ID</td>
+</tr>
+<tr>
+<td align="right">4</td>
+<td>数据源</td>
+<td>数据源</td>
+</tr>
+<tr>
+<td align="right">5</td>
+<td>事件编码</td>
+<td>事件编码</td>
+</tr>
+<tr>
+<td align="right">6</td>
+<td>赛事阶段 ID</td>
+<td>赛事阶段 ID</td>
+</tr>
+<tr>
+<td align="right">7</td>
+<td>三方事件 ID</td>
+<td>三方事件 ID</td>
+</tr>
+<tr>
+<td align="right">8</td>
+<td>链路 ID</td>
+<td>链路 ID</td>
+</tr>
+<tr>
+<td align="right">9</td>
+<td>事件发生日期范围</td>
+<td>事件发生时间</td>
+</tr>
+</tbody></table>
+<h3>4.2 日期与历史范围</h3>
+<ol>
+<li>日期范围包含开始日和结束日。</li>
+<li>单次查询跨度最大 30 天。</li>
+<li>历史数据可查范围从 2026 年 10 月开始。</li>
+</ol>
+<h3>4.3 分页规则</h3>
+<ol>
+<li>默认每页展示 20 条。</li>
+<li>每页条数可切换为 50 条或 100 条。</li>
+<li>分页区展示总记录数、上一页、页码、下一页及每页条数。</li>
+</ol>
+<h2 id="section-5">5. 结果字段字典</h2>
+<p>结果表展示 46 个字段，不包含 <code>matchLength</code>。字段必须按下表顺序逐列展示，不得遗漏、合并或调整顺序。</p>
+<table>
+<thead>
+<tr>
+<th align="right">序号</th>
+<th>页面字段</th>
+<th>技术字段</th>
+<th>展示规则</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="right">1</td>
+<td>链路ID</td>
+<td><code>copyLinkId</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td>标准赛事ID</td>
+<td><code>standardMatchId</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td>数据源</td>
+<td><code>dataSourceCode</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">4</td>
+<td>三方事件ID</td>
+<td><code>thirdEventId</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">5</td>
+<td>是否被取消</td>
+<td><code>canceled</code></td>
+<td>展示“是/否”</td>
+</tr>
+<tr>
+<td align="right">6</td>
+<td>运动种类</td>
+<td><code>sportId</code></td>
+<td>展示中文名称</td>
+</tr>
+<tr>
+<td align="right">7</td>
+<td>三方赛事ID</td>
+<td><code>thirdMatchSourceId</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">8</td>
+<td>事件编码</td>
+<td><code>eventCode</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">9</td>
+<td>事件发生时间</td>
+<td><code>eventTime</code></td>
+<td><code>年-月-日 时:分:秒</code></td>
+</tr>
+<tr>
+<td align="right">10</td>
+<td>主队数量</td>
+<td><code>t1</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">11</td>
+<td>客队数量</td>
+<td><code>t2</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">12</td>
+<td>主客场</td>
+<td><code>homeAway</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">13</td>
+<td>赛事阶段ID</td>
+<td><code>matchPeriodId</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">14</td>
+<td>当前节/阶段剩余时间</td>
+<td><code>periodRemainingSeconds</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">15</td>
+<td>比赛进行时长</td>
+<td><code>secondsFromStart</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">16</td>
+<td>扩展信息</td>
+<td><code>extraInfo</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">17</td>
+<td>当前盘数</td>
+<td><code>firstNum</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">18</td>
+<td>主队盘得分</td>
+<td><code>firstT1</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">19</td>
+<td>客队盘得分</td>
+<td><code>firstT2</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">20</td>
+<td>当前局数</td>
+<td><code>secondNum</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">21</td>
+<td>主队局得分</td>
+<td><code>secondT1</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">22</td>
+<td>客队局得分</td>
+<td><code>secondT2</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">23</td>
+<td>来源类型</td>
+<td><code>sourceType</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">24</td>
+<td>三方球队ID</td>
+<td><code>thirdTeamId</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">25～34</td>
+<td>扩展字段1～扩展字段10</td>
+<td><code>addition1</code>～<code>addition10</code></td>
+<td>每个字段单独一列，原值展示</td>
+</tr>
+<tr>
+<td align="right">35</td>
+<td>备注</td>
+<td><code>remark</code></td>
+<td>原始字段整体展示，不拆分内部结构</td>
+</tr>
+<tr>
+<td align="right">36</td>
+<td>扩展信息</td>
+<td><code>extrainfo</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">37</td>
+<td>删除目标事件过滤标记</td>
+<td><code>deleteNotFilterFlag</code></td>
+<td>展示“是/否”</td>
+</tr>
+<tr>
+<td align="right">38</td>
+<td>可能事件ID</td>
+<td><code>possibleEventId</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">39</td>
+<td>可能事件时间</td>
+<td><code>possibleEventTime</code></td>
+<td><code>年-月-日 时:分:秒</code></td>
+</tr>
+<tr>
+<td align="right">40</td>
+<td>可能事件比赛进行时长</td>
+<td><code>possibleEventStarTime</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">41</td>
+<td>球员1ID</td>
+<td><code>player1Id</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">42</td>
+<td>球员1名称</td>
+<td><code>player1Name</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">43</td>
+<td>球员2ID</td>
+<td><code>player2Id</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">44</td>
+<td>球员2名称</td>
+<td><code>player2Name</code></td>
+<td>原值展示</td>
+</tr>
+<tr>
+<td align="right">45</td>
+<td>是否错误完赛事件</td>
+<td><code>isErrorEndEvent</code></td>
+<td>展示“是/否”</td>
+</tr>
+<tr>
+<td align="right">46</td>
+<td>赛事控制类型</td>
+<td><code>controlType</code></td>
+<td>展示开始、暂停、继续、结束</td>
+</tr>
+</tbody></table>
+<h2 id="section-6">6. 数据、权限与日志要求</h2>
+<h3>6.1 数据口径</h3>
+<ol>
+<li>查询结果仅展示融合后的事件记录，一行对应一条记录。</li>
+<li>字段值除本 PRD 明确规定的布尔值、中文名称、时间和控制类型转换外，均按原值展示。</li>
+<li>两列“扩展信息”分别对应 <code>extraInfo</code> 与 <code>extrainfo</code>，均须保留并按字段顺序展示。</li>
+<li>历史数据范围、单次查询跨度与筛选条件共同生效。</li>
+</ol>
+<h3>6.2 权限要求</h3>
+<table>
+<thead>
+<tr>
+<th>权限点</th>
+<th>控制范围</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>赛事事件融合查询菜单权限</td>
+<td>控制页面入口及页面内查询</td>
+</tr>
+</tbody></table>
+<p>无菜单权限的用户不可进入或查询该页面。本期无导出功能，因此不配置导出权限，也不单独配置查询权限。</p>
+<h3>6.3 日志要求</h3>
+<p>查询操作必须记录日志，至少包含以下内容：</p>
+<table>
+<thead>
+<tr>
+<th>日志项</th>
+<th>记录内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>操作人</td>
+<td>发起查询的用户</td>
+</tr>
+<tr>
+<td>操作时间</td>
+<td>查询操作发生时间</td>
+</tr>
+<tr>
+<td>查询条件</td>
+<td>本次查询实际提交的全部条件</td>
+</tr>
+<tr>
+<td>操作结果</td>
+<td>查询操作结果</td>
+</tr>
+</tbody></table>
+<h2 id="section-7">7. 验收标准</h2>
 <ol>
 <li>“赛事信息”一级菜单位于“风控管理台”之后，其下展示“赛事事件融合查询”和“赔率聚合查询”两个二级菜单。</li>
-<li>可通过“风控报表 → 赛事信息 → 赛事事件融合查询”进入页面，并按事件记录展示数据。</li>
-<li>筛选、查询、重置和分页正常，结果与筛选条件一致，日期范围包含起止日期且跨度不得超过30天。</li>
-<li>事件字段按规定顺序完整、逐列展示，无遗漏或合并；是否类字段、名称、时间及链路信息展示正确。</li>
+<li>具备菜单权限的用户可通过“风控报表 → 赛事信息 → 赛事事件融合查询”进入页面并执行查询；无菜单权限的用户不可进入或查询。</li>
+<li>赛种、标准赛事 ID、三方赛事 ID、数据源、事件编码、赛事阶段 ID、三方事件 ID、链路 ID 和事件发生日期范围筛选均可正常使用，查询结果与条件一致。</li>
+<li>日期范围包含起止日期，单次查询跨度不得超过 30 天，可查询 2026 年 10 月起的历史数据。</li>
+<li>重置可清除当前查询条件；分页展示总记录数、上一页、页码、下一页和每页条数，默认 20 条，可切换为 50 条或 100 条。</li>
+<li>结果表按本 PRD 规定顺序完整展示 46 个字段，每个字段单独一列，无遗漏、合并或顺序错误。</li>
+<li>是否类字段、运动种类、时间字段及赛事控制类型按规定转换展示，其余字段按原值展示；<code>remark</code> 不拆分。</li>
+<li>每次查询均生成日志，操作人、操作时间、查询条件和操作结果记录完整。</li>
+<li>页面不提供导出功能，不配置导出权限。</li>
 </ol>
-</main></body></html>
+<h2 id="section-8">8. 关联资料</h2>
+<ul>
+<li><a href="https://cc1010-th.github.io/Toy/Prototype-%E8%B5%9B%E4%BA%8B%E8%9E%8D%E5%90%88%E4%B8%8E%E8%B5%94%E7%8E%87%E8%81%9A%E5%90%88%E6%9F%A5%E8%AF%A2.html#event">在线原型</a></li>
+<li><a href="http://lan-zentao3.dbsports.online/zentao/requirement-view-259.html">新禅道 #259</a></li>
+</ul>
+</main></div></body></html>
